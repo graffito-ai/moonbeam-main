@@ -188,7 +188,6 @@ export type CreateCardLinkInput = {
 };
 
 export type CreateDailyEarningsSummaryInput = {
-  id: Scalars['ID'];
   targetDate: Scalars['AWSDateTime'];
 };
 
@@ -372,13 +371,14 @@ export type DailyEarningsSummary = {
   dailyEarningsSummaryID: Scalars['ID'];
   id: Scalars['ID'];
   status: DailyEarningsSummaryStatus;
-  transactions: Array<Maybe<Transaction>>;
+  timestamp: Scalars['AWSTimestamp'];
+  transactions: Array<Maybe<MoonbeamTransaction>>;
   updatedAt: Scalars['AWSDateTime'];
 };
 
 export type DailyEarningsSummaryResponse = {
   __typename?: 'DailyEarningsSummaryResponse';
-  data?: Maybe<DailyEarningsSummary>;
+  data?: Maybe<Array<Maybe<DailyEarningsSummary>>>;
   errorMessage?: Maybe<Scalars['String']>;
   errorType?: Maybe<DailySummaryErrorType>;
 };
@@ -2208,7 +2208,7 @@ export type CreateDailyEarningsSummaryMutationVariables = Exact<{
 }>;
 
 
-export type CreateDailyEarningsSummaryMutation = { __typename?: 'Mutation', createDailyEarningsSummary: { __typename?: 'DailyEarningsSummaryResponse', errorMessage?: string | null, errorType?: DailySummaryErrorType | null, data?: { __typename?: 'DailyEarningsSummary', id: string, dailyEarningsSummaryID: string, createdAt: string, updatedAt: string, status: DailyEarningsSummaryStatus, transactions: Array<{ __typename?: 'Transaction', id?: string | null, timestamp: number, transactionId: string, transactionStatus: TransactionsStatus, transactionType: TransactionType, createdAt: string, updatedAt?: string | null, memberId: string, cardId: string, brandId: string, storeId: string, category: string, currencyCode: CurrencyCodeType, rewardAmount?: number | null, totalAmount?: number | null, pendingCashbackAmount?: number | null, creditedCashbackAmount?: number | null, transactionBrandName?: string | null, transactionBrandAddress?: string | null, transactionBrandLogoUrl?: string | null, transactionBrandURLAddress?: string | null, transactionIsOnline?: boolean | null } | null> } | null } };
+export type CreateDailyEarningsSummaryMutation = { __typename?: 'Mutation', createDailyEarningsSummary: { __typename?: 'DailyEarningsSummaryResponse', errorMessage?: string | null, errorType?: DailySummaryErrorType | null, data?: Array<{ __typename?: 'DailyEarningsSummary', id: string, dailyEarningsSummaryID: string, createdAt: string, updatedAt: string, status: DailyEarningsSummaryStatus, transactions: Array<{ __typename?: 'MoonbeamTransaction', id: string, timestamp: number, transactionId: string, transactionStatus: TransactionsStatus, transactionType: TransactionType, createdAt: string, updatedAt: string, memberId: string, cardId: string, brandId: string, storeId: string, category: string, currencyCode: CurrencyCodeType, rewardAmount: number, totalAmount: number, pendingCashbackAmount: number, creditedCashbackAmount: number, transactionBrandName: string, transactionBrandAddress: string, transactionBrandLogoUrl: string, transactionBrandURLAddress: string, transactionIsOnline: boolean } | null> } | null> | null } };
 
 export type AcknowledgeLocationUpdateMutationVariables = Exact<{
   createLocationBasedOfferReminderInput: CreateLocationBasedOfferReminderInput;
@@ -2390,7 +2390,7 @@ export type GetDailyEarningsSummaryQueryVariables = Exact<{
 }>;
 
 
-export type GetDailyEarningsSummaryQuery = { __typename?: 'Query', getDailyEarningsSummary: { __typename?: 'DailyEarningsSummaryResponse', errorMessage?: string | null, errorType?: DailySummaryErrorType | null, data?: { __typename?: 'DailyEarningsSummary', id: string, dailyEarningsSummaryID: string, createdAt: string, updatedAt: string, status: DailyEarningsSummaryStatus, transactions: Array<{ __typename?: 'Transaction', id?: string | null, timestamp: number, transactionId: string, transactionStatus: TransactionsStatus, transactionType: TransactionType, createdAt: string, updatedAt?: string | null, memberId: string, cardId: string, brandId: string, storeId: string, category: string, currencyCode: CurrencyCodeType, rewardAmount?: number | null, totalAmount?: number | null, pendingCashbackAmount?: number | null, creditedCashbackAmount?: number | null, transactionBrandName?: string | null, transactionBrandAddress?: string | null, transactionBrandLogoUrl?: string | null, transactionBrandURLAddress?: string | null, transactionIsOnline?: boolean | null } | null> } | null } };
+export type GetDailyEarningsSummaryQuery = { __typename?: 'Query', getDailyEarningsSummary: { __typename?: 'DailyEarningsSummaryResponse', errorMessage?: string | null, errorType?: DailySummaryErrorType | null, data?: Array<{ __typename?: 'DailyEarningsSummary', id: string, dailyEarningsSummaryID: string, createdAt: string, updatedAt: string, status: DailyEarningsSummaryStatus, transactions: Array<{ __typename?: 'MoonbeamTransaction', id: string, timestamp: number, transactionId: string, transactionStatus: TransactionsStatus, transactionType: TransactionType, createdAt: string, updatedAt: string, memberId: string, cardId: string, brandId: string, storeId: string, category: string, currencyCode: CurrencyCodeType, rewardAmount: number, totalAmount: number, pendingCashbackAmount: number, creditedCashbackAmount: number, transactionBrandName: string, transactionBrandAddress: string, transactionBrandLogoUrl: string, transactionBrandURLAddress: string, transactionIsOnline: boolean } | null> } | null> | null } };
 
 export type GetNotificationByTypeQueryVariables = Exact<{
   getNotificationByTypeInput: GetNotificationByTypeInput;

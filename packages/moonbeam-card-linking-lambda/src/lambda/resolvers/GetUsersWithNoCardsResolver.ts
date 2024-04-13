@@ -72,7 +72,6 @@ export const getUsersWithNoCards = async (fieldName: string): Promise<Ineligible
         retrievedData.Items.length && retrievedData.Count !== 0 &&
         retrievedData.Items.length !== 0 && retrievedData.LastEvaluatedKey);
 
-        console.log('here 1');
 
         /**
          * retrieve the list of all existent users from our Cognito user pool (eligible + ineligible)
@@ -82,18 +81,12 @@ export const getUsersWithNoCards = async (fieldName: string): Promise<Ineligible
         const moonbeamClient = new MoonbeamClient(process.env.ENV_NAME!, region);
         const usersForNotificationReminderResponse: UserForNotificationReminderResponse = await moonbeamClient.getAllUsersForNotificationReminders();
 
-        console.log('here 2');
-
         // check to see if the get all users call was successful or not
         if (usersForNotificationReminderResponse && !usersForNotificationReminderResponse.errorMessage && !usersForNotificationReminderResponse.errorType &&
             usersForNotificationReminderResponse.data && usersForNotificationReminderResponse.data.length !== 0) {
 
-            console.log('here 3');
-
             // if there are eligible users retrieved, then remove them from the list of all users retrieved (since we only need ineligible users returned)
             if (eligibleUsersResult && eligibleUsersResult.length !== 0) {
-                console.log('here 7');
-
                 // build out an array of eligible IDs from the list of DynamoDB records, representing eligible users returned
                 console.log(`Found some eligible linked users, needed to get filtered out from the list of all users`);
                 const eligibleIds: string[] = [];
@@ -104,8 +97,6 @@ export const getUsersWithNoCards = async (fieldName: string): Promise<Ineligible
                     data: usersForNotificationReminderResponse.data.filter(user => !eligibleIds.includes(user!.id))
                 };
             } else {
-                console.log('here 6');
-
                 // if there are no eligible users found, then we can conclude that all users retrieved are ineligible/have no linked cards
                 const errorMessage = `Eligible linked users not found, returning all un-linked/ineligible users instead!`;
                 console.log(errorMessage);
@@ -115,9 +106,6 @@ export const getUsersWithNoCards = async (fieldName: string): Promise<Ineligible
                 }
             }
         } else {
-
-            console.log('here 4');
-
             const errorMessage = `Retrieving all users through the getAllUsersForNotificationReminders call failed`;
             console.log(errorMessage);
 
@@ -127,8 +115,6 @@ export const getUsersWithNoCards = async (fieldName: string): Promise<Ineligible
             }
         }
     } catch (err) {
-        console.log('here 5');
-
         const errorMessage = `Unexpected error while executing ${fieldName} query ${err}`;
         console.log(errorMessage);
         return {

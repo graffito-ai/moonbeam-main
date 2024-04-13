@@ -114,6 +114,7 @@ export const getTransactionsInRange = async (fieldName: string, getTransactionsI
             console.log(errorMessage);
 
             return {
+                data: [],
                 errorMessage: errorMessage,
                 errorType: TransactionsErrorType.NoneOrAbsent
             }
