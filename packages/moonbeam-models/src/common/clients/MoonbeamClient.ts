@@ -16,7 +16,7 @@ import {
     GetReferralsByStatusInput,
     GetStorageInput,
     GetTransactionByStatusInput,
-    GetTransactionInput,
+    GetTransactionInput, GetTransactionsInRangeInput,
     GetUsersByGeographicalLocationInput,
     IneligibleLinkedUsersResponse,
     MilitaryVerificationErrorType,
@@ -77,7 +77,8 @@ import {
     getTransactionByStatus,
     getUsersWithNoCards,
     getAllUsersEligibleForReimbursements,
-    getAllUsersIneligibleForReimbursements
+    getAllUsersIneligibleForReimbursements,
+    getTransactionsInRange
 } from "../../graphql/queries/Queries";
 import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 import {
@@ -2740,6 +2741,132 @@ export class MoonbeamClient extends BaseAPIClient {
             });
         } catch (err) {
             const errorMessage = `Unexpected error while retrieving transactions for a particular user, filtered by their status through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                errorMessage: errorMessage,
+                errorType: TransactionsErrorType.UnexpectedError
+            };
+        }
+    }
+
+    /**
+     * Function used to get all transactions, in a particular time range.
+     *
+     * @param getTransactionsInRangeInput the transaction in range input object to be passed in,
+     * containing all the necessary filtering for retrieving the transactions in a particular time range.
+     *
+     * @returns a {@link MoonbeamTransactionsResponse} representing the transactional data.
+     *
+     * @protected
+     */
+    async getTransactionsInRange(getTransactionsInRangeInput: GetTransactionsInRangeInput): Promise<MoonbeamTransactionsResponse> {
+        // easily identifiable API endpoint information
+        const endpointInfo = 'getTransactionsInRange Query Moonbeam GraphQL API';
+
+        try {
+            // retrieve the API Key and Base URL, needed in order to make the transaction retrieval call through the client
+            const [moonbeamBaseURL, moonbeamPrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME);
+
+            // check to see if we obtained any invalid secret values from the call above
+            if (moonbeamBaseURL === null || moonbeamBaseURL.length === 0 ||
+                moonbeamPrivateKey === null || moonbeamPrivateKey.length === 0) {
+                const errorMessage = "Invalid Secrets obtained for Moonbeam API call!";
+                console.log(errorMessage);
+
+                return {
+                    errorMessage: errorMessage,
+                    errorType: TransactionsErrorType.UnexpectedError
+                };
+            }
+
+            /**
+             * getTransactionsInRange Query
+             *
+             * build the Moonbeam AppSync API GraphQL query, and perform a POST to it,
+             * with the appropriate information.
+             *
+             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
+             * error for a better customer experience.
+             */
+            return axios.post(`${moonbeamBaseURL}`, {
+                query: getTransactionsInRange,
+                variables: {
+                    getTransactionsInRangeInput: getTransactionsInRangeInput
+                }
+            }, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": moonbeamPrivateKey
+                },
+                timeout: 15000, // in milliseconds here
+                timeoutErrorMessage: 'Moonbeam API timed out after 15000ms!'
+            }).then(getTransactionsInRangeResponse => {
+                // we don't want to log this in case of success responses, because the transaction responses are very long (frugality)
+                // console.log(`${endpointInfo} response ${JSON.stringify(getTransactionsResponses.data)}`);
+
+                // retrieve the data block from the response
+                const responseData = (getTransactionsInRangeResponse && getTransactionsInRangeResponse.data) ? getTransactionsInRangeResponse.data.data : null;
+
+                // check if there are any errors in the returned response
+                if (responseData && responseData.getTransactionsInRange.errorMessage === null) {
+                    // returned the successfully retrieved transactions for a given user
+                    return {
+                        data: responseData.getTransactionsInRange.data as MoonbeamTransaction[]
+                    }
+                } else {
+                    return responseData ?
+                        // return the error message and type, from the original AppSync call
+                        {
+                            errorMessage: responseData.getTransactionsInRange.errorMessage,
+                            errorType: responseData.getTransactionsInRange.errorType
+                        } :
+                        // return the error response indicating an invalid structure returned
+                        {
+                            errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
+                            errorType: TransactionsErrorType.ValidationError
+                        }
+                }
+            }).catch(error => {
+                if (error.response) {
+                    /**
+                     * The request was made and the server responded with a status code
+                     * that falls out of the range of 2xx.
+                     */
+                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Moonbeam API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
+                    console.log(errorMessage);
+
+                    // any other specific errors to be filtered below
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: TransactionsErrorType.UnexpectedError
+                    };
+                } else if (error.request) {
+                    /**
+                     * The request was made but no response was received
+                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                     *  http.ClientRequest in node.js.
+                     */
+                    const errorMessage = `No response received while calling the ${endpointInfo} Moonbeam API, for request ${error.request}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: TransactionsErrorType.UnexpectedError
+                    };
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Moonbeam API, ${(error && error.message) && error.message}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: TransactionsErrorType.UnexpectedError
+                    };
+                }
+            });
+        } catch (err) {
+            const errorMessage = `Unexpected error while retrieving transactions for a particular time range, through ${endpointInfo}`;
             console.log(`${errorMessage} ${err}`);
 
             return {

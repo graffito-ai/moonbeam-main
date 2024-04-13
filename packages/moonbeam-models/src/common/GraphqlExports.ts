@@ -187,6 +187,11 @@ export type CreateCardLinkInput = {
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
+export type CreateDailyEarningsSummaryInput = {
+  id: Scalars['ID'];
+  targetDate: Scalars['AWSDateTime'];
+};
+
 export type CreateDeviceInput = {
   deviceState: UserDeviceState;
   id: Scalars['ID'];
@@ -359,6 +364,35 @@ export type CreateUserAuthSessionInput = {
 
 export enum CurrencyCodeType {
   Usd = 'USD'
+}
+
+export type DailyEarningsSummary = {
+  __typename?: 'DailyEarningsSummary';
+  createdAt: Scalars['AWSDateTime'];
+  dailyEarningsSummaryID: Scalars['ID'];
+  id: Scalars['ID'];
+  status: DailyEarningsSummaryStatus;
+  transactions: Array<Maybe<Transaction>>;
+  updatedAt: Scalars['AWSDateTime'];
+};
+
+export type DailyEarningsSummaryResponse = {
+  __typename?: 'DailyEarningsSummaryResponse';
+  data?: Maybe<DailyEarningsSummary>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<DailySummaryErrorType>;
+};
+
+export enum DailyEarningsSummaryStatus {
+  Acknowledged = 'ACKNOWLEDGED',
+  Sent = 'SENT'
+}
+
+export enum DailySummaryErrorType {
+  DuplicateObjectFound = 'DUPLICATE_OBJECT_FOUND',
+  NoneOrAbsent = 'NONE_OR_ABSENT',
+  UnexpectedError = 'UNEXPECTED_ERROR',
+  ValidationError = 'VALIDATION_ERROR'
 }
 
 export type DeleteCardInput = {
@@ -559,6 +593,11 @@ export type GetCardLinkInput = {
   id: Scalars['ID'];
 };
 
+export type GetDailyEarningsSummaryInput = {
+  id: Scalars['ID'];
+  targetDate: Scalars['AWSDateTime'];
+};
+
 export type GetDeviceByTokenInput = {
   tokenId: Scalars['ID'];
 };
@@ -663,6 +702,11 @@ export type GetTransactionInput = {
   endDate: Scalars['AWSDateTime'];
   id: Scalars['ID'];
   startDate?: InputMaybe<Scalars['AWSDateTime']>;
+};
+
+export type GetTransactionsInRangeInput = {
+  endDate: Scalars['AWSDateTime'];
+  startDate: Scalars['AWSDateTime'];
 };
 
 export type GetUserAuthSessionInput = {
@@ -1032,6 +1076,7 @@ export type Mutation = {
   addCard: CardLinkResponse;
   createAppReview: AppReviewResponse;
   createCardLink: CardLinkResponse;
+  createDailyEarningsSummary: DailyEarningsSummaryResponse;
   createDevice: UserDeviceResponse;
   createEventSeries: EventSeriesResponse;
   createFAQ: FaqResponse;
@@ -1073,6 +1118,11 @@ export type MutationCreateAppReviewArgs = {
 
 export type MutationCreateCardLinkArgs = {
   createCardLinkInput: CreateCardLinkInput;
+};
+
+
+export type MutationCreateDailyEarningsSummaryArgs = {
+  createDailyEarningsSummaryInput: CreateDailyEarningsSummaryInput;
 };
 
 
@@ -1533,6 +1583,7 @@ export type Query = {
   getAppReviewEligibility: GetAppReviewEligibilityResponse;
   getAppUpgradeCredentials: AppUpgradeResponse;
   getCardLink: CardLinkResponse;
+  getDailyEarningsSummary: DailyEarningsSummaryResponse;
   getDevice: UserDeviceResponse;
   getDeviceByToken: UserDeviceResponse;
   getDevicesForUser: UserDevicesResponse;
@@ -1544,7 +1595,7 @@ export type Query = {
   getLocationPredictions: GetLocationPredictionsResponse;
   getMilitaryVerificationInformation: MilitaryVerificationReportingInformationResponse;
   getMilitaryVerificationStatus: GetMilitaryVerificationResponse;
-  getNotificationByType?: Maybe<GetNotificationByTypeResponse>;
+  getNotificationByType: GetNotificationByTypeResponse;
   getNotificationReminders: NotificationReminderResponse;
   getOffers: OffersResponse;
   getPremierOffers: OffersResponse;
@@ -1555,6 +1606,7 @@ export type Query = {
   getStorage: StorageResponse;
   getTransaction: MoonbeamTransactionsResponse;
   getTransactionByStatus: MoonbeamTransactionsByStatusResponse;
+  getTransactionsInRange: MoonbeamTransactionsResponse;
   getUserAuthSession: UserAuthSessionResponse;
   getUserCardLinkingId: GetUserCardLinkingIdResponse;
   getUserFromReferral: UserFromReferralResponse;
@@ -1576,6 +1628,11 @@ export type QueryGetAppReviewEligibilityArgs = {
 
 export type QueryGetCardLinkArgs = {
   getCardLinkInput: GetCardLinkInput;
+};
+
+
+export type QueryGetDailyEarningsSummaryArgs = {
+  getDailyEarningsSummaryInput: GetDailyEarningsSummaryInput;
 };
 
 
@@ -1656,6 +1713,11 @@ export type QueryGetTransactionArgs = {
 
 export type QueryGetTransactionByStatusArgs = {
   getTransactionByStatusInput: GetTransactionByStatusInput;
+};
+
+
+export type QueryGetTransactionsInRangeArgs = {
+  getTransactionsInRangeInput: GetTransactionsInRangeInput;
 };
 
 
@@ -2141,6 +2203,13 @@ export enum UtilitiesErrorType {
   ValidationError = 'VALIDATION_ERROR'
 }
 
+export type CreateDailyEarningsSummaryMutationVariables = Exact<{
+  createDailyEarningsSummaryInput: CreateDailyEarningsSummaryInput;
+}>;
+
+
+export type CreateDailyEarningsSummaryMutation = { __typename?: 'Mutation', createDailyEarningsSummary: { __typename?: 'DailyEarningsSummaryResponse', errorMessage?: string | null, errorType?: DailySummaryErrorType | null, data?: { __typename?: 'DailyEarningsSummary', id: string, dailyEarningsSummaryID: string, createdAt: string, updatedAt: string, status: DailyEarningsSummaryStatus, transactions: Array<{ __typename?: 'Transaction', id?: string | null, timestamp: number, transactionId: string, transactionStatus: TransactionsStatus, transactionType: TransactionType, createdAt: string, updatedAt?: string | null, memberId: string, cardId: string, brandId: string, storeId: string, category: string, currencyCode: CurrencyCodeType, rewardAmount?: number | null, totalAmount?: number | null, pendingCashbackAmount?: number | null, creditedCashbackAmount?: number | null, transactionBrandName?: string | null, transactionBrandAddress?: string | null, transactionBrandLogoUrl?: string | null, transactionBrandURLAddress?: string | null, transactionIsOnline?: boolean | null } | null> } | null } };
+
 export type AcknowledgeLocationUpdateMutationVariables = Exact<{
   createLocationBasedOfferReminderInput: CreateLocationBasedOfferReminderInput;
 }>;
@@ -2316,12 +2385,19 @@ export type UpdateMilitaryVerificationStatusMutationVariables = Exact<{
 
 export type UpdateMilitaryVerificationStatusMutation = { __typename?: 'Mutation', updateMilitaryVerificationStatus: { __typename?: 'UpdateMilitaryVerificationResponse', errorType?: MilitaryVerificationErrorType | null, errorMessage?: string | null, id?: string | null, militaryVerificationStatus?: MilitaryVerificationStatusType | null } };
 
+export type GetDailyEarningsSummaryQueryVariables = Exact<{
+  getDailyEarningsSummaryInput: GetDailyEarningsSummaryInput;
+}>;
+
+
+export type GetDailyEarningsSummaryQuery = { __typename?: 'Query', getDailyEarningsSummary: { __typename?: 'DailyEarningsSummaryResponse', errorMessage?: string | null, errorType?: DailySummaryErrorType | null, data?: { __typename?: 'DailyEarningsSummary', id: string, dailyEarningsSummaryID: string, createdAt: string, updatedAt: string, status: DailyEarningsSummaryStatus, transactions: Array<{ __typename?: 'Transaction', id?: string | null, timestamp: number, transactionId: string, transactionStatus: TransactionsStatus, transactionType: TransactionType, createdAt: string, updatedAt?: string | null, memberId: string, cardId: string, brandId: string, storeId: string, category: string, currencyCode: CurrencyCodeType, rewardAmount?: number | null, totalAmount?: number | null, pendingCashbackAmount?: number | null, creditedCashbackAmount?: number | null, transactionBrandName?: string | null, transactionBrandAddress?: string | null, transactionBrandLogoUrl?: string | null, transactionBrandURLAddress?: string | null, transactionIsOnline?: boolean | null } | null> } | null } };
+
 export type GetNotificationByTypeQueryVariables = Exact<{
   getNotificationByTypeInput: GetNotificationByTypeInput;
 }>;
 
 
-export type GetNotificationByTypeQuery = { __typename?: 'Query', getNotificationByType?: { __typename?: 'GetNotificationByTypeResponse', errorMessage?: string | null, errorType?: NotificationsErrorType | null, data?: Array<{ __typename?: 'Notification', id: string, timestamp: number, notificationId: string, emailDestination?: string | null, userFullName?: string | null, type: NotificationType, channelType: NotificationChannelType, status: NotificationStatus, expoPushTokens?: Array<string | null> | null, pendingCashback?: number | null, merchantName?: string | null, actionUrl?: string | null, createdAt: string, updatedAt: string } | null> | null } | null };
+export type GetNotificationByTypeQuery = { __typename?: 'Query', getNotificationByType: { __typename?: 'GetNotificationByTypeResponse', errorMessage?: string | null, errorType?: NotificationsErrorType | null, data?: Array<{ __typename?: 'Notification', id: string, timestamp: number, notificationId: string, emailDestination?: string | null, userFullName?: string | null, type: NotificationType, channelType: NotificationChannelType, status: NotificationStatus, expoPushTokens?: Array<string | null> | null, pendingCashback?: number | null, merchantName?: string | null, actionUrl?: string | null, createdAt: string, updatedAt: string } | null> | null } };
 
 export type GetReimbursementsQueryVariables = Exact<{
   getReimbursementsInput: GetReimbursementsInput;
@@ -2493,6 +2569,13 @@ export type GetDeviceByTokenQueryVariables = Exact<{
 
 
 export type GetDeviceByTokenQuery = { __typename?: 'Query', getDeviceByToken: { __typename?: 'UserDeviceResponse', errorMessage?: string | null, errorType?: UserDeviceErrorType | null, data?: { __typename?: 'PushDevice', id: string, tokenId: string, deviceState: UserDeviceState, lastLoginDate: string } | null } };
+
+export type GetTransactionsInRangeQueryVariables = Exact<{
+  getTransactionsInRangeInput: GetTransactionsInRangeInput;
+}>;
+
+
+export type GetTransactionsInRangeQuery = { __typename?: 'Query', getTransactionsInRange: { __typename?: 'MoonbeamTransactionsResponse', errorMessage?: string | null, errorType?: TransactionsErrorType | null, data?: Array<{ __typename?: 'MoonbeamTransaction', id: string, timestamp: number, transactionId: string, transactionStatus: TransactionsStatus, transactionType: TransactionType, createdAt: string, updatedAt: string, memberId: string, cardId: string, brandId: string, storeId: string, category: string, currencyCode: CurrencyCodeType, rewardAmount: number, totalAmount: number, pendingCashbackAmount: number, creditedCashbackAmount: number, transactionBrandName: string, transactionBrandAddress: string, transactionBrandLogoUrl: string, transactionBrandURLAddress: string, transactionIsOnline: boolean } | null> | null } };
 
 export type GetTransactionQueryVariables = Exact<{
   getTransactionInput: GetTransactionInput;

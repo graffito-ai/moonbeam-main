@@ -262,6 +262,11 @@ input GetTransactionInput {
     endDate: AWSDateTime! ## the end time to filter transactions for
 }
 
+input GetTransactionsInRangeInput {
+    startDate: AWSDateTime! ## the start time to filter transactions for
+    endDate: AWSDateTime! ## the end time to filter transactions for
+}
+
 input GetTransactionByStatusInput {
     id: ID! ## this represents the userID which the transactions should be retrieved for
     status: TransactionsStatus! ## the transactions status to filter transactions for

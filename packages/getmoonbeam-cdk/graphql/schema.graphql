@@ -14,6 +14,7 @@ type Query {
     getDevice(getDeviceInput: GetDeviceInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
     getDeviceByToken(getDeviceByTokenInput: GetDeviceByTokenInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
     getTransaction(getTransactionInput: GetTransactionInput!): MoonbeamTransactionsResponse! @aws_cognito_user_pools @aws_api_key
+    getTransactionsInRange(getTransactionsInRangeInput: GetTransactionsInRangeInput!): MoonbeamTransactionsResponse! @aws_cognito_user_pools @aws_api_key
     getTransactionByStatus(getTransactionByStatusInput: GetTransactionByStatusInput!): MoonbeamTransactionsByStatusResponse! @aws_cognito_user_pools @aws_api_key
     getCardLink(getCardLinkInput: GetCardLinkInput!): CardLinkResponse! @aws_cognito_user_pools
     getStorage(getStorageInput: GetStorageInput!): StorageResponse! @aws_cognito_user_pools @aws_api_key
@@ -35,7 +36,8 @@ type Query {
     getAppReviewEligibility(getAppReviewEligibilityInput: GetAppReviewEligibilityInput!): GetAppReviewEligibilityResponse! @aws_cognito_user_pools
     getLocationPredictions(getLocationPredictionsInput: GetLocationPredictionsInput!): GetLocationPredictionsResponse! @aws_cognito_user_pools @aws_iam
     getReimbursements(getReimbursementsInput: GetReimbursementsInput!): ReimbursementResponse! @aws_cognito_user_pools
-    getNotificationByType(getNotificationByTypeInput: GetNotificationByTypeInput!): GetNotificationByTypeResponse @aws_cognito_user_pools @aws_api_key
+    getNotificationByType(getNotificationByTypeInput: GetNotificationByTypeInput!): GetNotificationByTypeResponse! @aws_cognito_user_pools @aws_api_key
+    getDailyEarningsSummary(getDailyEarningsSummaryInput: GetDailyEarningsSummaryInput!): DailyEarningsSummaryResponse! @aws_cognito_user_pools @aws_api_key
 }
 
 type Mutation {
@@ -64,6 +66,7 @@ type Mutation {
     putMilitaryVerificationReport(putMilitaryVerificationReportInput: PutMilitaryVerificationReportInput!): MilitaryVerificationReportResponse! @aws_cognito_user_pools @aws_api_key
     createAppReview(createAppReviewInput: CreateAppReviewInput!): AppReviewResponse! @aws_cognito_user_pools
     createReimbursement(createReimbursementInput: CreateReimbursementInput!): ReimbursementResponse! @aws_cognito_user_pools
+    createDailyEarningsSummary(createDailyEarningsSummaryInput: CreateDailyEarningsSummaryInput!): DailyEarningsSummaryResponse! @aws_cognito_user_pools @aws_api_key
 }
 
 type Subscription {
@@ -709,6 +712,11 @@ type OfferRedemptionTypeResponse @aws_cognito_user_pools @aws_api_key {
 input GetTransactionInput {
     id: ID! ## this represents the userID which the transactions should be retrieved for
     startDate: AWSDateTime ## the start time to filter transactions for
+    endDate: AWSDateTime! ## the end time to filter transactions for
+}
+
+input GetTransactionsInRangeInput {
+    startDate: AWSDateTime! ## the start time to filter transactions for
     endDate: AWSDateTime! ## the end time to filter transactions for
 }
 
@@ -1799,4 +1807,42 @@ input CreateEventSeriesInput {
     externalSeriesID: ID
     createdAt: AWSDateTime
     updatedAt: AWSDateTime
+}
+# graphql/DailySummarySchema.graphql
+# Daily Summary Schema File
+enum DailySummaryErrorType {
+    DUPLICATE_OBJECT_FOUND
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+    NONE_OR_ABSENT
+}
+
+enum DailyEarningsSummaryStatus {
+    SENT
+    ACKNOWLEDGED
+}
+
+type DailyEarningsSummary @aws_cognito_user_pools @aws_api_key {
+    id: ID! ## this represents the userID which the daily earnings summary was made for.
+    dailyEarningsSummaryID: ID! ## this is an internal id for daily summaries.
+    createdAt: AWSDateTime! ## this represents the creation date but will also be used for sorting purposes.
+    updatedAt: AWSDateTime!
+    status: DailyEarningsSummaryStatus!
+    transactions: [Transaction]!
+}
+
+type DailyEarningsSummaryResponse @aws_cognito_user_pools @aws_api_key {
+    data: DailyEarningsSummary
+    errorType: DailySummaryErrorType
+    errorMessage: String
+}
+
+input CreateDailyEarningsSummaryInput {
+    id: ID! ## this represents the userID which the daily earnings summary was made for.
+    targetDate: AWSDateTime! ## this represents the date used to create the daily earnings summary for
+}
+
+input GetDailyEarningsSummaryInput {
+    id: ID! ## the userID which which the daily earnings summary was made for.
+    targetDate: AWSDateTime! ## this represents the date used to sort and retrieve the appropriate daily earnings summary for.
 }

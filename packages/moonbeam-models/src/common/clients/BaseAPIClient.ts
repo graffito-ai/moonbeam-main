@@ -16,7 +16,7 @@ import {
     GetOffersInput,
     GetReferralsByStatusInput, GetStorageInput,
     GetTransactionByStatusInput,
-    GetTransactionInput,
+    GetTransactionInput, GetTransactionsInRangeInput,
     GetUserCardLinkingIdInput,
     GetUserCardLinkingIdResponse, GetUsersByGeographicalLocationInput,
     IneligibleLinkedUsersResponse,
@@ -686,6 +686,18 @@ export abstract class BaseAPIClient {
      * @protected
      */
     protected getTransaction?(getTransactionInput: GetTransactionInput): Promise<MoonbeamTransactionsResponse>;
+
+    /**
+     * Function used to get all transactions, in a particular time range.
+     *
+     * @param getTransactionsInRangeInput the transaction in range input object to be passed in,
+     * containing all the necessary filtering for retrieving the transactions in a particular time range.
+     *
+     * @returns a {@link MoonbeamTransactionsResponse} representing the transactional data.
+     *
+     * @protected
+     */
+    protected getTransactionsInRange?(getTransactionsInRangeInput: GetTransactionsInRangeInput): Promise<MoonbeamTransactionsResponse>;
 
     /**
      * Function used to get all transactions, for a particular user, filtered

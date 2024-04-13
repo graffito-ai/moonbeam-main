@@ -1,7 +1,7 @@
 import {
     CreateTransactionInput,
     GetTransactionByStatusInput,
-    GetTransactionInput,
+    GetTransactionInput, GetTransactionsInRangeInput,
     MoonbeamTransactionResponse,
     MoonbeamTransactionsByStatusResponse,
     MoonbeamTransactionsResponse, MoonbeamUpdatedTransactionResponse,
@@ -15,6 +15,7 @@ import {getTransactionByStatus} from "./resolvers/GetTransactionByStatusResolver
 import {updateTransaction} from "./resolvers/UpdateTransactionResolver";
 import { getAllUsersEligibleForReimbursements } from "./resolvers/GetAllUsersEligibleForReimbursementsResolver";
 import { getAllUsersIneligibleForReimbursements } from "./resolvers/GetAllUsersIneligibleForReimbursementsResolver";
+import { getTransactionsInRange } from "./resolvers/GetTransactionsInRangeResolver";
 
 /**
  * Mapping out the App Sync event type, so we can use it as a type in the Lambda Handler
@@ -27,7 +28,8 @@ type AppSyncEvent = {
         createTransactionInput: CreateTransactionInput,
         updateTransactionInput: UpdateTransactionInput,
         getTransactionInput: GetTransactionInput,
-        getTransactionByStatusInput: GetTransactionByStatusInput
+        getTransactionByStatusInput: GetTransactionByStatusInput,
+        getTransactionsInRangeInput: GetTransactionsInRangeInput
     },
     identity: {
         sub: string;
@@ -52,6 +54,8 @@ exports.handler = async (event: AppSyncEvent): Promise<MoonbeamTransactionRespon
             return await updateTransaction(event.info.fieldName, event.arguments.updateTransactionInput);
         case "getTransaction":
             return await getTransaction(event.info.fieldName, event.arguments.getTransactionInput);
+        case "getTransactionsInRange":
+            return await getTransactionsInRange(event.info.fieldName, event.arguments.getTransactionsInRangeInput);
         case "getTransactionByStatus":
             return await getTransactionByStatus(event.info.fieldName, event.arguments.getTransactionByStatusInput);
         case "getAllUsersEligibleForReimbursements":

@@ -1,39 +1,29 @@
 import {AttributeValue, DynamoDBClient, QueryCommand} from "@aws-sdk/client-dynamodb";
 import {
     CurrencyCodeType,
-    GetTransactionInput,
+    GetTransactionsInRangeInput,
     MoonbeamTransaction,
     MoonbeamTransactionsResponse,
-    TransactionsErrorType, TransactionsStatus, TransactionType
+    TransactionsErrorType,
+    TransactionsStatus,
+    TransactionType
 } from "@moonbeam/moonbeam-models";
 
 /**
- * GetTransactionResolver resolver
+ * GetTransactionsInRangeResolver resolver
  *
  * @param fieldName name of the resolver path from the AppSync event
- * @param getTransactionInput get transaction input object, used to retrieve transactional information.
+ * @param getTransactionsInRangeInput get transactions in range input object, used to retrieve transactional information.
  *
  * @returns {@link Promise} of {@link MoonbeamTransactionResponse}
  */
-export const getTransaction = async (fieldName: string, getTransactionInput: GetTransactionInput): Promise<MoonbeamTransactionsResponse> => {
+export const getTransactionsInRange = async (fieldName: string, getTransactionsInRangeInput: GetTransactionsInRangeInput): Promise<MoonbeamTransactionsResponse> => {
     try {
         // retrieving the current function region
         const region = process.env.AWS_REGION!;
 
         // initializing the DynamoDB document client
         const dynamoDbClient = new DynamoDBClient({region: region});
-
-        // converting the AWSDateTime to Timestamp, for comparison and sorting purposes, based on the primary key's sort key
-        const startDateTimestamp = getTransactionInput.startDate && Date.parse(new Date(getTransactionInput.startDate).toISOString());
-        const endDateTimestamp = Date.parse(new Date(getTransactionInput.endDate).toISOString());
-
-        /**
-         * determine whether this range of creation time of a transaction, falls within particular
-         * upper and lower bounds, or just within a particular bound.
-         */
-        const conditionalExpression = startDateTimestamp
-            ? '#idf = :idf AND #t BETWEEN :tStart AND :tEnd'
-            : '#idf = :idf AND #t <= :tEnd';
 
         /**
          * the data to be retrieved from the Query Command
@@ -55,26 +45,25 @@ export const getTransaction = async (fieldName: string, getTransactionInput: Get
              */
             retrievedData = await dynamoDbClient.send(new QueryCommand({
                 TableName: process.env.TRANSACTIONS_TABLE!,
+                IndexName: `${process.env.TRANSACTIONS_IN_RANGE_GLOBAL_INDEX!}-${process.env.ENV_NAME!}-${region}`,
                 ...(exclusiveStartKey && {ExclusiveStartKey: exclusiveStartKey}),
                 Limit: 1500, // 1,500 * 500 bytes = 750,000 bytes = 0.75 MB (leave a margin of error here up to 1 MB)
                 ExpressionAttributeNames: {
-                    '#idf': 'id',
-                    '#t': 'timestamp'
+                    '#cCode': 'currencyCode',
+                    '#cAt': 'createdAt'
                 },
                 ExpressionAttributeValues: {
-                    ":idf": {
-                        S: getTransactionInput.id
+                    ":cCode": {
+                        S: CurrencyCodeType.Usd
                     },
-                    ":tEnd": {
-                        N: endDateTimestamp.toString()
+                    ":cAtEnd": {
+                        S: getTransactionsInRangeInput.endDate.toString()
                     },
-                    ...(startDateTimestamp && {
-                        ":tStart": {
-                            N: startDateTimestamp.toString()
-                        }
-                    })
+                    ":cAtStart": {
+                        S: getTransactionsInRangeInput.startDate.toString()
+                    }
                 },
-                KeyConditionExpression: conditionalExpression
+                KeyConditionExpression: '#cCode = :cCode AND #cAt BETWEEN :cAtStart AND :cAtEnd'
             }));
 
             exclusiveStartKey = retrievedData.LastEvaluatedKey;
@@ -86,8 +75,8 @@ export const getTransaction = async (fieldName: string, getTransactionInput: Get
         // if there is any transactional data retrieved, then return it accordingly
         if (result && result.length !== 0) {
             // convert the Dynamo DB data from Dynamo DB JSON format to a Moonbeam transactional data format
-           const transactionalData: MoonbeamTransaction[] = [];
-           result.forEach(transactionResult => {
+            const transactionalData: MoonbeamTransaction[] = [];
+            result.forEach(transactionResult => {
                 const transaction: MoonbeamTransaction = {
                     brandId: transactionResult.brandId.S!,
                     cardId: transactionResult.cardId.S!,
@@ -121,7 +110,7 @@ export const getTransaction = async (fieldName: string, getTransactionInput: Get
                 data: transactionalData
             }
         } else {
-            const errorMessage = `Transactional data not found for ${getTransactionInput.id}, and ${JSON.stringify(getTransactionInput)}`;
+            const errorMessage = `Transactional data not found for range ${getTransactionsInRangeInput.startDate} - ${getTransactionsInRangeInput.endDate}`;
             console.log(errorMessage);
 
             return {

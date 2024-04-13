@@ -37,8 +37,8 @@ export const getReimbursements = async (fieldName: string, getReimbursementsInpu
          * upper and lower bounds, or just within a particular bound.
          */
         const conditionalExpression = startDateTimestamp
-            ? '#idf = :idf and #t BETWEEN :tStart and :tEnd'
-            : '#idf = :idf and #t <= :tEnd';
+            ? '#idf = :idf AND #t BETWEEN :tStart AND :tEnd'
+            : '#idf = :idf AND #t <= :tEnd';
 
         /**
          * the data to be retrieved from the Query Command

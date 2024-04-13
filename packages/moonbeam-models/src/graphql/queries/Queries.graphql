@@ -1,5 +1,42 @@
 # graphql/Queries.graphql
 # Queries Schema File
+query GetDailyEarningsSummary($getDailyEarningsSummaryInput: GetDailyEarningsSummaryInput!) {
+    getDailyEarningsSummary(getDailyEarningsSummaryInput: $getDailyEarningsSummaryInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            dailyEarningsSummaryID
+            createdAt
+            updatedAt
+            status
+            transactions {
+                id
+                timestamp
+                transactionId
+                transactionStatus
+                transactionType
+                createdAt
+                updatedAt
+                memberId
+                cardId
+                brandId
+                storeId
+                category
+                currencyCode
+                rewardAmount
+                totalAmount
+                pendingCashbackAmount
+                creditedCashbackAmount
+                transactionBrandName
+                transactionBrandAddress
+                transactionBrandLogoUrl
+                transactionBrandURLAddress
+                transactionIsOnline
+            }
+        }
+    }
+}
 query GetNotificationByType($getNotificationByTypeInput: GetNotificationByTypeInput!) {
     getNotificationByType(getNotificationByTypeInput: $getNotificationByTypeInput) {
         errorMessage
@@ -689,6 +726,36 @@ query GetDeviceByToken($getDeviceByTokenInput: GetDeviceByTokenInput!) {
             tokenId
             deviceState
             lastLoginDate
+        }
+    }
+}
+query getTransactionsInRange($getTransactionsInRangeInput: GetTransactionsInRangeInput!) {
+    getTransactionsInRange(getTransactionsInRangeInput: $getTransactionsInRangeInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            timestamp
+            transactionId
+            transactionStatus
+            transactionType
+            createdAt
+            updatedAt
+            memberId
+            cardId
+            brandId
+            storeId
+            category
+            currencyCode
+            rewardAmount
+            totalAmount
+            pendingCashbackAmount
+            creditedCashbackAmount
+            transactionBrandName
+            transactionBrandAddress
+            transactionBrandLogoUrl
+            transactionBrandURLAddress
+            transactionIsOnline
         }
     }
 }

@@ -349,6 +349,7 @@ export interface TransactionsConfiguration {
     readonly transactionsFunctionName: string;
     readonly createTransactionResolverName: string;
     readonly getTransactionResolverName: string;
+    readonly getTransactionsInRangeResolverName: string;
     readonly getTransactionByStatusResolverName: string;
     readonly updateTransactionResolverName: string;
     readonly getAllUsersEligibleForReimbursementsResolverName: string;
@@ -357,6 +358,7 @@ export interface TransactionsConfiguration {
     readonly transactionsIdGlobalIndex: string;
     readonly transactionsStatusLocalIndex: string;
     readonly transactionStatusGlobalIndex: string;
+    readonly transactionsInRangeGlobalIndex: string;
 }
 
 /**
