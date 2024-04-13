@@ -33,6 +33,7 @@ import {ServicesResolverStack} from "../stacks/ServicesResolverStack";
 import {EventsResolverStack} from "../stacks/EventsResolverStack";
 import {LocationBasedReminderProducerConsumerStack} from "../stacks/LocationBasedReminderProducerConsumerStack";
 import {IneligibleTransactionsProducerConsumerStack} from "../stacks/IneligibleTransactionsProducerConsumerStack";
+import {EarningsSummaryResolverStack} from "../stacks/EarningsSummaryResolverStack";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages
@@ -466,6 +467,19 @@ export class StageUtils {
                     environmentVariables: stageConfiguration.environmentVariables
                 });
                 scriptsResolverStack.addDependency(appSyncStack);
+
+                // create the Earnings Summary resolver stack && add it to the CDK app
+                const earningsSummaryStack = new EarningsSummaryResolverStack(this.app, `moonbeam-earnings-summary-resolver-${stageKey}`, {
+                    stackName: `moonbeam-earnings-summary-resolver-${stageKey}`,
+                    description: 'This stack will contain all the AppSync related resources needed by the Lambda Earnings Summary resolver',
+                    env: stageEnv,
+                    stage: stageConfiguration.stage,
+                    graphqlApiId: appSyncStack.graphqlApiId,
+                    graphqlApiName: stageConfiguration.appSyncConfig.graphqlApiName,
+                    earningsSummaryConfig: stageConfiguration.earningsSummaryConfig,
+                    environmentVariables: stageConfiguration.environmentVariables
+                });
+                earningsSummaryStack.addDependency(appSyncStack);
 
                 // create the API Gateway Service API stack && add it to the CDK app
                 const apiGatewayStack = new APIGatewayServiceStack(this.app, `moonbeam-api-gateway-${stageKey}`, {

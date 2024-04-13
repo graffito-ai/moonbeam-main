@@ -14,6 +14,7 @@ enum DailyEarningsSummaryStatus {
 
 type DailyEarningsSummary @aws_cognito_user_pools @aws_api_key {
     id: ID! ## this represents the userID which the daily earnings summary was made for.
+    timestamp: AWSTimestamp! ## this represents the timestamp, in a Number epoch based format (for sorting purposes) to represent the beginning of the day
     dailyEarningsSummaryID: ID! ## this is an internal id for daily summaries.
     createdAt: AWSDateTime! ## this represents the creation date but will also be used for sorting purposes.
     updatedAt: AWSDateTime!

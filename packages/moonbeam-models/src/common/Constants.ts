@@ -73,6 +73,7 @@ export namespace Constants {
         export const CARD_LINKING_TABLE: string = 'CARD_LINKING_TABLE';
         export const CARD_LINKING_STATUS_GLOBAL_INDEX: string = 'CARD_LINKING_STATUS_GLOBAL_INDEX';
         export const REFERRAL_TABLE: string = 'REFERRAL_TABLE';
+        export const DAILY_EARNINGS_SUMMARY_TABLE: string = 'DAILY_EARNINGS_SUMMARY_TABLE';
         export const REFERRAL_STATUS_GLOBAL_INDEX: string = 'REFERRAL_STATUS_GLOBAL_INDEX';
         export const TRANSACTIONS_TABLE: string = 'TRANSACTIONS_TABLE';
         export const REIMBURSEMENTS_TABLE: string = 'REIMBURSEMENTS_TABLE';

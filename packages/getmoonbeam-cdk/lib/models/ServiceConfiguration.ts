@@ -362,6 +362,17 @@ export interface TransactionsConfiguration {
 }
 
 /**
+ * Interface used to define the configuration for the earnings summary service resolvers
+ * (GraphQL based), and other afferent data stores.
+ */
+export interface EarningsSummaryConfig {
+    readonly earningsSummaryFunctionName: string;
+    readonly dailyEarningsSummaryTableName: string;
+    readonly createDailyEarningsSummaryResolverName: string;
+    readonly getDailyEarningsSummaryResolverName: string;
+}
+
+/**
  * Interface used to define the configuration for the notifications service resolvers
  * (GraphQL based), and other afferent data stores.
  */

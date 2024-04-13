@@ -306,6 +306,12 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 cardExpirationBackFillCronRuleName: "cardExpirationBackFillRule",
                 offerBackFillCronRuleName: "offerBackFillRule"
             },
+            earningsSummaryConfig: {
+                earningsSummaryFunctionName: "earningsSummaryFunction",
+                dailyEarningsSummaryTableName: "dailyEarningsSummaryTable",
+                createDailyEarningsSummaryResolverName: "createDailyEarningsSummary",
+                getDailyEarningsSummaryResolverName: "getDailyEarningsSummary"
+            },
             environmentVariables: new Map<string, string>([])
         },
         [`${Stages.PROD}-${Regions.PDX}`]: {
@@ -607,6 +613,12 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 scriptsFunctionName: "scriptsFunction",
                 cardExpirationBackFillCronRuleName: "cardExpirationBackFillRule",
                 offerBackFillCronRuleName: "offerBackFillRule"
+            },
+            earningsSummaryConfig: {
+                earningsSummaryFunctionName: "earningsSummaryFunction",
+                dailyEarningsSummaryTableName: "dailyEarningsSummaryTable",
+                createDailyEarningsSummaryResolverName: "createDailyEarningsSummary",
+                getDailyEarningsSummaryResolverName: "getDailyEarningsSummary"
             },
             environmentVariables: new Map<string, string>([])
         },

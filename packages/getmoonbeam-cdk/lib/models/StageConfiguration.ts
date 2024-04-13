@@ -5,7 +5,7 @@ import {
     AppReviewConfiguration,
     AppSyncConfiguration,
     AppUpgradeConfiguration,
-    CardLinkingConfiguration,
+    CardLinkingConfiguration, EarningsSummaryConfig,
     EventsConfiguration,
     FAQConfiguration,
     IneligibleTransactionsProducerConsumerConfiguration,
@@ -70,5 +70,6 @@ export interface StageConfiguration {
     readonly loggingConfig: LoggingConfiguration;
     readonly reimbursementsConfig: ReimbursementsConfiguration;
     readonly scriptsConfig: ScriptsConfiguration;
+    readonly earningsSummaryConfig: EarningsSummaryConfig;
     readonly environmentVariables: Map<string, string>;
 }
