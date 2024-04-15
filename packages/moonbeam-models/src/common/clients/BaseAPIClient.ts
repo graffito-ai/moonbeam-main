@@ -4,9 +4,10 @@ import {Constants} from "../Constants";
 import {
     AppUpgradeResponse,
     Card, CardDetailsResponse,
-    CardLinkResponse, CreateEventSeriesInput,
+    CardLinkResponse, CreateDailyEarningsSummaryInput, CreateEventSeriesInput,
     CreateNotificationInput,
     CreateNotificationResponse,
+    DailyEarningsSummaryResponse,
     EligibleLinkedUsersResponse,
     EmailFromCognitoResponse, EventSeriesResponse,
     GeocodeAsyncInput,
@@ -165,6 +166,20 @@ export abstract class BaseAPIClient {
                                     return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
                                         clientPairAsJson[Constants.AWSPairConstants.PUSH_NEW_INELIGIBLE_TRANSACTION_AUTH_TOKEN],
                                         clientPairAsJson[Constants.AWSPairConstants.PUSH_NEW_INELIGIBLE_TRANSACTION_TEMPLATE_ID]];
+                                case NotificationType.DailyEarningsSummary:
+                                    if (channelType !== undefined) {
+                                        return channelType === NotificationChannelType.Email
+                                            ? [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                                clientPairAsJson[Constants.AWSPairConstants.EMAIL_DAILY_EARNINGS_SUMMARY_AUTH_TOKEN],
+                                                clientPairAsJson[Constants.AWSPairConstants.EMAIL_DAILY_EARNINGS_SUMMARY_TEMPLATE_ID]]
+                                            : [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                                clientPairAsJson[Constants.AWSPairConstants.PUSH_DAILY_EARNINGS_SUMMARY_AUTH_TOKEN],
+                                                clientPairAsJson[Constants.AWSPairConstants.PUSH_DAILY_EARNINGS_SUMMARY_TEMPLATE_ID]]
+                                    } else {
+                                        return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                            clientPairAsJson[Constants.AWSPairConstants.EMAIL_DAILY_EARNINGS_SUMMARY_AUTH_TOKEN],
+                                            clientPairAsJson[Constants.AWSPairConstants.EMAIL_DAILY_EARNINGS_SUMMARY_TEMPLATE_ID]];
+                                    }
                                 case NotificationType.LocationBasedOfferReminder:
                                     return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
                                         clientPairAsJson[Constants.AWSPairConstants.PUSH_LOCATION_BASED_UPDATE_NOTIFICATION_AUTH_TOKEN],
@@ -602,6 +617,18 @@ export abstract class BaseAPIClient {
     protected getEmailForUser?(militaryVerificationNotificationUpdate: MilitaryVerificationNotificationUpdate): Promise<EmailFromCognitoResponse>;
 
     /**
+     * Function used to get a user's email, given their custom user:id.
+     *
+     * @param userId the user id to be passed in, used to retrieve someone's email
+     *
+     * @returns a {@link EmailFromCognitoResponse} representing the user's email obtained
+     * from Cognito.
+     *
+     * @protected
+     */
+    protected getEmailByUserId?(userId: String): Promise<EmailFromCognitoResponse>;
+
+    /**
      * Function used to get all the offers, given certain filters to be passed in.
      *
      * @param getOffersInput the offers input, containing the filtering information
@@ -662,6 +689,20 @@ export abstract class BaseAPIClient {
      * @protected
      */
     protected sendEmailNotification?(sendEmailNotificationInput: SendEmailNotificationInput, notificationType: NotificationType): Promise<NotificationResponse>;
+
+    /**
+     * Function used to create daily earning summaries for all applicable users, who spent
+     * in a particular day.
+     *
+     * @param createDailyEarningsSummaryInput the daily earnings summary input to be passed in, in order to
+     * create all applicable daily earning summaries.
+     *
+     * @returns a {@link DailyEarningsSummaryResponse} {@link Promise}, representing the newly created daily summaries,
+     * for all applicable users.
+     *
+     * @protected
+     */
+    protected createDailyEarningsSummary?(createDailyEarningsSummaryInput: CreateDailyEarningsSummaryInput): Promise<DailyEarningsSummaryResponse>;
 
     /**
      * Function used to create a notification.

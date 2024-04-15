@@ -757,6 +757,31 @@ input CreateTransactionInput {
     transactionBrandURLAddress: String!,
     transactionIsOnline: Boolean!
 }
+
+input MoonbeamTransactionInput {
+    id: ID! ## this represents the userID which the transaction belongs to/was made by
+    timestamp: AWSTimestamp! ## this represents the timestamp, in a Number epoch based format (for sorting purposes)
+    transactionId: ID!
+    transactionStatus: TransactionsStatus!
+    transactionType: TransactionType!
+    createdAt: AWSDateTime! ## this will be the same as the "timestamp" value above, only represented in a date time format
+    updatedAt: AWSDateTime!
+    memberId: ID! ## this will be obtained from Olive (and it is the Olive member id)
+    cardId: ID!
+    brandId: ID!
+    storeId: ID!
+    category: String!
+    currencyCode: CurrencyCodeType!,
+    rewardAmount: Float!,
+    totalAmount: Float!,
+    pendingCashbackAmount: Float! ## this amount should be the total reward amount that's pending reimbursement to the customer
+    creditedCashbackAmount: Float! ## this amount should be the total reward amount that's reimbursed/credited to the customer
+    transactionBrandName: String!,
+    transactionBrandAddress: String!,
+    transactionBrandLogoUrl: String!,
+    transactionBrandURLAddress: String!,
+    transactionIsOnline: Boolean!
+}
 # graphql/NotificationsSchema.graphql
 # Notifications Schema File
 enum NotificationsErrorType {
@@ -793,6 +818,7 @@ enum NotificationType {
     SAN_ANTONIO_REFERRAL_TEMPLATE_1_REMINDER
     REIMBURSEMENTS_REMINDER
     SPENDING_TEMPLATE_1_REMINDER
+    DAILY_EARNINGS_SUMMARY
 }
 
 enum NotificationChannelType {
@@ -839,12 +865,16 @@ input CreateNotificationInput {
     actionUrl: String # mostly applicable to push based notifications (to indicate what happens when a user taps on the notification)
     createdAt: AWSDateTime # this will be the same as the "timestamp" value above, only represented in a date time format
     updatedAt: AWSDateTime
+    transactions: [MoonbeamTransactionInput] # mostly applicable for email based notifications, representing the transactions used in the daily earnings summary
+    dailyEarningsSummaryAmount: Float # mostly applicable for email or push based notifications, representing the daily earnings summary amount
 }
 
 # this input is specific for sending email notifications and will be used solely as an input object, outside of any AppSync related queries and/or mutations
 input SendEmailNotificationInput {
     emailDestination: String!
     userFullName: String!
+    transactions: [MoonbeamTransactionInput]
+    dailyEarningsSummaryAmount: Float
 }
 
 # this input is specific for sending mobile push notifications and will be used solely as an input object, outside of any AppSync related queries and/or mutations
@@ -853,6 +883,7 @@ input SendMobilePushNotificationInput {
     pendingCashback: Float
     merchantName: String
     ineligibleTransactionAmount: Float
+    dailyEarningsSummaryAmount: Float
 }
 
 # this type is a specific response for sending notifications and will be used solely as an input object, outside of any AppSync related queries and/or mutations

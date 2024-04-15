@@ -88,6 +88,8 @@ export const createNotification = async (fieldName: string, createNotificationIn
                     return newUserQualifyingOfferNotification(createNotificationInput, courierClient, dynamoDbClient);
                 case NotificationType.IneligibleTransaction:
                     return newIneligibleTransactionNotification(createNotificationInput, courierClient, dynamoDbClient);
+                case NotificationType.DailyEarningsSummary:
+                    return newDailyEarningsSummaryNotification(createNotificationInput, courierClient, dynamoDbClient);
                 case NotificationType.LocationBasedOfferReminder:
                     return newLocationBasedReminderNotification(createNotificationInput, courierClient, dynamoDbClient);
                 case NotificationType.MilitaryStatusChangedPendingToRejected:
@@ -151,6 +153,196 @@ export const createNotification = async (fieldName: string, createNotificationIn
             errorMessage: errorMessage,
             errorType: NotificationsErrorType.UnexpectedError
         }
+    }
+}
+
+/**
+ * Function used to notify users when they get a new daily earnings summary generated.
+ *
+ * @param createNotificationInput create notifications input object, used to create a notification
+ * for a user's new daily earnings summary generation.
+ * @param courierClient Courier client used to send notifications
+ * @param dynamoDbClient Dynamo DB client used to store the notification internally
+ *
+ * @returns {@link Promise} of {@link CreateNotificationResponse}
+ */
+const newDailyEarningsSummaryNotification = async (createNotificationInput: CreateNotificationInput, courierClient: CourierClient, dynamoDbClient: DynamoDBClient): Promise<CreateNotificationResponse> => {
+    console.log('Sending daily earnings summary notifications');
+    switch (createNotificationInput.channelType) {
+        case NotificationChannelType.Email:
+            // validate that we have the necessary information to send an email
+            if (createNotificationInput.emailDestination && createNotificationInput.emailDestination.length !== 0 &&
+                createNotificationInput.userFullName && createNotificationInput.userFullName.length !== 0) {
+                // attempt to send an email notification first through Courier
+                const sendEmailNotificationResponse: NotificationResponse = await courierClient.sendEmailNotification({
+                    emailDestination: createNotificationInput.emailDestination!,
+                    userFullName: createNotificationInput.userFullName!,
+                    transactions: createNotificationInput.transactions!,
+                    dailyEarningsSummaryAmount: createNotificationInput.dailyEarningsSummaryAmount!
+                }, NotificationType.DailyEarningsSummary);
+
+                // check to see if the email notification was successfully sent or not
+                if (!sendEmailNotificationResponse || sendEmailNotificationResponse.errorMessage ||
+                    sendEmailNotificationResponse.errorType || !sendEmailNotificationResponse.requestId) {
+                    const errorMessage = `Email notification sending through the POST Courier send email message call failed ${JSON.stringify(sendEmailNotificationResponse)}`
+                    console.log(errorMessage);
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: NotificationsErrorType.UnexpectedError
+                    }
+                } else {
+                    // set the notification id, from the Courier call response
+                    createNotificationInput.notificationId = sendEmailNotificationResponse.requestId!;
+
+                    // store the successfully sent notification object
+                    await dynamoDbClient.send(new PutItemCommand({
+                        TableName: process.env.NOTIFICATIONS_TABLE!,
+                        Item: {
+                            id: {
+                                S: createNotificationInput.id
+                            },
+                            timestamp: {
+                                N: createNotificationInput.timestamp!.toString()
+                            },
+                            notificationId: {
+                                S: createNotificationInput.notificationId!
+                            },
+                            emailDestination: {
+                                S: createNotificationInput.emailDestination!
+                            },
+                            userFullName: {
+                                S: createNotificationInput.userFullName!
+                            },
+                            status: {
+                                S: createNotificationInput.status
+                            },
+                            channelType: {
+                                S: createNotificationInput.channelType
+                            },
+                            type: {
+                                S: createNotificationInput.type
+                            },
+                            createdAt: {
+                                S: createNotificationInput.createdAt!
+                            },
+                            updatedAt: {
+                                S: createNotificationInput.updatedAt!
+                            },
+                            ...(createNotificationInput.actionUrl && {
+                                actionUrl: {
+                                    S: createNotificationInput.actionUrl
+                                }
+                            })
+                        },
+                    }));
+
+                    // return the successfully sent notification information
+                    return {
+                        id: createNotificationInput.id,
+                        data: createNotificationInput as Notification
+                    }
+                }
+            } else {
+                const errorMessage = `Invalid information passed in, to process a notification through ${createNotificationInput.channelType}, for notification type ${createNotificationInput.type}`;
+                console.log(errorMessage);
+                return {
+                    errorMessage: errorMessage,
+                    errorType: NotificationsErrorType.ValidationError
+                }
+            }
+        case NotificationChannelType.Push:
+            // validate that we have the necessary information to send a mobile push
+            if (createNotificationInput.expoPushTokens && createNotificationInput.expoPushTokens.length !== 0) {
+                // attempt to send a mobile push notification first through Courier
+                const sendMobilePushNotificationResponse: NotificationResponse = await courierClient.sendMobilePushNotification({
+                    expoPushTokens: createNotificationInput.expoPushTokens!,
+                    dailyEarningsSummaryAmount: createNotificationInput.dailyEarningsSummaryAmount!
+                }, NotificationType.DailyEarningsSummary);
+
+                // check to see if the mobile push notification was successfully sent or not
+                if (!sendMobilePushNotificationResponse || sendMobilePushNotificationResponse.errorMessage ||
+                    sendMobilePushNotificationResponse.errorType || !sendMobilePushNotificationResponse.requestId) {
+                    const errorMessage = `Mobile push notification sending through the POST Courier send push notification message call failed ${JSON.stringify(sendMobilePushNotificationResponse)}`
+                    console.log(errorMessage);
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: NotificationsErrorType.UnexpectedError
+                    }
+                } else {
+                    // set the notification id, from the Courier call response
+                    createNotificationInput.notificationId = sendMobilePushNotificationResponse.requestId!;
+
+                    // create a Dynamo DB structure array, to hold the incoming expo push tokens
+                    const expoPushTokens: AttributeValue[] = [];
+                    for (const pushToken of createNotificationInput.expoPushTokens) {
+                        expoPushTokens.push({
+                            M: {
+                                tokenId: {
+                                    S: pushToken!
+                                }
+                            }
+                        })
+                    }
+                    // store the successfully sent notification object
+                    await dynamoDbClient.send(new PutItemCommand({
+                        TableName: process.env.NOTIFICATIONS_TABLE!,
+                        Item: {
+                            id: {
+                                S: createNotificationInput.id
+                            },
+                            timestamp: {
+                                N: createNotificationInput.timestamp!.toString()
+                            },
+                            notificationId: {
+                                S: createNotificationInput.notificationId!
+                            },
+                            expoPushTokens: {
+                                L: expoPushTokens
+                            },
+                            status: {
+                                S: createNotificationInput.status
+                            },
+                            channelType: {
+                                S: createNotificationInput.channelType
+                            },
+                            type: {
+                                S: createNotificationInput.type
+                            },
+                            createdAt: {
+                                S: createNotificationInput.createdAt!
+                            },
+                            updatedAt: {
+                                S: createNotificationInput.updatedAt!
+                            },
+                            ...(createNotificationInput.actionUrl && {
+                                actionUrl: {
+                                    S: createNotificationInput.actionUrl
+                                }
+                            })
+                        },
+                    }));
+
+                    // return the successfully sent notification information
+                    return {
+                        id: createNotificationInput.id,
+                        data: createNotificationInput as Notification
+                    }
+                }
+            } else {
+                const errorMessage = `Invalid information passed in, to process a notification through ${createNotificationInput.channelType}, for notification type ${createNotificationInput.type}`;
+                console.log(errorMessage);
+                return {
+                    errorMessage: errorMessage,
+                    errorType: NotificationsErrorType.ValidationError
+                }
+            }
+        default:
+            const errorMessage = `Unsupported notification channel ${createNotificationInput.channelType}, for notification type ${createNotificationInput.type}`;
+            console.log(errorMessage);
+            return {
+                errorMessage: errorMessage,
+                errorType: NotificationsErrorType.ValidationError
+            }
     }
 }
 

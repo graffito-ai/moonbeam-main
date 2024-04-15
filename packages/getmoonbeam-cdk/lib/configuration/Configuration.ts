@@ -310,7 +310,9 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 earningsSummaryFunctionName: "earningsSummaryFunction",
                 dailyEarningsSummaryTableName: "dailyEarningsSummaryTable",
                 createDailyEarningsSummaryResolverName: "createDailyEarningsSummary",
-                getDailyEarningsSummaryResolverName: "getDailyEarningsSummary"
+                getDailyEarningsSummaryResolverName: "getDailyEarningsSummary",
+                earningsSummaryCronRuleName: "earningsSummaryCronRule",
+                earningsSummaryProducerFunctionName: "earningsSummaryProducerFunction"
             },
             environmentVariables: new Map<string, string>([])
         },
@@ -618,7 +620,9 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 earningsSummaryFunctionName: "earningsSummaryFunction",
                 dailyEarningsSummaryTableName: "dailyEarningsSummaryTable",
                 createDailyEarningsSummaryResolverName: "createDailyEarningsSummary",
-                getDailyEarningsSummaryResolverName: "getDailyEarningsSummary"
+                getDailyEarningsSummaryResolverName: "getDailyEarningsSummary",
+                earningsSummaryCronRuleName: "earningsSummaryCronRule",
+                earningsSummaryProducerFunctionName: "earningsSummaryProducerFunction"
             },
             environmentVariables: new Map<string, string>([])
         },

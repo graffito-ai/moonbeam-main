@@ -253,6 +253,7 @@ export type CreateNotificationInput = {
   actionUrl?: InputMaybe<Scalars['String']>;
   channelType: NotificationChannelType;
   createdAt?: InputMaybe<Scalars['AWSDateTime']>;
+  dailyEarningsSummaryAmount?: InputMaybe<Scalars['Float']>;
   emailDestination?: InputMaybe<Scalars['String']>;
   expoPushTokens?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
   id: Scalars['ID'];
@@ -262,6 +263,7 @@ export type CreateNotificationInput = {
   pendingCashback?: InputMaybe<Scalars['Float']>;
   status: NotificationStatus;
   timestamp?: InputMaybe<Scalars['AWSTimestamp']>;
+  transactions?: InputMaybe<Array<InputMaybe<MoonbeamTransactionInput>>>;
   type: NotificationType;
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
   userFullName?: InputMaybe<Scalars['String']>;
@@ -1031,6 +1033,31 @@ export type MoonbeamTransactionByStatus = {
   transactionStatus: TransactionsStatus;
 };
 
+export type MoonbeamTransactionInput = {
+  brandId: Scalars['ID'];
+  cardId: Scalars['ID'];
+  category: Scalars['String'];
+  createdAt: Scalars['AWSDateTime'];
+  creditedCashbackAmount: Scalars['Float'];
+  currencyCode: CurrencyCodeType;
+  id: Scalars['ID'];
+  memberId: Scalars['ID'];
+  pendingCashbackAmount: Scalars['Float'];
+  rewardAmount: Scalars['Float'];
+  storeId: Scalars['ID'];
+  timestamp: Scalars['AWSTimestamp'];
+  totalAmount: Scalars['Float'];
+  transactionBrandAddress: Scalars['String'];
+  transactionBrandLogoUrl: Scalars['String'];
+  transactionBrandName: Scalars['String'];
+  transactionBrandURLAddress: Scalars['String'];
+  transactionId: Scalars['ID'];
+  transactionIsOnline: Scalars['Boolean'];
+  transactionStatus: TransactionsStatus;
+  transactionType: TransactionType;
+  updatedAt: Scalars['AWSDateTime'];
+};
+
 export type MoonbeamTransactionResponse = {
   __typename?: 'MoonbeamTransactionResponse';
   data?: Maybe<MoonbeamTransaction>;
@@ -1328,6 +1355,7 @@ export enum NotificationStatus {
 
 export enum NotificationType {
   CardLinkingReminder = 'CARD_LINKING_REMINDER',
+  DailyEarningsSummary = 'DAILY_EARNINGS_SUMMARY',
   EligibleForReimbursement = 'ELIGIBLE_FOR_REIMBURSEMENT',
   ExpirationLinkedCardNotice = 'EXPIRATION_LINKED_CARD_NOTICE',
   ExpiredLinkedCard = 'EXPIRED_LINKED_CARD',
@@ -1875,11 +1903,14 @@ export type SearchOffersInput = {
 };
 
 export type SendEmailNotificationInput = {
+  dailyEarningsSummaryAmount?: InputMaybe<Scalars['Float']>;
   emailDestination: Scalars['String'];
+  transactions?: InputMaybe<Array<InputMaybe<MoonbeamTransactionInput>>>;
   userFullName: Scalars['String'];
 };
 
 export type SendMobilePushNotificationInput = {
+  dailyEarningsSummaryAmount?: InputMaybe<Scalars['Float']>;
   expoPushTokens: Array<InputMaybe<Scalars['String']>>;
   ineligibleTransactionAmount?: InputMaybe<Scalars['Float']>;
   merchantName?: InputMaybe<Scalars['String']>;
