@@ -64,8 +64,8 @@ export const createDailyEarningsSummary = async (fieldName: string, createDailyE
          * that given day.
          */
         const transactionsInRangeResponse: MoonbeamTransactionsResponse = await moonbeamClient.getTransactionsInRange({
-            startDate: inputTargetStartDate.toISOString(),
-            endDate: inputTargetEndDate.toISOString()
+            startDate: new Date(inputTargetStartDate.setUTCHours(0,0,0,0)).toISOString(),
+            endDate: new Date(inputTargetEndDate.setUTCHours(23,59,59,999)).toISOString()
         });
 
         // check to see if the get all transactions in range call was successful or not

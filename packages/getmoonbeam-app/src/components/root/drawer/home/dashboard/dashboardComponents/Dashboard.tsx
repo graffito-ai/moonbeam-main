@@ -18,6 +18,7 @@ import {createOrUpdateAppReviewRecord, getAppReviewEligibilityCheck, logEvent} f
 import {DashboardMain} from "./DashboardMain";
 import {DashboardBottomSheet} from "./DashboardBottomSheet";
 import {SafeAreaView} from 'react-native';
+import { DailyEarningsSummaryPopUp } from '../dailySummary/DailyEarningsSummary';
 
 /**
  * DashboardController component. This component will be used as the dashboard for the application,
@@ -107,6 +108,7 @@ export const Dashboard = () => {
                     <Spinner loadingSpinnerShown={loadingSpinnerShown} setLoadingSpinnerShown={setLoadingSpinnerShown}/>
                     :
                     <>
+                        <DailyEarningsSummaryPopUp/>
                         <BiometricsPopUp/>
                         <Portal>
                             <Dialog style={commonStyles.dialogStyle} visible={modalVisible}

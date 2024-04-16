@@ -43,7 +43,7 @@ export const triggerEarningsDailySummariesCreation = async (): Promise<void> => 
         const todayDate = new Date();
         const targetDate = new Date();
 
-        // set the targetDate as yesterday's date at 00:00:00.0000Z
+        // set the targetDate as yesterday's date at 00:00:00.000Z
         targetDate.setDate(todayDate.getDate() - 1);
         targetDate.setHours(0);
         targetDate.setMinutes(0);
@@ -58,7 +58,7 @@ export const triggerEarningsDailySummariesCreation = async (): Promise<void> => 
          * spent in the previous day, and create a summary for them.
          */
         const dailyEarningsSummaryResponse: DailyEarningsSummaryResponse = await moonbeamClient.createDailyEarningsSummary({
-            targetDate: targetDate.toISOString()
+            targetDate: new Date(targetDate.setUTCHours(0,0,0,0)).toISOString()
         });
 
         // make sure that creating the daily earnings summaries call was successful or not

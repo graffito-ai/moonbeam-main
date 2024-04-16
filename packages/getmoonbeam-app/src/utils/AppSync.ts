@@ -1,4 +1,5 @@
 import {
+    acknowledgeLocationUpdate,
     CountryCode,
     createAppReview,
     createDevice,
@@ -10,6 +11,7 @@ import {
     createReimbursement,
     CreateReimbursementInput,
     createUserAuthSession,
+    DailyEarningsSummary,
     EventSeries,
     FidelisPartner,
     geoCodeAsync,
@@ -28,7 +30,7 @@ import {
     getUserAuthSession,
     getUserCardLinkingId,
     getUserFromReferral,
-    acknowledgeLocationUpdate,
+    getDailyEarningsSummary,
     LocationPredictionType,
     LoggingLevel,
     MarketingCampaignCode,
@@ -56,7 +58,7 @@ import {
     UserAuthSessionErrorType,
     UserAuthSessionResponse,
     UserDeviceErrorType,
-    UserDeviceState
+    UserDeviceState, DailySummaryErrorType, updateDailyEarningsSummary, DailyEarningsSummaryStatus
 } from "@moonbeam/moonbeam-models";
 import {API, Cache, graphqlOperation} from "aws-amplify";
 import {dynamicSort} from "./Main";
@@ -68,6 +70,157 @@ import {Platform} from "react-native";
 import * as envInfo from "../../local-env-info.json";
 import React from "react";
 import {LocationGeocodedLocation} from "expo-location/src/Location.types";
+
+/**
+ * Function used to calculate the current date and time
+ * given the current timezone offset.
+ *
+ * @returns a {@link Date} representing the current date in the current
+ * user's timezone.
+ */
+const calculateDateTime = (): Date=> {
+    const d = new Date();
+    return d.getTimezoneOffset() > 0
+        ? new Date(d.getTime() - (d.getTimezoneOffset() * 60000))
+        : new Date(d.getTime() + (d.getTimezoneOffset() * 60000));
+}
+
+/**
+ * Function used to update the daily earnings summary status for a particular user and
+ * daily summary. This function will automatically take the previous day's summary and
+ * update that status to "Acknowledged".
+ *
+ * @param userId user id to update the daily summary status for.
+ *
+ * @return an {@link Array} of {@link DailyEarningsSummary} representing the list of daily earnings summaries
+ * for that particular user which were successfully updated.
+ */
+export const updateDailyEarningsSummaryStatus = async (userId: string): Promise<DailyEarningsSummary[]> => {
+    // get the current date, and from that build the appropriate target date as a day before the current date
+    const todayDate = calculateDateTime();
+    const targetDate = calculateDateTime();
+
+    // set the targetDate as yesterday's date at 00:00:00.000Z
+    targetDate.setDate(todayDate.getDate() - 1);
+    targetDate.setHours(0);
+    targetDate.setMinutes(0);
+    targetDate.setSeconds(0);
+    targetDate.setMilliseconds(0);
+
+    try {
+        // call the updateDailyEarningsSummary API to update the appropriate daily earnings summary for the passed in user and yesterday's date
+        const dailyEarningsSummaryUpdateResult = await API.graphql(graphqlOperation(updateDailyEarningsSummary, {
+            updateDailyEarningsSummaryInput: {
+                id: userId,
+                targetDate: new Date(targetDate.setUTCHours(0,0,0,0)).toISOString(),
+                status: DailyEarningsSummaryStatus.Acknowledged
+            }
+        }))
+
+        // retrieve the data block from the response
+        // @ts-ignore
+        const dailyEarningsSummaryUpdate = dailyEarningsSummaryUpdateResult ? dailyEarningsSummaryUpdateResult.data : null;
+
+        if (dailyEarningsSummaryUpdate && dailyEarningsSummaryUpdate.updateDailyEarningsSummary.errorMessage === null &&
+            dailyEarningsSummaryUpdate.updateDailyEarningsSummary.data !== undefined && dailyEarningsSummaryUpdate.updateDailyEarningsSummary.data !== null &&
+            dailyEarningsSummaryUpdate.updateDailyEarningsSummary.data.length !== 0) {
+            // return the updated daily earnings summary for that particular day
+            return dailyEarningsSummaryUpdate.updateDailyEarningsSummary.data as DailyEarningsSummary[];
+        } else {
+            // for daily earnings summaries calls which return 0 items, log a different message accordingly
+            if (dailyEarningsSummaryUpdate.updateDailyEarningsSummary.errorType !== undefined && dailyEarningsSummaryUpdate.updateDailyEarningsSummary.errorType !== null &&
+                dailyEarningsSummaryUpdate.updateDailyEarningsSummary.errorType === DailySummaryErrorType.NoneOrAbsent) {
+                const message = `Unknown daily summary to perform update for!`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Error, false);
+
+                return [];
+            } else {
+                // return that the results and print an error in case there was an error while executing the address geocoding
+                const message = `Error while executing the updateDailyEarningsSummary query ${dailyEarningsSummaryUpdate.updateDailyEarningsSummary.errorMessage}`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Error, false);
+
+                return [];
+            }
+        }
+    } catch (error) {
+        // return that the results and print an error in case there was an unexpected error while attempting to geocode address
+        const message = `Unexpected error while updating the daily earnings summary for user ${userId} and date ${targetDate.toISOString()}, ${JSON.stringify(error)} ${error}`;
+        console.log(message);
+        await logEvent(message, LoggingLevel.Error, false);
+
+        return [];
+    }
+}
+
+/**
+ * Function used to get the daily earnings summaries for a particular user.
+ * This will only retrieve the daily earnings summary for the previous day, since that's what we
+ * need to retrieve.
+ *
+ * @param userId user id to retrieve the daily summary for.
+ *
+ * @return an {@link Array} of {@link DailyEarningsSummary} representing the list of daily earnings summaries
+ * for that particular user.
+ */
+export const getDailyEarningSummaries = async (userId: string): Promise<DailyEarningsSummary[]> => {
+    // get the current date, and from that build the appropriate target date as a day before the current date
+    const todayDate = calculateDateTime();
+    const targetDate = calculateDateTime();
+
+    // set the targetDate as yesterday's date at 00:00:00.000Z
+    targetDate.setDate(todayDate.getDate() - 1);
+    targetDate.setHours(0);
+    targetDate.setMinutes(0);
+    targetDate.setSeconds(0);
+    targetDate.setMilliseconds(0);
+
+    try {
+        // call the getDailyEarningsSummary API to retrieve the appropriate daily earnings summary for the passed in user and yesterday's date
+        const dailyEarningsSummaryResult = await API.graphql(graphqlOperation(getDailyEarningsSummary, {
+            getDailyEarningsSummaryInput: {
+                id: userId,
+                targetDate: new Date(targetDate.setUTCHours(0,0,0,0)).toISOString()
+            }
+        }));
+
+        // retrieve the data block from the response
+        // @ts-ignore
+        const dailyEarningsSummary = dailyEarningsSummaryResult ? dailyEarningsSummaryResult.data : null;
+
+        if (dailyEarningsSummary && dailyEarningsSummary.getDailyEarningsSummary.errorMessage === null &&
+            dailyEarningsSummary.getDailyEarningsSummary.data !== undefined && dailyEarningsSummary.getDailyEarningsSummary.data !== null &&
+            dailyEarningsSummary.getDailyEarningsSummary.data.length !== 0) {
+            // return the matched daily earnings summary for that particular day
+            return dailyEarningsSummary.getDailyEarningsSummary.data as DailyEarningsSummary[];
+        } else {
+            // for daily earnings summaries calls which return 0 items, log a different message accordingly
+            if (dailyEarningsSummary.getDailyEarningsSummary.errorType !== undefined && dailyEarningsSummary.getDailyEarningsSummary.errorType !== null &&
+                dailyEarningsSummary.getDailyEarningsSummary.errorType === DailySummaryErrorType.NoneOrAbsent) {
+                const message = `No daily summaries found through the getDailyEarningsSummary query!`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Warning, false);
+
+                return [];
+            } else {
+                // return that the results and print an error in case there was an error while executing the address geocoding
+                const message = `Error while executing the getDailyEarningsSummary query ${dailyEarningsSummary.getDailyEarningsSummary.errorMessage}`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Error, false);
+
+                return [];
+            }
+        }
+    } catch (error) {
+        // return that the results and print an error in case there was an unexpected error while attempting to geocode address
+        const message = `Unexpected error while retrieving the daily earnings summary for user ${userId} and date ${targetDate.toISOString()}, ${JSON.stringify(error)} ${error}`;
+        console.log(message);
+        await logEvent(message, LoggingLevel.Error, false);
+
+        return [];
+    }
+}
 
 /**
  * Function used to geocode a location's address asynchronously using Google Maps APIs.

@@ -129,6 +129,7 @@ export const getDailyEarningsSummary = async (fieldName: string, getDailyEarning
             console.log(errorMessage);
 
             return {
+                data: [],
                 errorMessage: errorMessage,
                 errorType: DailySummaryErrorType.NoneOrAbsent
             }
