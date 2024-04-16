@@ -166,15 +166,10 @@ export class EarningsSummaryResolverStack extends Stack {
             ruleName: `${props.earningsSummaryConfig.earningsSummaryCronRuleName}-${props.stage}-${props.env!.region}`,
             description: "Schedule the Earnings Summary Trigger Lambda which initiates the earnings summaries producer Lambda/process daily, at 3:00PM UTC",
             // set the CRON timezone to the UTC time to match 3:00 PM UTC, 8:00 AM MST
-            // schedule: Schedule.cron({
-            //     day: '*',
-            //     minute: '00',
-            //     hour: '15'
-            // }),
             schedule: Schedule.cron({
                 day: '*',
-                minute: '42',
-                hour: '22'
+                minute: '00',
+                hour: '15'
             }),
             targets: [new LambdaFunction(earningsDailySummaryProducerLambda, {
                 event: events.RuleTargetInput.fromObject({
