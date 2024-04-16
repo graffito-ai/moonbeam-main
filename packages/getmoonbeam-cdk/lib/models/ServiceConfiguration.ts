@@ -349,6 +349,7 @@ export interface TransactionsConfiguration {
     readonly transactionsFunctionName: string;
     readonly createTransactionResolverName: string;
     readonly getTransactionResolverName: string;
+    readonly getTransactionsInRangeResolverName: string;
     readonly getTransactionByStatusResolverName: string;
     readonly updateTransactionResolverName: string;
     readonly getAllUsersEligibleForReimbursementsResolverName: string;
@@ -357,6 +358,20 @@ export interface TransactionsConfiguration {
     readonly transactionsIdGlobalIndex: string;
     readonly transactionsStatusLocalIndex: string;
     readonly transactionStatusGlobalIndex: string;
+    readonly transactionsInRangeGlobalIndex: string;
+}
+
+/**
+ * Interface used to define the configuration for the earnings summary service resolvers
+ * (GraphQL based), and other afferent data stores.
+ */
+export interface EarningsSummaryConfig {
+    readonly earningsSummaryFunctionName: string;
+    readonly dailyEarningsSummaryTableName: string;
+    readonly createDailyEarningsSummaryResolverName: string;
+    readonly getDailyEarningsSummaryResolverName: string;
+    readonly earningsSummaryCronRuleName: string;
+    readonly earningsSummaryProducerFunctionName: string;
 }
 
 /**

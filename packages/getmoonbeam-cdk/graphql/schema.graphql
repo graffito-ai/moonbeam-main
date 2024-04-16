@@ -14,6 +14,7 @@ type Query {
     getDevice(getDeviceInput: GetDeviceInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
     getDeviceByToken(getDeviceByTokenInput: GetDeviceByTokenInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
     getTransaction(getTransactionInput: GetTransactionInput!): MoonbeamTransactionsResponse! @aws_cognito_user_pools @aws_api_key
+    getTransactionsInRange(getTransactionsInRangeInput: GetTransactionsInRangeInput!): MoonbeamTransactionsResponse! @aws_cognito_user_pools @aws_api_key
     getTransactionByStatus(getTransactionByStatusInput: GetTransactionByStatusInput!): MoonbeamTransactionsByStatusResponse! @aws_cognito_user_pools @aws_api_key
     getCardLink(getCardLinkInput: GetCardLinkInput!): CardLinkResponse! @aws_cognito_user_pools
     getStorage(getStorageInput: GetStorageInput!): StorageResponse! @aws_cognito_user_pools @aws_api_key
@@ -35,7 +36,8 @@ type Query {
     getAppReviewEligibility(getAppReviewEligibilityInput: GetAppReviewEligibilityInput!): GetAppReviewEligibilityResponse! @aws_cognito_user_pools
     getLocationPredictions(getLocationPredictionsInput: GetLocationPredictionsInput!): GetLocationPredictionsResponse! @aws_cognito_user_pools @aws_iam
     getReimbursements(getReimbursementsInput: GetReimbursementsInput!): ReimbursementResponse! @aws_cognito_user_pools
-    getNotificationByType(getNotificationByTypeInput: GetNotificationByTypeInput!): GetNotificationByTypeResponse @aws_cognito_user_pools @aws_api_key
+    getNotificationByType(getNotificationByTypeInput: GetNotificationByTypeInput!): GetNotificationByTypeResponse! @aws_cognito_user_pools @aws_api_key
+    getDailyEarningsSummary(getDailyEarningsSummaryInput: GetDailyEarningsSummaryInput!): DailyEarningsSummaryResponse! @aws_cognito_user_pools @aws_api_key
 }
 
 type Mutation {
@@ -64,6 +66,7 @@ type Mutation {
     putMilitaryVerificationReport(putMilitaryVerificationReportInput: PutMilitaryVerificationReportInput!): MilitaryVerificationReportResponse! @aws_cognito_user_pools @aws_api_key
     createAppReview(createAppReviewInput: CreateAppReviewInput!): AppReviewResponse! @aws_cognito_user_pools
     createReimbursement(createReimbursementInput: CreateReimbursementInput!): ReimbursementResponse! @aws_cognito_user_pools
+    createDailyEarningsSummary(createDailyEarningsSummaryInput: CreateDailyEarningsSummaryInput!): DailyEarningsSummaryResponse! @aws_cognito_user_pools @aws_api_key
 }
 
 type Subscription {
@@ -712,6 +715,11 @@ input GetTransactionInput {
     endDate: AWSDateTime! ## the end time to filter transactions for
 }
 
+input GetTransactionsInRangeInput {
+    startDate: AWSDateTime! ## the start time to filter transactions for
+    endDate: AWSDateTime! ## the end time to filter transactions for
+}
+
 input GetTransactionByStatusInput {
     id: ID! ## this represents the userID which the transactions should be retrieved for
     status: TransactionsStatus! ## the transactions status to filter transactions for
@@ -726,6 +734,31 @@ input UpdateTransactionInput {
 }
 
 input CreateTransactionInput {
+    id: ID! ## this represents the userID which the transaction belongs to/was made by
+    timestamp: AWSTimestamp! ## this represents the timestamp, in a Number epoch based format (for sorting purposes)
+    transactionId: ID!
+    transactionStatus: TransactionsStatus!
+    transactionType: TransactionType!
+    createdAt: AWSDateTime! ## this will be the same as the "timestamp" value above, only represented in a date time format
+    updatedAt: AWSDateTime!
+    memberId: ID! ## this will be obtained from Olive (and it is the Olive member id)
+    cardId: ID!
+    brandId: ID!
+    storeId: ID!
+    category: String!
+    currencyCode: CurrencyCodeType!,
+    rewardAmount: Float!,
+    totalAmount: Float!,
+    pendingCashbackAmount: Float! ## this amount should be the total reward amount that's pending reimbursement to the customer
+    creditedCashbackAmount: Float! ## this amount should be the total reward amount that's reimbursed/credited to the customer
+    transactionBrandName: String!,
+    transactionBrandAddress: String!,
+    transactionBrandLogoUrl: String!,
+    transactionBrandURLAddress: String!,
+    transactionIsOnline: Boolean!
+}
+
+input MoonbeamTransactionInput {
     id: ID! ## this represents the userID which the transaction belongs to/was made by
     timestamp: AWSTimestamp! ## this represents the timestamp, in a Number epoch based format (for sorting purposes)
     transactionId: ID!
@@ -785,6 +818,7 @@ enum NotificationType {
     SAN_ANTONIO_REFERRAL_TEMPLATE_1_REMINDER
     REIMBURSEMENTS_REMINDER
     SPENDING_TEMPLATE_1_REMINDER
+    DAILY_EARNINGS_SUMMARY
 }
 
 enum NotificationChannelType {
@@ -831,12 +865,16 @@ input CreateNotificationInput {
     actionUrl: String # mostly applicable to push based notifications (to indicate what happens when a user taps on the notification)
     createdAt: AWSDateTime # this will be the same as the "timestamp" value above, only represented in a date time format
     updatedAt: AWSDateTime
+    transactions: [MoonbeamTransactionInput] # mostly applicable for email based notifications, representing the transactions used in the daily earnings summary
+    dailyEarningsSummaryAmount: Float # mostly applicable for email or push based notifications, representing the daily earnings summary amount
 }
 
 # this input is specific for sending email notifications and will be used solely as an input object, outside of any AppSync related queries and/or mutations
 input SendEmailNotificationInput {
     emailDestination: String!
     userFullName: String!
+    transactions: [MoonbeamTransactionInput]
+    dailyEarningsSummaryAmount: Float
 }
 
 # this input is specific for sending mobile push notifications and will be used solely as an input object, outside of any AppSync related queries and/or mutations
@@ -845,6 +883,7 @@ input SendMobilePushNotificationInput {
     pendingCashback: Float
     merchantName: String
     ineligibleTransactionAmount: Float
+    dailyEarningsSummaryAmount: Float
 }
 
 # this type is a specific response for sending notifications and will be used solely as an input object, outside of any AppSync related queries and/or mutations
@@ -1799,4 +1838,42 @@ input CreateEventSeriesInput {
     externalSeriesID: ID
     createdAt: AWSDateTime
     updatedAt: AWSDateTime
+}
+# graphql/DailySummarySchema.graphql
+# Daily Summary Schema File
+enum DailySummaryErrorType {
+    DUPLICATE_OBJECT_FOUND
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+    NONE_OR_ABSENT
+}
+
+enum DailyEarningsSummaryStatus {
+    SENT
+    ACKNOWLEDGED
+}
+
+type DailyEarningsSummary @aws_cognito_user_pools @aws_api_key {
+    id: ID! ## this represents the userID which the daily earnings summary was made for.
+    timestamp: AWSTimestamp! ## this represents the timestamp, in a Number epoch based format (for sorting purposes) to represent the beginning of the day
+    dailyEarningsSummaryID: ID! ## this is an internal id for daily summaries.
+    createdAt: AWSDateTime! ## this represents the creation date but will also be used for sorting purposes.
+    updatedAt: AWSDateTime!
+    status: DailyEarningsSummaryStatus!
+    transactions: [MoonbeamTransaction]!
+}
+
+type DailyEarningsSummaryResponse @aws_cognito_user_pools @aws_api_key {
+    data: [DailyEarningsSummary]
+    errorType: DailySummaryErrorType
+    errorMessage: String
+}
+
+input CreateDailyEarningsSummaryInput {
+    targetDate: AWSDateTime! ## this represents the date used to create the daily earnings summary for
+}
+
+input GetDailyEarningsSummaryInput {
+    id: ID! ## the userID which which the daily earnings summary was made for.
+    targetDate: AWSDateTime! ## this represents the date used to sort and retrieve the appropriate daily earnings summary for.
 }

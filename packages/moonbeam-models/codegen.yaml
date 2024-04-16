@@ -21,6 +21,7 @@ schema:
   - ./src/graphql/schemas/ReimbursementsSchema.graphql
   - ./src/graphql/schemas/ServicesSchema.graphql
   - ./src/graphql/schemas/EventsSchema.graphql
+  - ./src/graphql/schemas/DailySummarySchema.graphql
 documents:
   - ./src/graphql/queries/Queries.graphql
   - ./src/graphql/mutations/Mutations.graphql

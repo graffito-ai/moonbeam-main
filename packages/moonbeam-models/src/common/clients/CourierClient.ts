@@ -104,6 +104,12 @@ export class CourierClient extends BaseAPIClient {
                                 merchantName: sendMobilePushNotificationInput.merchantName!
                             }
                         }),
+                    ...(sendMobilePushNotificationInput.dailyEarningsSummaryAmount !== undefined &&
+                        sendMobilePushNotificationInput.dailyEarningsSummaryAmount !== null && {
+                            data: {
+                                dailyEarningsSummaryAmount: sendMobilePushNotificationInput.dailyEarningsSummaryAmount!.toString()
+                            }
+                        })
                 }
             };
             console.log(`Courier API request Object: ${JSON.stringify(requestData)}`);
@@ -227,7 +233,13 @@ export class CourierClient extends BaseAPIClient {
                     },
                     template: notificationTemplateId,
                     data: {
-                        fullName: sendEmailNotificationInput.userFullName
+                        fullName: sendEmailNotificationInput.userFullName,
+                        ...(sendEmailNotificationInput.transactions !== undefined && sendEmailNotificationInput.transactions !== null && sendEmailNotificationInput.transactions.length !== 0 && {
+                            transactions: sendEmailNotificationInput.transactions!
+                        }),
+                        ...(sendEmailNotificationInput.dailyEarningsSummaryAmount !== undefined && sendEmailNotificationInput.dailyEarningsSummaryAmount !== null && {
+                            dailyEarningsSummaryAmount: sendEmailNotificationInput.dailyEarningsSummaryAmount!
+                        }),
                     }
                 }
             };

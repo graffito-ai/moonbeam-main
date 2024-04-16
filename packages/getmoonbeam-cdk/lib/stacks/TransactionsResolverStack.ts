@@ -79,6 +79,10 @@ export class TransactionsResolverStack extends Stack {
             typeName: "Query",
             fieldName: `${props.transactionsConfig.getAllUsersIneligibleForReimbursementsResolverName}`
         });
+        transactionsLambdaSource.createResolver(`${props.transactionsConfig.getTransactionsInRangeResolverName}-${props.stage}-${props.env!.region}`, {
+            typeName: "Query",
+            fieldName: `${props.transactionsConfig.getTransactionsInRangeResolverName}`
+        });
 
         // create a new table to be used for Transactions purposes
         const transactionsTable = new aws_dynamodb.Table(this, `${props.transactionsConfig.transactionsTableName}-${props.stage}-${props.env!.region}`, {
@@ -138,6 +142,23 @@ export class TransactionsResolverStack extends Stack {
                 type: aws_dynamodb.AttributeType.STRING
             }
         });
+        /**
+         * creates a local secondary index for the table, so we can retrieve transactions by their currency code,
+         * given a particular time range.
+         * {@link https://www.dynamodbguide.com/key-concepts/}
+         * {@link https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GSI.html}
+         */
+        transactionsTable.addGlobalSecondaryIndex({
+            indexName: `${props.transactionsConfig.transactionsInRangeGlobalIndex}-${props.stage}-${props.env!.region}`,
+            partitionKey: {
+                name: 'currencyCode',
+                type: aws_dynamodb.AttributeType.STRING
+            },
+            sortKey: {
+                name: 'createdAt',
+                type: aws_dynamodb.AttributeType.STRING
+            }
+        });
 
         // enable the Lambda function to access the DynamoDB table (using IAM)
         transactionsTable.grantFullAccess(transactionsLambda);
@@ -159,7 +180,8 @@ export class TransactionsResolverStack extends Stack {
                         `${transactionsTable.tableArn}`,
                         `${transactionsTable.tableArn}/index/${props.transactionsConfig.transactionsStatusLocalIndex}-${props.stage}-${props.env!.region}`,
                         `${transactionsTable.tableArn}/index/${props.transactionsConfig.transactionsIdGlobalIndex}-${props.stage}-${props.env!.region}`,
-                        `${transactionsTable.tableArn}/index/${props.transactionsConfig.transactionStatusGlobalIndex}-${props.stage}-${props.env!.region}`
+                        `${transactionsTable.tableArn}/index/${props.transactionsConfig.transactionStatusGlobalIndex}-${props.stage}-${props.env!.region}`,
+                        `${transactionsTable.tableArn}/index/${props.transactionsConfig.transactionsInRangeGlobalIndex}-${props.stage}-${props.env!.region}`,
                     ]
                 }
             )
@@ -184,6 +206,7 @@ export class TransactionsResolverStack extends Stack {
         transactionsLambda.addEnvironment(`${Constants.MoonbeamConstants.TRANSACTIONS_STATUS_LOCAL_INDEX}`, props.transactionsConfig.transactionsStatusLocalIndex);
         transactionsLambda.addEnvironment(`${Constants.MoonbeamConstants.TRANSACTIONS_ID_GLOBAL_INDEX}`, props.transactionsConfig.transactionsIdGlobalIndex);
         transactionsLambda.addEnvironment(`${Constants.MoonbeamConstants.TRANSACTIONS_STATUS_GLOBAL_INDEX}`, props.transactionsConfig.transactionStatusGlobalIndex);
+        transactionsLambda.addEnvironment(`${Constants.MoonbeamConstants.TRANSACTIONS_IN_RANGE_GLOBAL_INDEX}`, props.transactionsConfig.transactionsInRangeGlobalIndex);
         transactionsLambda.addEnvironment(`${Constants.MoonbeamConstants.ENV_NAME}`, props.stage);
     }
 }

@@ -2,6 +2,47 @@
  * This is a file used to define the all GraphQL query constants
  */
 
+// Query used to retrieve a daily earnings summary for a particular user and date.
+export const getDailyEarningsSummary = /* GraphQL */ `
+    query GetDailyEarningsSummary($getDailyEarningsSummaryInput: GetDailyEarningsSummaryInput!) {
+        getDailyEarningsSummary(getDailyEarningsSummaryInput: $getDailyEarningsSummaryInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                dailyEarningsSummaryID
+                createdAt
+                updatedAt
+                status
+                transactions {
+                    id
+                    timestamp
+                    transactionId
+                    transactionStatus
+                    transactionType
+                    createdAt
+                    updatedAt
+                    memberId
+                    cardId
+                    brandId
+                    storeId
+                    category
+                    currencyCode
+                    rewardAmount
+                    totalAmount
+                    pendingCashbackAmount
+                    creditedCashbackAmount
+                    transactionBrandName
+                    transactionBrandAddress
+                    transactionBrandLogoUrl
+                    transactionBrandURLAddress
+                    transactionIsOnline
+                }
+            }
+        }
+    }
+`;
+
 // Query used to retrieve notifications sorted by their creation date, given their type
 export const getNotificationByType = /* GraphQL */ `
     query GetNotificationByType($getNotificationByTypeInput: GetNotificationByTypeInput!) {
@@ -803,6 +844,40 @@ export const getDeviceByToken = /* GraphQL */ `
                 tokenId
                 deviceState
                 lastLoginDate
+            }
+        }
+    }
+`;
+
+// Query used to retrieve transactions within a specific timeframe
+export const getTransactionsInRange = /* GraphQL */ `
+    query getTransactionsInRange($getTransactionsInRangeInput: GetTransactionsInRangeInput!) {
+        getTransactionsInRange(getTransactionsInRangeInput: $getTransactionsInRangeInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                timestamp
+                transactionId
+                transactionStatus
+                transactionType
+                createdAt
+                updatedAt
+                memberId
+                cardId
+                brandId
+                storeId
+                category
+                currencyCode
+                rewardAmount
+                totalAmount
+                pendingCashbackAmount
+                creditedCashbackAmount
+                transactionBrandName
+                transactionBrandAddress
+                transactionBrandLogoUrl
+                transactionBrandURLAddress
+                transactionIsOnline
             }
         }
     }

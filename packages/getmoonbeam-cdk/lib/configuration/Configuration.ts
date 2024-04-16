@@ -164,12 +164,14 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 transactionsIdGlobalIndex: 'transactionsIdGlobalIndex',
                 transactionsStatusLocalIndex: 'transactionsStatusLocalIndex',
                 transactionStatusGlobalIndex: 'transactionStatusGlobalIndex',
+                transactionsInRangeGlobalIndex: 'transactionsInRangeGlobalIndex',
                 createTransactionResolverName: 'createTransaction',
                 getTransactionResolverName: 'getTransaction',
                 getTransactionByStatusResolverName: 'getTransactionByStatus',
                 getAllUsersEligibleForReimbursementsResolverName: 'getAllUsersEligibleForReimbursements',
                 getAllUsersIneligibleForReimbursementsResolverName: 'getAllUsersIneligibleForReimbursements',
-                updateTransactionResolverName: 'updateTransaction'
+                updateTransactionResolverName: 'updateTransaction',
+                getTransactionsInRangeResolverName: 'getTransactionsInRange'
             },
             notificationsConfig: {
                 notificationsFunctionName: 'notificationsLambdaFunction',
@@ -303,6 +305,14 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 scriptsFunctionName: "scriptsFunction",
                 cardExpirationBackFillCronRuleName: "cardExpirationBackFillRule",
                 offerBackFillCronRuleName: "offerBackFillRule"
+            },
+            earningsSummaryConfig: {
+                earningsSummaryFunctionName: "earningsSummaryFunction",
+                dailyEarningsSummaryTableName: "dailyEarningsSummaryTable",
+                createDailyEarningsSummaryResolverName: "createDailyEarningsSummary",
+                getDailyEarningsSummaryResolverName: "getDailyEarningsSummary",
+                earningsSummaryCronRuleName: "earningsSummaryCronRule",
+                earningsSummaryProducerFunctionName: "earningsSummaryProducerFunction"
             },
             environmentVariables: new Map<string, string>([])
         },
@@ -464,12 +474,14 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 transactionsIdGlobalIndex: 'transactionsIdGlobalIndex',
                 transactionsStatusLocalIndex: 'transactionsStatusLocalIndex',
                 transactionStatusGlobalIndex: 'transactionStatusGlobalIndex',
+                transactionsInRangeGlobalIndex: 'transactionsInRangeGlobalIndex',
                 createTransactionResolverName: 'createTransaction',
                 getTransactionResolverName: 'getTransaction',
                 getTransactionByStatusResolverName: 'getTransactionByStatus',
                 getAllUsersEligibleForReimbursementsResolverName: 'getAllUsersEligibleForReimbursements',
                 getAllUsersIneligibleForReimbursementsResolverName: 'getAllUsersIneligibleForReimbursements',
-                updateTransactionResolverName: 'updateTransaction'
+                updateTransactionResolverName: 'updateTransaction',
+                getTransactionsInRangeResolverName: 'getTransactionsInRange'
             },
             notificationsConfig: {
                 notificationsFunctionName: 'notificationsLambdaFunction',
@@ -603,6 +615,14 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 scriptsFunctionName: "scriptsFunction",
                 cardExpirationBackFillCronRuleName: "cardExpirationBackFillRule",
                 offerBackFillCronRuleName: "offerBackFillRule"
+            },
+            earningsSummaryConfig: {
+                earningsSummaryFunctionName: "earningsSummaryFunction",
+                dailyEarningsSummaryTableName: "dailyEarningsSummaryTable",
+                createDailyEarningsSummaryResolverName: "createDailyEarningsSummary",
+                getDailyEarningsSummaryResolverName: "getDailyEarningsSummary",
+                earningsSummaryCronRuleName: "earningsSummaryCronRule",
+                earningsSummaryProducerFunctionName: "earningsSummaryProducerFunction"
             },
             environmentVariables: new Map<string, string>([])
         },

@@ -39,7 +39,7 @@ export class IneligibleTransactionsProducerConsumerStack extends Stack {
     readonly ineligibleTransactionsProcessingTopic: aws_sns.Topic;
 
     /**
-     * Constructor for the IneligibleTransactionsProducerConsumerStack stack.
+     * Constructor for the IneligibleTransactionsProducerConsumer resolver stack.
      *
      * @param scope scope to be passed in (usually a CDK App Construct)
      * @param id stack id to be passed in

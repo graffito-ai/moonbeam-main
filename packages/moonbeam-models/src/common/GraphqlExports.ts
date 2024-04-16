@@ -187,6 +187,10 @@ export type CreateCardLinkInput = {
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
+export type CreateDailyEarningsSummaryInput = {
+  targetDate: Scalars['AWSDateTime'];
+};
+
 export type CreateDeviceInput = {
   deviceState: UserDeviceState;
   id: Scalars['ID'];
@@ -249,6 +253,7 @@ export type CreateNotificationInput = {
   actionUrl?: InputMaybe<Scalars['String']>;
   channelType: NotificationChannelType;
   createdAt?: InputMaybe<Scalars['AWSDateTime']>;
+  dailyEarningsSummaryAmount?: InputMaybe<Scalars['Float']>;
   emailDestination?: InputMaybe<Scalars['String']>;
   expoPushTokens?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
   id: Scalars['ID'];
@@ -258,6 +263,7 @@ export type CreateNotificationInput = {
   pendingCashback?: InputMaybe<Scalars['Float']>;
   status: NotificationStatus;
   timestamp?: InputMaybe<Scalars['AWSTimestamp']>;
+  transactions?: InputMaybe<Array<InputMaybe<MoonbeamTransactionInput>>>;
   type: NotificationType;
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
   userFullName?: InputMaybe<Scalars['String']>;
@@ -359,6 +365,36 @@ export type CreateUserAuthSessionInput = {
 
 export enum CurrencyCodeType {
   Usd = 'USD'
+}
+
+export type DailyEarningsSummary = {
+  __typename?: 'DailyEarningsSummary';
+  createdAt: Scalars['AWSDateTime'];
+  dailyEarningsSummaryID: Scalars['ID'];
+  id: Scalars['ID'];
+  status: DailyEarningsSummaryStatus;
+  timestamp: Scalars['AWSTimestamp'];
+  transactions: Array<Maybe<MoonbeamTransaction>>;
+  updatedAt: Scalars['AWSDateTime'];
+};
+
+export type DailyEarningsSummaryResponse = {
+  __typename?: 'DailyEarningsSummaryResponse';
+  data?: Maybe<Array<Maybe<DailyEarningsSummary>>>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<DailySummaryErrorType>;
+};
+
+export enum DailyEarningsSummaryStatus {
+  Acknowledged = 'ACKNOWLEDGED',
+  Sent = 'SENT'
+}
+
+export enum DailySummaryErrorType {
+  DuplicateObjectFound = 'DUPLICATE_OBJECT_FOUND',
+  NoneOrAbsent = 'NONE_OR_ABSENT',
+  UnexpectedError = 'UNEXPECTED_ERROR',
+  ValidationError = 'VALIDATION_ERROR'
 }
 
 export type DeleteCardInput = {
@@ -559,6 +595,11 @@ export type GetCardLinkInput = {
   id: Scalars['ID'];
 };
 
+export type GetDailyEarningsSummaryInput = {
+  id: Scalars['ID'];
+  targetDate: Scalars['AWSDateTime'];
+};
+
 export type GetDeviceByTokenInput = {
   tokenId: Scalars['ID'];
 };
@@ -663,6 +704,11 @@ export type GetTransactionInput = {
   endDate: Scalars['AWSDateTime'];
   id: Scalars['ID'];
   startDate?: InputMaybe<Scalars['AWSDateTime']>;
+};
+
+export type GetTransactionsInRangeInput = {
+  endDate: Scalars['AWSDateTime'];
+  startDate: Scalars['AWSDateTime'];
 };
 
 export type GetUserAuthSessionInput = {
@@ -987,6 +1033,31 @@ export type MoonbeamTransactionByStatus = {
   transactionStatus: TransactionsStatus;
 };
 
+export type MoonbeamTransactionInput = {
+  brandId: Scalars['ID'];
+  cardId: Scalars['ID'];
+  category: Scalars['String'];
+  createdAt: Scalars['AWSDateTime'];
+  creditedCashbackAmount: Scalars['Float'];
+  currencyCode: CurrencyCodeType;
+  id: Scalars['ID'];
+  memberId: Scalars['ID'];
+  pendingCashbackAmount: Scalars['Float'];
+  rewardAmount: Scalars['Float'];
+  storeId: Scalars['ID'];
+  timestamp: Scalars['AWSTimestamp'];
+  totalAmount: Scalars['Float'];
+  transactionBrandAddress: Scalars['String'];
+  transactionBrandLogoUrl: Scalars['String'];
+  transactionBrandName: Scalars['String'];
+  transactionBrandURLAddress: Scalars['String'];
+  transactionId: Scalars['ID'];
+  transactionIsOnline: Scalars['Boolean'];
+  transactionStatus: TransactionsStatus;
+  transactionType: TransactionType;
+  updatedAt: Scalars['AWSDateTime'];
+};
+
 export type MoonbeamTransactionResponse = {
   __typename?: 'MoonbeamTransactionResponse';
   data?: Maybe<MoonbeamTransaction>;
@@ -1032,6 +1103,7 @@ export type Mutation = {
   addCard: CardLinkResponse;
   createAppReview: AppReviewResponse;
   createCardLink: CardLinkResponse;
+  createDailyEarningsSummary: DailyEarningsSummaryResponse;
   createDevice: UserDeviceResponse;
   createEventSeries: EventSeriesResponse;
   createFAQ: FaqResponse;
@@ -1073,6 +1145,11 @@ export type MutationCreateAppReviewArgs = {
 
 export type MutationCreateCardLinkArgs = {
   createCardLinkInput: CreateCardLinkInput;
+};
+
+
+export type MutationCreateDailyEarningsSummaryArgs = {
+  createDailyEarningsSummaryInput: CreateDailyEarningsSummaryInput;
 };
 
 
@@ -1278,6 +1355,7 @@ export enum NotificationStatus {
 
 export enum NotificationType {
   CardLinkingReminder = 'CARD_LINKING_REMINDER',
+  DailyEarningsSummary = 'DAILY_EARNINGS_SUMMARY',
   EligibleForReimbursement = 'ELIGIBLE_FOR_REIMBURSEMENT',
   ExpirationLinkedCardNotice = 'EXPIRATION_LINKED_CARD_NOTICE',
   ExpiredLinkedCard = 'EXPIRED_LINKED_CARD',
@@ -1533,6 +1611,7 @@ export type Query = {
   getAppReviewEligibility: GetAppReviewEligibilityResponse;
   getAppUpgradeCredentials: AppUpgradeResponse;
   getCardLink: CardLinkResponse;
+  getDailyEarningsSummary: DailyEarningsSummaryResponse;
   getDevice: UserDeviceResponse;
   getDeviceByToken: UserDeviceResponse;
   getDevicesForUser: UserDevicesResponse;
@@ -1544,7 +1623,7 @@ export type Query = {
   getLocationPredictions: GetLocationPredictionsResponse;
   getMilitaryVerificationInformation: MilitaryVerificationReportingInformationResponse;
   getMilitaryVerificationStatus: GetMilitaryVerificationResponse;
-  getNotificationByType?: Maybe<GetNotificationByTypeResponse>;
+  getNotificationByType: GetNotificationByTypeResponse;
   getNotificationReminders: NotificationReminderResponse;
   getOffers: OffersResponse;
   getPremierOffers: OffersResponse;
@@ -1555,6 +1634,7 @@ export type Query = {
   getStorage: StorageResponse;
   getTransaction: MoonbeamTransactionsResponse;
   getTransactionByStatus: MoonbeamTransactionsByStatusResponse;
+  getTransactionsInRange: MoonbeamTransactionsResponse;
   getUserAuthSession: UserAuthSessionResponse;
   getUserCardLinkingId: GetUserCardLinkingIdResponse;
   getUserFromReferral: UserFromReferralResponse;
@@ -1576,6 +1656,11 @@ export type QueryGetAppReviewEligibilityArgs = {
 
 export type QueryGetCardLinkArgs = {
   getCardLinkInput: GetCardLinkInput;
+};
+
+
+export type QueryGetDailyEarningsSummaryArgs = {
+  getDailyEarningsSummaryInput: GetDailyEarningsSummaryInput;
 };
 
 
@@ -1656,6 +1741,11 @@ export type QueryGetTransactionArgs = {
 
 export type QueryGetTransactionByStatusArgs = {
   getTransactionByStatusInput: GetTransactionByStatusInput;
+};
+
+
+export type QueryGetTransactionsInRangeArgs = {
+  getTransactionsInRangeInput: GetTransactionsInRangeInput;
 };
 
 
@@ -1813,11 +1903,14 @@ export type SearchOffersInput = {
 };
 
 export type SendEmailNotificationInput = {
+  dailyEarningsSummaryAmount?: InputMaybe<Scalars['Float']>;
   emailDestination: Scalars['String'];
+  transactions?: InputMaybe<Array<InputMaybe<MoonbeamTransactionInput>>>;
   userFullName: Scalars['String'];
 };
 
 export type SendMobilePushNotificationInput = {
+  dailyEarningsSummaryAmount?: InputMaybe<Scalars['Float']>;
   expoPushTokens: Array<InputMaybe<Scalars['String']>>;
   ineligibleTransactionAmount?: InputMaybe<Scalars['Float']>;
   merchantName?: InputMaybe<Scalars['String']>;
@@ -2141,6 +2234,13 @@ export enum UtilitiesErrorType {
   ValidationError = 'VALIDATION_ERROR'
 }
 
+export type CreateDailyEarningsSummaryMutationVariables = Exact<{
+  createDailyEarningsSummaryInput: CreateDailyEarningsSummaryInput;
+}>;
+
+
+export type CreateDailyEarningsSummaryMutation = { __typename?: 'Mutation', createDailyEarningsSummary: { __typename?: 'DailyEarningsSummaryResponse', errorMessage?: string | null, errorType?: DailySummaryErrorType | null, data?: Array<{ __typename?: 'DailyEarningsSummary', id: string, dailyEarningsSummaryID: string, createdAt: string, updatedAt: string, status: DailyEarningsSummaryStatus, transactions: Array<{ __typename?: 'MoonbeamTransaction', id: string, timestamp: number, transactionId: string, transactionStatus: TransactionsStatus, transactionType: TransactionType, createdAt: string, updatedAt: string, memberId: string, cardId: string, brandId: string, storeId: string, category: string, currencyCode: CurrencyCodeType, rewardAmount: number, totalAmount: number, pendingCashbackAmount: number, creditedCashbackAmount: number, transactionBrandName: string, transactionBrandAddress: string, transactionBrandLogoUrl: string, transactionBrandURLAddress: string, transactionIsOnline: boolean } | null> } | null> | null } };
+
 export type AcknowledgeLocationUpdateMutationVariables = Exact<{
   createLocationBasedOfferReminderInput: CreateLocationBasedOfferReminderInput;
 }>;
@@ -2316,12 +2416,19 @@ export type UpdateMilitaryVerificationStatusMutationVariables = Exact<{
 
 export type UpdateMilitaryVerificationStatusMutation = { __typename?: 'Mutation', updateMilitaryVerificationStatus: { __typename?: 'UpdateMilitaryVerificationResponse', errorType?: MilitaryVerificationErrorType | null, errorMessage?: string | null, id?: string | null, militaryVerificationStatus?: MilitaryVerificationStatusType | null } };
 
+export type GetDailyEarningsSummaryQueryVariables = Exact<{
+  getDailyEarningsSummaryInput: GetDailyEarningsSummaryInput;
+}>;
+
+
+export type GetDailyEarningsSummaryQuery = { __typename?: 'Query', getDailyEarningsSummary: { __typename?: 'DailyEarningsSummaryResponse', errorMessage?: string | null, errorType?: DailySummaryErrorType | null, data?: Array<{ __typename?: 'DailyEarningsSummary', id: string, dailyEarningsSummaryID: string, createdAt: string, updatedAt: string, status: DailyEarningsSummaryStatus, transactions: Array<{ __typename?: 'MoonbeamTransaction', id: string, timestamp: number, transactionId: string, transactionStatus: TransactionsStatus, transactionType: TransactionType, createdAt: string, updatedAt: string, memberId: string, cardId: string, brandId: string, storeId: string, category: string, currencyCode: CurrencyCodeType, rewardAmount: number, totalAmount: number, pendingCashbackAmount: number, creditedCashbackAmount: number, transactionBrandName: string, transactionBrandAddress: string, transactionBrandLogoUrl: string, transactionBrandURLAddress: string, transactionIsOnline: boolean } | null> } | null> | null } };
+
 export type GetNotificationByTypeQueryVariables = Exact<{
   getNotificationByTypeInput: GetNotificationByTypeInput;
 }>;
 
 
-export type GetNotificationByTypeQuery = { __typename?: 'Query', getNotificationByType?: { __typename?: 'GetNotificationByTypeResponse', errorMessage?: string | null, errorType?: NotificationsErrorType | null, data?: Array<{ __typename?: 'Notification', id: string, timestamp: number, notificationId: string, emailDestination?: string | null, userFullName?: string | null, type: NotificationType, channelType: NotificationChannelType, status: NotificationStatus, expoPushTokens?: Array<string | null> | null, pendingCashback?: number | null, merchantName?: string | null, actionUrl?: string | null, createdAt: string, updatedAt: string } | null> | null } | null };
+export type GetNotificationByTypeQuery = { __typename?: 'Query', getNotificationByType: { __typename?: 'GetNotificationByTypeResponse', errorMessage?: string | null, errorType?: NotificationsErrorType | null, data?: Array<{ __typename?: 'Notification', id: string, timestamp: number, notificationId: string, emailDestination?: string | null, userFullName?: string | null, type: NotificationType, channelType: NotificationChannelType, status: NotificationStatus, expoPushTokens?: Array<string | null> | null, pendingCashback?: number | null, merchantName?: string | null, actionUrl?: string | null, createdAt: string, updatedAt: string } | null> | null } };
 
 export type GetReimbursementsQueryVariables = Exact<{
   getReimbursementsInput: GetReimbursementsInput;
@@ -2493,6 +2600,13 @@ export type GetDeviceByTokenQueryVariables = Exact<{
 
 
 export type GetDeviceByTokenQuery = { __typename?: 'Query', getDeviceByToken: { __typename?: 'UserDeviceResponse', errorMessage?: string | null, errorType?: UserDeviceErrorType | null, data?: { __typename?: 'PushDevice', id: string, tokenId: string, deviceState: UserDeviceState, lastLoginDate: string } | null } };
+
+export type GetTransactionsInRangeQueryVariables = Exact<{
+  getTransactionsInRangeInput: GetTransactionsInRangeInput;
+}>;
+
+
+export type GetTransactionsInRangeQuery = { __typename?: 'Query', getTransactionsInRange: { __typename?: 'MoonbeamTransactionsResponse', errorMessage?: string | null, errorType?: TransactionsErrorType | null, data?: Array<{ __typename?: 'MoonbeamTransaction', id: string, timestamp: number, transactionId: string, transactionStatus: TransactionsStatus, transactionType: TransactionType, createdAt: string, updatedAt: string, memberId: string, cardId: string, brandId: string, storeId: string, category: string, currencyCode: CurrencyCodeType, rewardAmount: number, totalAmount: number, pendingCashbackAmount: number, creditedCashbackAmount: number, transactionBrandName: string, transactionBrandAddress: string, transactionBrandLogoUrl: string, transactionBrandURLAddress: string, transactionIsOnline: boolean } | null> | null } };
 
 export type GetTransactionQueryVariables = Exact<{
   getTransactionInput: GetTransactionInput;
