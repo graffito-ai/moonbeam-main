@@ -9,7 +9,7 @@ import DashboardBackgroundImage from "../../../../../../../assets/backgrounds/da
 import {Button} from "@rneui/base";
 import {commonStyles} from "../../../../../../styles/common.module";
 import {LoggingLevel, MoonbeamTransaction} from "@moonbeam/moonbeam-models";
-import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import {BiometricsPopUp} from "../biometrics/Biometrics";
 // @ts-ignore
 import MoonbeamStorePlaceholder from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
@@ -18,7 +18,9 @@ import {createOrUpdateAppReviewRecord, getAppReviewEligibilityCheck, logEvent} f
 import {DashboardMain} from "./DashboardMain";
 import {DashboardBottomSheet} from "./DashboardBottomSheet";
 import {SafeAreaView} from 'react-native';
-import { DailyEarningsSummaryPopUp } from '../dailySummary/DailyEarningsSummary';
+import {DailyEarningsSummaryPopUp} from '../dailySummary/DailyEarningsSummary';
+import {showDailySummaryConfettiState} from "../../../../../../recoil/DashboardAtom";
+import ConfettiCannon from 'react-native-confetti-cannon';
 
 /**
  * DashboardController component. This component will be used as the dashboard for the application,
@@ -38,6 +40,7 @@ export const Dashboard = () => {
     const [userIsAuthenticated,] = useRecoilState(userIsAuthenticatedState);
     const [appUrl,] = useRecoilState(appUrlState);
     const [userInformation,] = useRecoilState(currentUserInformation);
+    const [showDailySummaryConfetti, setShowDailySummaryConfetti] = useRecoilState(showDailySummaryConfettiState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -63,7 +66,8 @@ export const Dashboard = () => {
                         if (appReviewEligibilityCheck) {
                             const message = `User ${userInformation["custom:userId"]} is ELIGIBLE to be shown the App Review modal, proceeding!`;
                             console.log(message);
-                            logEvent(message, LoggingLevel.Info, userIsAuthenticated).then(() => {});
+                            logEvent(message, LoggingLevel.Info, userIsAuthenticated).then(() => {
+                            });
 
                             StoreReview.isAvailableAsync().then((availabilityFlag) => {
                                 // if the platform has the capabilities for store review
@@ -92,7 +96,8 @@ export const Dashboard = () => {
                         } else {
                             const message = `User ${userInformation["custom:userId"]} is NOT ELIGIBLE to be shown the App Review modal, skipping!`;
                             console.log(message);
-                            logEvent(message, LoggingLevel.Info, userIsAuthenticated).then(() => {});
+                            logEvent(message, LoggingLevel.Info, userIsAuthenticated).then(() => {
+                            });
                         }
                     });
                 }
@@ -110,6 +115,23 @@ export const Dashboard = () => {
                     <>
                         <DailyEarningsSummaryPopUp/>
                         <BiometricsPopUp/>
+                        <Portal>
+                            <Dialog style={{
+                                height: hp(120),
+                                width: wp(100),
+                                alignSelf: 'center',
+                                backgroundColor: 'transparent'
+                            }}
+                                    visible={showDailySummaryConfetti}
+                                    onDismiss={() => setShowDailySummaryConfetti(false)}>
+                                <ConfettiCannon
+                                    count={200}
+                                    origin={{x: 0, y: 0}}
+                                    autoStart={true}
+                                    onAnimationEnd={() => setShowDailySummaryConfetti(false)}
+                                />
+                            </Dialog>
+                        </Portal>
                         <Portal>
                             <Dialog style={commonStyles.dialogStyle} visible={modalVisible}
                                     onDismiss={() => setModalVisible(false)}>

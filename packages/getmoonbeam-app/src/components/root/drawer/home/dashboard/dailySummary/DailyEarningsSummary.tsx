@@ -8,12 +8,13 @@ import {useRecoilState} from "recoil";
 import {currentUserInformation} from "../../../../../../recoil/AuthAtom";
 // @ts-ignore
 import MoonbeamDailyEarnings from "../../../../../../../assets/art/moonbeam-daily-earnings.png";
-import {DailyEarningsSummaryStatus, MoonbeamTransaction} from "@moonbeam/moonbeam-models";
-import {getDailyEarningSummaries} from "../../../../../../utils/AppSync";
+import {DailyEarningsSummaryStatus, LoggingLevel, MoonbeamTransaction} from "@moonbeam/moonbeam-models";
+import {getDailyEarningSummaries, logEvent, updateDailyEarningsSummaryStatus} from "../../../../../../utils/AppSync";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
 import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
 import {Image as ExpoImage} from "expo-image/build/Image";
 import {convertMSToTimeframe} from "../../../../../../utils/Util";
+import {showDailySummaryConfettiState} from "../../../../../../recoil/DashboardAtom";
 
 /**
  * DailyEarningsSummaryPopUp component. This component will be used in the dashboard for the application,
@@ -34,6 +35,7 @@ export const DailyEarningsSummaryPopUp = () => {
     const [dailySummaryEarningsLayoutProvider, setDailySummaryEarningsLayoutProvider] = useState<LayoutProvider | null>(null);
     // constants used to keep track of shared states
     const [userInformation,] = useRecoilState(currentUserInformation);
+    const [, setShowDailySummaryConfetti] = useRecoilState(showDailySummaryConfettiState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -147,9 +149,10 @@ export const DailyEarningsSummaryPopUp = () => {
                             }}>
                         <>
                             {
-                                !isReady ?
-                                    <Spinner loadingSpinnerShown={loadingSpinnerShown}
-                                             setLoadingSpinnerShown={setLoadingSpinnerShown}/> :
+                                !isReady
+                                    ? <Spinner loadingSpinnerShown={loadingSpinnerShown}
+                                               setLoadingSpinnerShown={setLoadingSpinnerShown}/>
+                                    :
                                     <>
                                         <Image source={MoonbeamDailyEarnings}
                                                style={styles.topDailySummaryImage}/>
@@ -171,6 +174,21 @@ export const DailyEarningsSummaryPopUp = () => {
                                             <Button buttonStyle={styles.redeemButton}
                                                     titleStyle={styles.redeemButtonText}
                                                     onPress={async () => {
+                                                        // first update the status of the daily summary to acknowledged
+                                                        const updatedDailyEarningsSummary = await updateDailyEarningsSummaryStatus(userInformation["custom:userId"]);
+                                                        if (updatedDailyEarningsSummary.length === 1 && updatedDailyEarningsSummary[0].status === DailyEarningsSummaryStatus.Acknowledged) {
+                                                            const message = `Daily earnings summary status successfully updated!`;
+                                                            console.log(message);
+                                                            await logEvent(message, LoggingLevel.Info, true);
+                                                        } else {
+                                                            const message = `Failed to update the daily earnings summary status!`;
+                                                            console.log(message);
+                                                            await logEvent(message, LoggingLevel.Info, true);
+                                                        }
+                                                        // hide the modal
+                                                        setIsDailyEarningsSummaryDisplayed(false);
+                                                        // show the confetti
+                                                        setShowDailySummaryConfetti(true);
                                                     }}>
                                                 {`Redeem All`}
                                             </Button>
