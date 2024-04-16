@@ -370,6 +370,7 @@ export interface EarningsSummaryConfig {
     readonly dailyEarningsSummaryTableName: string;
     readonly createDailyEarningsSummaryResolverName: string;
     readonly getDailyEarningsSummaryResolverName: string;
+    readonly updateDailyEarningsSummaryResolverName: string;
     readonly earningsSummaryCronRuleName: string;
     readonly earningsSummaryProducerFunctionName: string;
 }

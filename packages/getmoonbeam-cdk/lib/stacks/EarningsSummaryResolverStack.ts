@@ -76,6 +76,10 @@ export class EarningsSummaryResolverStack extends Stack {
             typeName: "Mutation",
             fieldName: `${props.earningsSummaryConfig.createDailyEarningsSummaryResolverName}`
         });
+        earningsSummaryLambdaDataSource.createResolver(`${props.earningsSummaryConfig.updateDailyEarningsSummaryResolverName}-${props.stage}-${props.env!.region}`, {
+            typeName: "Mutation",
+            fieldName: `${props.earningsSummaryConfig.updateDailyEarningsSummaryResolverName}`
+        });
 
         // create a new table to be used for Daily Earnings Summary storing purposes
         const dailyEarningsSummaryTable = new aws_dynamodb.Table(this, `${props.earningsSummaryConfig.dailyEarningsSummaryTableName}-${props.stage}-${props.env!.region}`, {

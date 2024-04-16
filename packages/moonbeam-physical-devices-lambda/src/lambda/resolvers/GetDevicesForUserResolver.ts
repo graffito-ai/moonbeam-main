@@ -87,9 +87,16 @@ export const getDevicesForUser = async (fieldName: string, getDevicesForUserInpu
                 };
                 pushDevicesData.push(pushDevice);
             });
+
+            /**
+             * we will filter the active devices in the order of their lastLoginDate so that we can only return
+             * the last active device that the user has logged in to.
+             */
+            pushDevicesData.sort((a, b) => Date.parse(b.lastLoginDate) - Date.parse(a.lastLoginDate));
+
             // return the list of physical devices for user
             return {
-                data: pushDevicesData
+                data: [pushDevicesData[0]] // return the first device in the list of active devices since we know that's the latest one that the user has logged into
             }
         } else {
             const errorMessage = `Physical Devices for user ${getDevicesForUserInput.id} not found!`;

@@ -1119,6 +1119,7 @@ export type Mutation = {
   deleteCard: CardResponse;
   putMilitaryVerificationReport: MilitaryVerificationReportResponse;
   updateCard: EligibleLinkedUsersResponse;
+  updateDailyEarningsSummary: DailyEarningsSummaryResponse;
   updateDevice: UserDeviceResponse;
   updateMilitaryVerificationStatus: UpdateMilitaryVerificationResponse;
   updateNotificationReminder: NotificationReminderResponse;
@@ -1225,6 +1226,11 @@ export type MutationPutMilitaryVerificationReportArgs = {
 
 export type MutationUpdateCardArgs = {
   updateCardInput: UpdateCardInput;
+};
+
+
+export type MutationUpdateDailyEarningsSummaryArgs = {
+  updateDailyEarningsSummaryInput: UpdateDailyEarningsSummaryInput;
 };
 
 
@@ -2059,6 +2065,12 @@ export type UpdateCardInput = {
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
+export type UpdateDailyEarningsSummaryInput = {
+  id: Scalars['ID'];
+  status: DailyEarningsSummaryStatus;
+  targetDate: Scalars['AWSDateTime'];
+};
+
 export type UpdateDeviceInput = {
   deviceState: UserDeviceState;
   id: Scalars['ID'];
@@ -2233,6 +2245,13 @@ export enum UtilitiesErrorType {
   UnexpectedError = 'UNEXPECTED_ERROR',
   ValidationError = 'VALIDATION_ERROR'
 }
+
+export type UpdateDailyEarningsSummaryMutationVariables = Exact<{
+  updateDailyEarningsSummaryInput: UpdateDailyEarningsSummaryInput;
+}>;
+
+
+export type UpdateDailyEarningsSummaryMutation = { __typename?: 'Mutation', updateDailyEarningsSummary: { __typename?: 'DailyEarningsSummaryResponse', errorMessage?: string | null, errorType?: DailySummaryErrorType | null, data?: Array<{ __typename?: 'DailyEarningsSummary', id: string, dailyEarningsSummaryID: string, createdAt: string, updatedAt: string, status: DailyEarningsSummaryStatus, transactions: Array<{ __typename?: 'MoonbeamTransaction', id: string, timestamp: number, transactionId: string, transactionStatus: TransactionsStatus, transactionType: TransactionType, createdAt: string, updatedAt: string, memberId: string, cardId: string, brandId: string, storeId: string, category: string, currencyCode: CurrencyCodeType, rewardAmount: number, totalAmount: number, pendingCashbackAmount: number, creditedCashbackAmount: number, transactionBrandName: string, transactionBrandAddress: string, transactionBrandLogoUrl: string, transactionBrandURLAddress: string, transactionIsOnline: boolean } | null> } | null> | null } };
 
 export type CreateDailyEarningsSummaryMutationVariables = Exact<{
   createDailyEarningsSummaryInput: CreateDailyEarningsSummaryInput;
