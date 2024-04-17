@@ -17,7 +17,7 @@ import * as StoreReview from 'expo-store-review';
 import {createOrUpdateAppReviewRecord, getAppReviewEligibilityCheck, logEvent} from "../../../../../../utils/AppSync";
 import {DashboardMain} from "./DashboardMain";
 import {DashboardBottomSheet} from "./DashboardBottomSheet";
-import {SafeAreaView} from 'react-native';
+import {SafeAreaView, View} from 'react-native';
 import {DailyEarningsSummaryPopUp} from '../dailySummary/DailyEarningsSummary';
 import {showDailySummaryConfettiState} from "../../../../../../recoil/DashboardAtom";
 import ConfettiCannon from 'react-native-confetti-cannon';
@@ -118,18 +118,20 @@ export const Dashboard = () => {
                         <Portal>
                             <Dialog style={{
                                 height: hp(120),
-                                width: wp(100),
+                                width: wp(150),
                                 alignSelf: 'center',
                                 backgroundColor: 'transparent'
                             }}
                                     visible={showDailySummaryConfetti}
                                     onDismiss={() => setShowDailySummaryConfetti(false)}>
-                                <ConfettiCannon
-                                    count={200}
-                                    origin={{x: 0, y: 0}}
-                                    autoStart={true}
-                                    onAnimationEnd={() => setShowDailySummaryConfetti(false)}
-                                />
+                                <View style={{flex: 1, left: wp(25)}}>
+                                    <ConfettiCannon
+                                        count={500}
+                                        origin={{x: -30, y: 0}}
+                                        autoStart={true}
+                                        onAnimationEnd={() => setShowDailySummaryConfetti(false)}
+                                    />
+                                </View>
                             </Dialog>
                         </Portal>
                         <Portal>

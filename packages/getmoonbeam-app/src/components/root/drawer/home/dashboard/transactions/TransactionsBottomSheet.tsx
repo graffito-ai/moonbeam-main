@@ -22,7 +22,7 @@ import {Image} from "expo-image";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import {userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
 import {geocodeAsync, logEvent} from "../../../../../../utils/AppSync";
-import {LoggingLevel, OsType} from "@moonbeam/moonbeam-models";
+import {LoggingLevel, OsType, TransactionType} from "@moonbeam/moonbeam-models";
 
 /**
  * Interface to be used for determining the location of transaction
@@ -49,7 +49,8 @@ export const TransactionsBottomSheet = (props: {
     transactionAmount: string,
     transactionDiscountAmount: string,
     transactionStatus: string,
-    transactionTimestamp: string
+    transactionTimestamp: string,
+    transactionType: TransactionType
 }) => {
     // constants used to keep track of local component state
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(false);
@@ -173,155 +174,206 @@ export const TransactionsBottomSheet = (props: {
                 // @ts-ignore
                 style={[StyleSheet.absoluteFill, styles.transactionParentView, props.transactionOnlineAddress && {backgroundColor: '#5B5A5A'}]}>
                 <View style={styles.transactionBrandDetailsView}>
-                    <Text style={styles.transactionBrandName}>
-                        {props.brandName}
-                    </Text>
-                    <View style={styles.transactionDetailsView}>
-                        <View style={styles.transactionBrandImageBackground}>
-                            <Image
-                                style={styles.transactionBrandImage}
-                                source={{
-                                    uri: props.brandImage,
-                                }}
-                                placeholder={MoonbeamPlaceholderImage}
-                                placeholderContentFit={'contain'}
-                                contentFit={'contain'}
-                                transition={1000}
-                                cachePolicy={'memory-disk'}
-                            />
-                        </View>
-                        <View style={styles.brandDetailsView}>
-                            <Text style={styles.transactionDiscountAmount}>
-                                {`$ ${props.transactionDiscountAmount}`}
-                                <Text style={styles.transactionAmountLabel}> Earned</Text>
-                            </Text>
-                            <Text style={styles.transactionAddress}>
-                                {
-                                    props.transactionStoreAddress
-                                        ? `In-Person Purchase`
-                                        : `Online Purchase`
-                                }
-                            </Text>
-                        </View>
-                        <View style={styles.transactionAmountsView}>
-                            <Text style={styles.transactionStatusLabel}>
-                                {props.transactionStatus}
-                            </Text>
-                            <Text style={styles.transactionTimestamp}>
-                                {new Date(Number(props.transactionTimestamp)).toLocaleDateString()}
-                            </Text>
-                            <Text style={styles.transactionPrice}>
-                                {discountPercentage} Off
-                            </Text>
-                        </View>
-                    </View>
+                    {
+                        (props.transactionType !== TransactionType.OliveIneligibleMatched && props.transactionType !== TransactionType.OliveIneligibleUnmatched)
+                            ? <>
+                                <Text style={styles.transactionBrandName}>
+                                    {props.brandName}
+                                </Text>
+                                <View style={styles.transactionDetailsView}>
+                                    <View style={styles.transactionBrandImageBackground}>
+                                        <Image
+                                            style={styles.transactionBrandImage}
+                                            source={{
+                                                uri: props.brandImage,
+                                            }}
+                                            placeholder={MoonbeamPlaceholderImage}
+                                            placeholderContentFit={'contain'}
+                                            contentFit={'contain'}
+                                            transition={1000}
+                                            cachePolicy={'memory-disk'}
+                                        />
+                                    </View>
+                                    <View style={styles.brandDetailsView}>
+                                        <Text style={styles.transactionDiscountAmount}>
+                                            {`$ ${props.transactionDiscountAmount}`}
+                                            <Text style={styles.transactionAmountLabel}> Earned</Text>
+                                        </Text>
+                                        <Text style={styles.transactionAddress}>
+                                            {
+                                                props.transactionStoreAddress
+                                                    ? `In-Person Purchase`
+                                                    : `Online Purchase`
+                                            }
+                                        </Text>
+                                    </View>
+                                    <View style={styles.transactionAmountsView}>
+                                        <Text style={styles.transactionStatusLabel}>
+                                            {props.transactionStatus}
+                                        </Text>
+                                        <Text style={styles.transactionTimestamp}>
+                                            {new Date(Number(props.transactionTimestamp)).toLocaleDateString()}
+                                        </Text>
+                                        <Text style={styles.transactionPrice}>
+                                            {discountPercentage} Off
+                                        </Text>
+                                    </View>
+                                </View>
+                            </>
+                            : <>
+                                <Text style={styles.transactionBrandName}>
+                                    {'Unqualified merchant cashback'}
+                                </Text>
+                                <View style={styles.transactionDetailsView}>
+                                    <View style={styles.transactionBrandImageBackground}>
+                                        <Image
+                                            style={styles.transactionBrandImage}
+                                            source={{
+                                                uri: props.brandImage,
+                                            }}
+                                            placeholder={MoonbeamPlaceholderImage}
+                                            placeholderContentFit={'contain'}
+                                            contentFit={'contain'}
+                                            transition={1000}
+                                            cachePolicy={'memory-disk'}
+                                        />
+                                    </View>
+                                    <View style={styles.brandDetailsView}>
+                                        <Text style={styles.transactionDiscountAmount}>
+                                            {`$ ${props.transactionDiscountAmount}`}
+                                            <Text style={styles.transactionAmountLabel}> Earned</Text>
+                                        </Text>
+                                        <Text style={styles.transactionAddress}>
+                                            {
+                                                `Courtesy Cashback`
+                                            }
+                                        </Text>
+                                    </View>
+                                    <View style={styles.transactionAmountsView}>
+                                        <Text style={styles.transactionStatusLabel}>
+                                            {props.transactionStatus}
+                                        </Text>
+                                        <Text style={styles.transactionTimestamp}>
+                                            {new Date(Number(props.transactionTimestamp)).toLocaleDateString()}
+                                        </Text>
+                                    </View>
+                                </View>
+                            </>
+                    }
                 </View>
                 {
-                    locationServicesButton
-                        ?
-                        <>
-                            <View style={styles.locationServicesEnableView}>
-                                <Image style={styles.locationServicesImage} source={MoonbeamLocationServices}/>
-                                <TouchableOpacity
-                                    style={styles.locationServicesButton}
-                                    onPress={
-                                        async () => {
-                                            const errorMessage = `Permission to access location was not granted!`;
-                                            console.log(errorMessage);
-                                            await logEvent(errorMessage, LoggingLevel.Warning, userIsAuthenticated);
+                    (props.transactionType !== TransactionType.OliveIneligibleMatched && props.transactionType !== TransactionType.OliveIneligibleUnmatched) &&
+                    <>
+                        {
+                            locationServicesButton
+                                ?
+                                <>
+                                    <View style={styles.locationServicesEnableView}>
+                                        <Image style={styles.locationServicesImage} source={MoonbeamLocationServices}/>
+                                        <TouchableOpacity
+                                            style={styles.locationServicesButton}
+                                            onPress={
+                                                async () => {
+                                                    const errorMessage = `Permission to access location was not granted!`;
+                                                    console.log(errorMessage);
+                                                    await logEvent(errorMessage, LoggingLevel.Warning, userIsAuthenticated);
 
-                                            setPermissionsModalCustomMessage(errorMessage);
-                                            setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'
-                                                ? "In order to display the exact locations of your in-person transactions, go to Settings -> Moonbeam Finance, and allow Location Services access by tapping on the \'Location\' option."
-                                                : "In order to display the exact locations of your in-person transactions, go to Settings -> Apps -> Moonbeam Finance -> Permissions, and allow Location Services access by tapping on the \"Location\" option.");
-                                            setPermissionsModalVisible(true);
-                                        }
+                                                    setPermissionsModalCustomMessage(errorMessage);
+                                                    setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'
+                                                        ? "In order to display the exact locations of your in-person transactions, go to Settings -> Moonbeam Finance, and allow Location Services access by tapping on the \'Location\' option."
+                                                        : "In order to display the exact locations of your in-person transactions, go to Settings -> Apps -> Moonbeam Finance -> Permissions, and allow Location Services access by tapping on the \"Location\" option.");
+                                                    setPermissionsModalVisible(true);
+                                                }
+                                            }
+                                        >
+                                            <Text
+                                                style={styles.locationServicesButtonText}>{'Enable'}</Text>
+                                        </TouchableOpacity>
+                                        <Text style={styles.locationServicesEnableWarningMessage}>
+                                            Display transaction location, by enabling Location Service permissions!
+                                        </Text>
+                                    </View>
+                                </>
+                                :
+                                <>
+                                    {
+                                        loadingSpinnerShown &&
+                                        <ActivityIndicator
+                                            style={{top: hp(15), marginBottom: hp(-6), zIndex: 10}}
+                                            animating={true} color={'#313030'}
+                                            size={wp(13)}/>
                                     }
-                                >
-                                    <Text
-                                        style={styles.locationServicesButtonText}>{'Enable'}</Text>
-                                </TouchableOpacity>
-                                <Text style={styles.locationServicesEnableWarningMessage}>
-                                    Display transaction location, by enabling Location Service permissions!
-                                </Text>
-                            </View>
-                        </>
-                        :
-                        <>
-                            {
-                                loadingSpinnerShown &&
-                                <ActivityIndicator
-                                    style={{top: hp(15), marginBottom: hp(-6), zIndex: 10}}
-                                    animating={true} color={'#313030'}
-                                    size={wp(13)}/>
-                            }
-                            {
-                                props.transactionStoreAddress &&
-                                <View style={styles.transactionMapView}>
-                                    <MapView
-                                        provider={PROVIDER_GOOGLE}
-                                        userInterfaceStyle={'dark'}
-                                        zoomControlEnabled={true}
-                                        ref={mapViewRef}
-                                        style={[StyleSheet.absoluteFillObject, {borderRadius: 30, zIndex: 5}]}
-                                    >
-                                        {
-                                            transactionStoreGeoLocation &&
-                                            <Marker
-                                                onPress={async () => {
-                                                    await retrieveStoreGeolocation();
-                                                }}
-                                                coordinate={{
-                                                    latitude: transactionStoreGeoLocation.latitude!,
-                                                    longitude: transactionStoreGeoLocation.longitude!
-                                                }}
+                                    {
+                                        props.transactionStoreAddress &&
+                                        <View style={styles.transactionMapView}>
+                                            <MapView
+                                                provider={PROVIDER_GOOGLE}
+                                                userInterfaceStyle={'dark'}
+                                                zoomControlEnabled={true}
+                                                ref={mapViewRef}
+                                                style={[StyleSheet.absoluteFillObject, {borderRadius: 30, zIndex: 5}]}
                                             >
-                                                <TouchableOpacity
-                                                    style={styles.toolTipTouchableView}
-                                                    onPress={async () => {
-                                                        await retrieveStoreGeolocation();
-                                                    }}>
-                                                    <View style={styles.toolTipView}>
-                                                        <Image
-                                                            style={styles.toolTipImageDetail}
-                                                            source={{
-                                                                uri: props.brandImage
-                                                            }}
-                                                            placeholder={MoonbeamPlaceholderImage}
-                                                            placeholderContentFit={'contain'}
-                                                            contentFit={'contain'}
-                                                            transition={1000}
-                                                            cachePolicy={'memory-disk'}
-                                                        />
-                                                        <Text style={styles.toolTipImagePrice}>
-                                                            {`${discountPercentage} Off `}
-                                                        </Text>
-                                                    </View>
-                                                    {
-                                                        Platform.OS === 'android' ?
-                                                            <>
-                                                                <View style={styles.triangleContainer}>
-                                                                    <View style={styles.toolTipTriangle}/>
-                                                                </View>
-                                                                <View style={[styles.triangleContainer, {bottom: hp(0.3)}]}>
-                                                                    <View style={styles.toolTipTriangleOutside}/>
-                                                                </View>
-                                                            </> :
-                                                            <>
-                                                                <View style={styles.triangleContainer}>
-                                                                    <View style={styles.toolTipTriangle}/>
-                                                                    <View
-                                                                        style={[styles.toolTipTriangleOutside, {top: hp(0.3)}]}/>
-                                                                </View>
-                                                            </>
-                                                    }
-                                                </TouchableOpacity>
-                                            </Marker>
-                                        }
-                                    </MapView>
-                                </View>
-                            }
-                        </>
+                                                {
+                                                    transactionStoreGeoLocation &&
+                                                    <Marker
+                                                        onPress={async () => {
+                                                            await retrieveStoreGeolocation();
+                                                        }}
+                                                        coordinate={{
+                                                            latitude: transactionStoreGeoLocation.latitude!,
+                                                            longitude: transactionStoreGeoLocation.longitude!
+                                                        }}
+                                                    >
+                                                        <TouchableOpacity
+                                                            style={styles.toolTipTouchableView}
+                                                            onPress={async () => {
+                                                                await retrieveStoreGeolocation();
+                                                            }}>
+                                                            <View style={styles.toolTipView}>
+                                                                <Image
+                                                                    style={styles.toolTipImageDetail}
+                                                                    source={{
+                                                                        uri: props.brandImage
+                                                                    }}
+                                                                    placeholder={MoonbeamPlaceholderImage}
+                                                                    placeholderContentFit={'contain'}
+                                                                    contentFit={'contain'}
+                                                                    transition={1000}
+                                                                    cachePolicy={'memory-disk'}
+                                                                />
+                                                                <Text style={styles.toolTipImagePrice}>
+                                                                    {`${discountPercentage} Off `}
+                                                                </Text>
+                                                            </View>
+                                                            {
+                                                                Platform.OS === 'android' ?
+                                                                    <>
+                                                                        <View style={styles.triangleContainer}>
+                                                                            <View style={styles.toolTipTriangle}/>
+                                                                        </View>
+                                                                        <View
+                                                                            style={[styles.triangleContainer, {bottom: hp(0.3)}]}>
+                                                                            <View
+                                                                                style={styles.toolTipTriangleOutside}/>
+                                                                        </View>
+                                                                    </> :
+                                                                    <>
+                                                                        <View style={styles.triangleContainer}>
+                                                                            <View style={styles.toolTipTriangle}/>
+                                                                            <View
+                                                                                style={[styles.toolTipTriangleOutside, {top: hp(0.3)}]}/>
+                                                                        </View>
+                                                                    </>
+                                                            }
+                                                        </TouchableOpacity>
+                                                    </Marker>
+                                                }
+                                            </MapView>
+                                        </View>
+                                    }
+                                </>
+                        }
+                    </>
                 }
             </SafeAreaView>
         </>

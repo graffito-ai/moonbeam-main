@@ -48,6 +48,10 @@ import MoonbeamVisaImage from '../../../../../../assets/moonbeam-visa-icon.png';
 // @ts-ignore
 import MoonbeamMasterCardImage from '../../../../../../assets/moonbeam-mastercard-icon.png';
 // @ts-ignore
+import MoonbeamMembership from '../../../../../../assets/art/moonbeam-membership.png';
+// @ts-ignore
+import MoonbeamBasicMembership from '../../../../../../assets/art/moonbeam-e1-membership.png';
+// @ts-ignore
 import RegistrationBackgroundImage from '../../../../../../assets/backgrounds/registration-background.png';
 import {showWalletBottomSheetState} from "../../../../../recoil/DashboardAtom";
 import {LinearGradient} from "expo-linear-gradient";
@@ -78,7 +82,7 @@ export const Wallet = ({navigation}: CardsProps) => {
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [splashShown, setSplashShown] = useState<boolean>(false);
     const bottomSheetRef = useRef(null);
-    const [bottomSheetType, setBottomSheetType] = useState<"unlink" | "link">("link");
+    const [bottomSheetType, setBottomSheetType] = useState<"link-info" | "unlink" | "link">("link");
     const [selectedCard, setSelectedCard] = useState<SelectedCard | null>(null);
     // constants used to keep track of shared states
     const [selectedCardIndex, setSelectedCardIndex] = useRecoilState(selectedCardIndexState);
@@ -248,7 +252,7 @@ export const Wallet = ({navigation}: CardsProps) => {
                 });
 
                 // reset the card linking status only if there are no cards left
-                if(userInformation["linkedCard"]["cards"].filter((_, index) => selectedCardIndex !== index).length === 0) {
+                if (userInformation["linkedCard"]["cards"].filter((_, index) => selectedCardIndex !== index).length === 0) {
                     setCardLinkingStatus(false);
                     // set all the reload flags accordingly
                     setClickOnlySectionReload(true);
@@ -298,67 +302,109 @@ export const Wallet = ({navigation}: CardsProps) => {
             results.push(
                 <>
                     <Image
-                        style={[styles.noCardImage,
+                        style={[styles.membershipImage,
                             showBottomSheet && {
                                 backgroundColor: 'transparent', opacity: 0.3
                             }
                         ]}
                         resizeMethod={'scale'}
                         resizeMode={'contain'}
-                        source={NoCardImage}
+                        source={MoonbeamMembership}
                     />
-                    <IconButton
-                        icon={'plus-circle-outline'}
-                        iconColor={'#F2FF5D'}
-                        style={[
-                            {
-                                alignSelf: 'center',
-                                bottom: hp(11)
-                            },
-                            showBottomSheet && {
-                                backgroundColor: 'transparent', opacity: 0.3
-                            }
-                        ]}
-                        size={hp(5.5)}
-                        onPress={
-                            async () => {
-                                // set the type of bottom sheet to show
-                                setBottomSheetType("link");
-
-                                // if there is no error and/or success to show, then this button will open up the bottom sheet
-                                if (!splashShown) {
-                                    /**
-                                     * open up the bottom sheet, where the linking action will take place. Any linked cards and/or errors will be
-                                     * handled by the CardLinkingBottomSheet component
-                                     */
-                                    setShowBottomSheet(true);
-                                } else {
-                                    // reset the success linking flag, in case it is true, as well as hide the custom banner accordingly
-                                    if (cardLinkingBottomSheet) {
-                                        setCardLinkingBottomSheet(false);
-
-                                        // change the card linking status
-                                        setCardLinkingStatus(true);
-
-                                        // set the custom banner state for future screens accordingly
-                                        setBannerState({
-                                            bannerVisibilityState: cardLinkingStatusState,
-                                            bannerMessage: "",
-                                            bannerButtonLabel: "",
-                                            bannerButtonLabelActionSource: "",
-                                            bannerArtSource: CardLinkingImage,
-                                            dismissing: false
-                                        });
+                    <Text style={[styles.membershipTitle, showBottomSheet && {
+                        backgroundColor: 'transparent', opacity: 0.3
+                    }]}>
+                        Membership
+                    </Text>
+                    <View style={[styles.membershipCard, showBottomSheet && {
+                        backgroundColor: 'transparent', opacity: 0.3
+                    }]}>
+                        <View style={styles.membershipCardTitleView}>
+                            <Image
+                                style={[styles.basicMembershipImage,
+                                    showBottomSheet && {
+                                        backgroundColor: 'transparent', opacity: 0.3
                                     }
-
-                                    // close the previously opened bottom sheet, and reset the splash shown flag, to return to the default wallet view
-                                    setShowBottomSheet(false);
-                                    setBottomTabShown(true);
-                                    setSplashShown(false);
-                                }
-                            }
-                        }
-                    />
+                                ]}
+                                resizeMethod={'scale'}
+                                resizeMode={'contain'}
+                                source={MoonbeamBasicMembership}
+                            />
+                            <Text
+                                numberOfLines={2}
+                                style={styles.basicMembershipTitle}>
+                                {"First Class\nMembership"}
+                            </Text>
+                        </View>
+                        <View style={{bottom: hp(2), alignSelf: 'flex-start'}}>
+                            <View style={{top: hp(2), width: wp(80)}}>
+                                <Text
+                                    numberOfLines={1}
+                                    style={styles.membershipPerkNumberText}>
+                                    🎲
+                                </Text>
+                                <Text
+                                    numberOfLines={2}
+                                    style={styles.membershipPerkText}>
+                                    {"Automatic military discounts\nMarketplace access"}
+                                </Text>
+                            </View>
+                            <View style={{bottom: hp(1), width: wp(80)}}>
+                                <Text
+                                    numberOfLines={1}
+                                    style={styles.membershipPerkNumberText}>
+                                    🛍️
+                                </Text>
+                                <Text
+                                    numberOfLines={2}
+                                    style={styles.membershipPerkText}>
+                                    {"1 cent cashback on every\npurchase"}
+                                </Text>
+                            </View>
+                            <View style={{bottom: hp(3.5), width: wp(80)}}>
+                                <Text
+                                    numberOfLines={1}
+                                    style={styles.membershipPerkNumberText}>
+                                    💰
+                                </Text>
+                                <Text
+                                    numberOfLines={2}
+                                    style={styles.membershipPerkText}>
+                                    {"5-50% off purchases at\nqualifying merchants"}
+                                </Text>
+                            </View>
+                            <View style={{bottom: hp(6), width: wp(80)}}>
+                                <Text
+                                    numberOfLines={1}
+                                    style={styles.membershipPerkNumberText}>
+                                    💳
+                                </Text>
+                                <Text
+                                    numberOfLines={2}
+                                    style={styles.membershipPerkText}>
+                                    {"Up to 3 Visa and Mastercard,\ndebit or credit cards"}
+                                </Text>
+                            </View>
+                        </View>
+                        <View style={styles.membershipCardActions}>
+                            <Text
+                                numberOfLines={1}
+                                style={styles.priceTitle}>
+                                {"FREE"}
+                            </Text>
+                            <TouchableOpacity
+                                style={styles.startMembershipButton}
+                                onPress={
+                                    async () => {
+                                        // set the type of bottom sheet to show
+                                        setBottomSheetType("link-info");
+                                        setShowBottomSheet(true);
+                                    }}
+                            >
+                                <Text style={styles.startMembershipButtonContentStyle}>Activate</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
                 </>
             );
         } else {
@@ -490,7 +536,6 @@ export const Wallet = ({navigation}: CardsProps) => {
             // return another information card for the wallet if there's less than 3 cards available
             if (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length < 3) {
                 const contentColor = cardBackgroundColors[1];
-
                 cardData.push(
                     <View style={{flex: 1}}>
                         <List.Item
@@ -634,57 +679,6 @@ export const Wallet = ({navigation}: CardsProps) => {
                                                     style={styles.walletTitle}>
                                                     Wallet
                                                 </Text>
-                                                {
-                                                    ((userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 3) || !userInformation["linkedCard"]) &&
-                                                    <IconButton
-                                                        icon={'plus'}
-                                                        iconColor={'#F2FF5D'}
-                                                        style={{
-                                                            alignSelf: 'flex-end',
-                                                            bottom: hp(6.5),
-                                                            right: wp(3)
-                                                        }}
-                                                        size={hp(3.5)}
-                                                        onPress={
-                                                            async () => {
-                                                                // set the type of bottom sheet to show
-                                                                setBottomSheetType("link");
-
-                                                                // if there is no error and/or success to show, then this button will open up the bottom sheet
-                                                                if (!splashShown) {
-                                                                    /**
-                                                                     * open up the bottom sheet, where the linking action will take place. Any linked cards and/or errors will be
-                                                                     * handled by the CardLinkingBottomSheet component
-                                                                     */
-                                                                    setShowBottomSheet(true);
-                                                                } else {
-                                                                    // reset the success linking flag, in case it is true, as well as hide the custom banner accordingly
-                                                                    if (cardLinkingBottomSheet) {
-                                                                        setCardLinkingBottomSheet(false);
-
-                                                                        // change the card linking status
-                                                                        setCardLinkingStatus(true);
-
-                                                                        // set the custom banner state for future screens accordingly
-                                                                        setBannerState({
-                                                                            bannerVisibilityState: cardLinkingStatusState,
-                                                                            bannerMessage: "",
-                                                                            bannerButtonLabel: "",
-                                                                            bannerButtonLabelActionSource: "",
-                                                                            bannerArtSource: CardLinkingImage,
-                                                                            dismissing: false
-                                                                        });
-                                                                    }
-
-                                                                    // close the previously opened bottom sheet, and reset the splash shown flag, to return to the default wallet view
-                                                                    setShowBottomSheet(false);
-                                                                    setBottomTabShown(true);
-                                                                    setSplashShown(false);
-                                                                }
-                                                            }
-                                                        }
-                                                    />
-                                                }
                                             </View>
                                             <Divider
                                                 style={[commonStyles.divider, {width: wp(100)}]}/>
@@ -756,16 +750,6 @@ export const Wallet = ({navigation}: CardsProps) => {
                                 >
                                     <Text style={styles.buttonText}>{splashState.splashButtonText}</Text>
                                 </TouchableOpacity>
-                                {
-                                    !splashShown &&
-                                    ((userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length === 0) || !userInformation["linkedCard"])
-                                    && <Text
-                                        style={styles.disclaimerText}>
-                                        Connect your <Text
-                                        style={styles.highlightedText}>Visa</Text> or <Text
-                                        style={styles.highlightedText}>MasterCard</Text> debit or credit card.
-                                    </Text>
-                                }
                             </View>
                         </View>
                     </TouchableOpacity>
@@ -779,17 +763,18 @@ export const Wallet = ({navigation}: CardsProps) => {
                             enablePanDownToClose={true}
                             index={showBottomSheet ? 0 : -1}
                             snapPoints={
-                                (userInformation["linkedCard"] && bottomSheetType === 'unlink')
-                                    ? [hp(35), hp(35)]
-                                    : ['70%', '70%']
+                                bottomSheetType === 'link-info'
+                                    ? [hp(55), hp(55)]
+                                    : ((userInformation["linkedCard"] && bottomSheetType === 'unlink')
+                                        ? [hp(35), hp(35)]
+                                        : ['70%', '70%'])
                             }
                             onChange={(index) => {
                                 setShowBottomSheet(index !== -1);
                             }}
                         >
                             {
-                                (userInformation["linkedCard"] && bottomSheetType === 'unlink')
-                                    ?
+                                bottomSheetType === 'link-info' ?
                                     <View style={{
                                         flexDirection: 'column',
                                         alignContent: 'center',
@@ -798,32 +783,126 @@ export const Wallet = ({navigation}: CardsProps) => {
                                     }}>
                                         <Text
                                             style={styles.cardRemovalTitle}>
-                                            Card Removal
+                                            Card Linking
                                         </Text>
                                         <Text
-                                            style={styles.cardRemovalDetails}>
-                                            {selectedCard!.type === CardType.Visa ? 'VISA' : 'MASTERCARD'} ••••{selectedCard!.last4}
+                                            style={[styles.cardRemovalSubtitle, {marginBottom: hp(4)}]}>
+                                            To take advantage of automatic military discounts please link a Visa or
+                                            MasterCard, debit or credit card.
                                         </Text>
                                         <Text
-                                            style={styles.cardRemovalSubtitle}>
-                                            Once you remove this card, you will no longer be eligible to
-                                            participate
-                                            in
-                                            previously linked programs and/or offers. Do you wish to continue ?
+                                            numberOfLines={2}
+                                            style={[styles.cardRemovalSubtitle, {color: '#F2FF5D', textAlign: 'left'}]}>
+                                            {"➊ This service is completely free. Your card will not be charged."}
                                         </Text>
+                                        <Text
+                                            numberOfLines={2}
+                                            style={[styles.cardRemovalSubtitle, {
+                                                color: '#F2FF5D',
+                                                textAlign: 'left',
+                                                marginTop: hp(1.5)
+                                            }]}>
+                                            ➋ We will not store your card information.
+                                        </Text>
+                                        <Text
+                                            numberOfLines={2}
+                                            style={[styles.cardRemovalSubtitle, {
+                                                color: '#F2FF5D',
+                                                textAlign: 'left',
+                                                marginTop: hp(1.5)
+                                            }]}>
+                                            {"➌ We Are Secured by a PCI-compliant\nCard Vault."}
+                                        </Text>
+                                        <Text
+                                            numberOfLines={2}
+                                            style={[styles.cardRemovalSubtitle, {
+                                                color: '#F2FF5D',
+                                                textAlign: 'left',
+                                                marginTop: hp(1.5)
+                                            }]}>
+                                            {"➍ We do not sell your data."}
+                                        </Text>
+
                                         <TouchableOpacity
                                             style={styles.cardRemovalButton}
                                             onPress={
                                                 async () => {
-                                                    // delete the card
-                                                    await deleteCardAction();
+                                                    // set the type of bottom sheet to show
+                                                    setBottomSheetType("link");
+
+                                                    // if there is no error and/or success to show, then this button will open up the bottom sheet
+                                                    if (!splashShown) {
+                                                        /**
+                                                         * open up the bottom sheet, where the linking action will take place. Any linked cards and/or errors will be
+                                                         * handled by the CardLinkingBottomSheet component
+                                                         */
+                                                        setShowBottomSheet(true);
+                                                    } else {
+                                                        // reset the success linking flag, in case it is true, as well as hide the custom banner accordingly
+                                                        if (cardLinkingBottomSheet) {
+                                                            setCardLinkingBottomSheet(false);
+
+                                                            // change the card linking status
+                                                            setCardLinkingStatus(true);
+
+                                                            // set the custom banner state for future screens accordingly
+                                                            setBannerState({
+                                                                bannerVisibilityState: cardLinkingStatusState,
+                                                                bannerMessage: "",
+                                                                bannerButtonLabel: "",
+                                                                bannerButtonLabelActionSource: "",
+                                                                bannerArtSource: CardLinkingImage,
+                                                                dismissing: false
+                                                            });
+                                                        }
+
+                                                        // close the previously opened bottom sheet, and reset the splash shown flag, to return to the default wallet view
+                                                        setShowBottomSheet(false);
+                                                        setBottomTabShown(true);
+                                                        setSplashShown(false);
+                                                    }
                                                 }
                                             }
                                         >
                                             <Text style={styles.buttonText}>{`Continue`}</Text>
                                         </TouchableOpacity>
                                     </View>
-                                    : <CardLinkingBottomSheet/>
+                                    : ((userInformation["linkedCard"] && bottomSheetType === 'unlink')
+                                        ?
+                                        <View style={{
+                                            flexDirection: 'column',
+                                            alignContent: 'center',
+                                            alignItems: 'center',
+                                            alignSelf: 'center'
+                                        }}>
+                                            <Text
+                                                style={styles.cardRemovalTitle}>
+                                                Card Removal
+                                            </Text>
+                                            <Text
+                                                style={styles.cardRemovalDetails}>
+                                                {selectedCard!.type === CardType.Visa ? 'VISA' : 'MASTERCARD'} ••••{selectedCard!.last4}
+                                            </Text>
+                                            <Text
+                                                style={styles.cardRemovalSubtitle}>
+                                                Once you remove this card, you will no longer be eligible to
+                                                participate
+                                                in
+                                                previously linked programs and/or offers. Do you wish to continue ?
+                                            </Text>
+                                            <TouchableOpacity
+                                                style={styles.cardRemovalButton}
+                                                onPress={
+                                                    async () => {
+                                                        // delete the card
+                                                        await deleteCardAction();
+                                                    }
+                                                }
+                                            >
+                                                <Text style={styles.buttonText}>{`Continue`}</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                        : <CardLinkingBottomSheet/>)
                             }
                         </BottomSheet>
                     }

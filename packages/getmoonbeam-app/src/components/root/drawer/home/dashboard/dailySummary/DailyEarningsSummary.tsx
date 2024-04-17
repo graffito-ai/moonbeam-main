@@ -155,7 +155,10 @@ export const DailyEarningsSummaryPopUp = () => {
                                     :
                                     <>
                                         <Image source={MoonbeamDailyEarnings}
-                                               style={styles.topDailySummaryImage}/>
+                                               style={styles.topDailySummaryImage}
+                                               resizeMethod={"scale"}
+                                               resizeMode={"contain"}
+                                        />
                                         <Dialog.Title
                                             style={styles.dialogTitle}>
                                             {
@@ -185,6 +188,7 @@ export const DailyEarningsSummaryPopUp = () => {
                                                             console.log(message);
                                                             await logEvent(message, LoggingLevel.Info, true);
                                                         }
+
                                                         // hide the modal
                                                         setIsDailyEarningsSummaryDisplayed(false);
                                                         // show the confetti

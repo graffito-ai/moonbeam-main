@@ -97,6 +97,7 @@ export const DashboardBottomSheet = (props: {
                                         ? TransactionsStatus.Credited.toString()
                                         : props.selectedTransaction.transactionStatus.toString())
                             }
+                            transactionType={props.selectedTransaction.transactionType}
                         />
                     }
                 </BottomSheet>

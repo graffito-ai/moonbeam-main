@@ -59,7 +59,7 @@ export const styles = StyleSheet.create({
         fontSize: hp(2),
         color: '#FFFFFF',
         fontFamily: 'Saira-ExtraBold',
-        width: wp(50)
+        width: wp(30)
     },
     earningsDescription: {
         top: hp(0.50),
