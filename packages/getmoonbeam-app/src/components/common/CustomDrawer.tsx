@@ -118,6 +118,7 @@ import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-nativ
 import {codeVerificationSheetShown, codeVerifiedState} from "../../recoil/CodeVerificationAtom";
 import {customBannerState} from "../../recoil/CustomBannerAtom";
 import {
+    showDailySummaryConfettiState,
     showTransactionBottomSheetState,
     showWalletBottomSheetState,
     transactionDataState
@@ -574,6 +575,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const verticalNearbySectionReloadStateReset = useResetRecoilState(verticalNearbySectionReloadState);
     const onlineSectionReloadStateReset = useResetRecoilState(onlineSectionReloadState);
     const verticalOnlineSectionReloadStateReset = useResetRecoilState(verticalOnlineSectionReloadState);
+    const showDailySummaryConfettiStateReset = useResetRecoilState(showDailySummaryConfettiState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -864,6 +866,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
             verticalNearbySectionReloadStateReset();
             onlineSectionReloadStateReset();
             verticalOnlineSectionReloadStateReset();
+            showDailySummaryConfettiStateReset();
 
             // if this is not running in Expo Go
             if (!isRunningInExpoGo) {

@@ -2,7 +2,48 @@
  * This is a file used to define the all GraphQL mutation constants
  */
 
-// Query used to create a new daily earnings summary for a particular user and date.
+// Mutation used to update an existing daily earnings summary for a particular user and date (used only to update it status at the moment)
+export const updateDailyEarningsSummary = /* GraphQL */ `
+    mutation updateDailyEarningsSummary($updateDailyEarningsSummaryInput: UpdateDailyEarningsSummaryInput!) {
+        updateDailyEarningsSummary(updateDailyEarningsSummaryInput: $updateDailyEarningsSummaryInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                dailyEarningsSummaryID
+                createdAt
+                updatedAt
+                status
+                transactions {
+                    id
+                    timestamp
+                    transactionId
+                    transactionStatus
+                    transactionType
+                    createdAt
+                    updatedAt
+                    memberId
+                    cardId
+                    brandId
+                    storeId
+                    category
+                    currencyCode
+                    rewardAmount
+                    totalAmount
+                    pendingCashbackAmount
+                    creditedCashbackAmount
+                    transactionBrandName
+                    transactionBrandAddress
+                    transactionBrandLogoUrl
+                    transactionBrandURLAddress
+                    transactionIsOnline
+                }
+            }
+        }
+    }
+`;
+
+// Mutation used to create a new daily earnings summary for a particular user and date.
 export const createDailyEarningsSummary = /* GraphQL */ `
     mutation createDailyEarningsSummary($createDailyEarningsSummaryInput: CreateDailyEarningsSummaryInput!) {
         createDailyEarningsSummary(createDailyEarningsSummaryInput: $createDailyEarningsSummaryInput) {

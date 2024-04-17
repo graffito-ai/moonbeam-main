@@ -311,6 +311,7 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 dailyEarningsSummaryTableName: "dailyEarningsSummaryTable",
                 createDailyEarningsSummaryResolverName: "createDailyEarningsSummary",
                 getDailyEarningsSummaryResolverName: "getDailyEarningsSummary",
+                updateDailyEarningsSummaryResolverName: "updateDailyEarningsSummary",
                 earningsSummaryCronRuleName: "earningsSummaryCronRule",
                 earningsSummaryProducerFunctionName: "earningsSummaryProducerFunction"
             },
@@ -621,6 +622,7 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 dailyEarningsSummaryTableName: "dailyEarningsSummaryTable",
                 createDailyEarningsSummaryResolverName: "createDailyEarningsSummary",
                 getDailyEarningsSummaryResolverName: "getDailyEarningsSummary",
+                updateDailyEarningsSummaryResolverName: "updateDailyEarningsSummary",
                 earningsSummaryCronRuleName: "earningsSummaryCronRule",
                 earningsSummaryProducerFunctionName: "earningsSummaryProducerFunction"
             },

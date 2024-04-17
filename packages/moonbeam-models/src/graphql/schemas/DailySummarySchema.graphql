@@ -36,3 +36,9 @@ input GetDailyEarningsSummaryInput {
     id: ID! ## the userID which which the daily earnings summary was made for.
     targetDate: AWSDateTime! ## this represents the date used to sort and retrieve the appropriate daily earnings summary for.
 }
+
+input UpdateDailyEarningsSummaryInput {
+    id: ID! ## the userID which which the daily earnings summary was made for.
+    targetDate: AWSDateTime! ## this represents the date used to sort and retrieve the appropriate daily earnings summary for.
+    status: DailyEarningsSummaryStatus!
+}

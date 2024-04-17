@@ -1,5 +1,42 @@
 # graphql/Mutations.graphql
 # Mutations Schema File
+mutation updateDailyEarningsSummary($updateDailyEarningsSummaryInput: UpdateDailyEarningsSummaryInput!) {
+    updateDailyEarningsSummary(updateDailyEarningsSummaryInput: $updateDailyEarningsSummaryInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            dailyEarningsSummaryID
+            createdAt
+            updatedAt
+            status
+            transactions {
+                id
+                timestamp
+                transactionId
+                transactionStatus
+                transactionType
+                createdAt
+                updatedAt
+                memberId
+                cardId
+                brandId
+                storeId
+                category
+                currencyCode
+                rewardAmount
+                totalAmount
+                pendingCashbackAmount
+                creditedCashbackAmount
+                transactionBrandName
+                transactionBrandAddress
+                transactionBrandLogoUrl
+                transactionBrandURLAddress
+                transactionIsOnline
+            }
+        }
+    }
+}
 mutation createDailyEarningsSummary($createDailyEarningsSummaryInput: CreateDailyEarningsSummaryInput!) {
     createDailyEarningsSummary(createDailyEarningsSummaryInput: $createDailyEarningsSummaryInput) {
         errorMessage

@@ -2,9 +2,11 @@ import {
     CreateDailyEarningsSummaryInput,
     DailyEarningsSummaryResponse,
     DailySummaryErrorType,
-    GetDailyEarningsSummaryInput
+    GetDailyEarningsSummaryInput, UpdateDailyEarningsSummaryInput
 } from "@moonbeam/moonbeam-models";
 import {createDailyEarningsSummary} from "./resolvers/CreateDailyEarningsSummaryResolver";
+import {getDailyEarningsSummary} from "./resolvers/GetDailyEarningsSummaryResolver";
+import { updateDailyEarningsSummary } from "./resolvers/UpdateDailyEarningsSummaryResolver";
 
 /**
  * Mapping out the App Sync event type, so we can use it as a type in the Lambda Handler
@@ -16,6 +18,7 @@ type AppSyncEvent = {
     arguments: {
         getDailyEarningsSummaryInput: GetDailyEarningsSummaryInput,
         createDailyEarningsSummaryInput: CreateDailyEarningsSummaryInput,
+        updateDailyEarningsSummaryInput: UpdateDailyEarningsSummaryInput
     },
     identity: {
         sub: string;
@@ -33,10 +36,12 @@ type AppSyncEvent = {
 exports.handler = async (event: AppSyncEvent): Promise<DailyEarningsSummaryResponse> => {
     console.log(`Received new Earnings Summary event for operation [${event.info.fieldName}], with arguments ${JSON.stringify(event.arguments)}`);
     switch (event.info.fieldName) {
-        // case "getDailyEarningsSummary":
-        //     return await getDailyEarningsSummary(event.info.fieldName, event.arguments.getDailyEarningsSummaryInput);
+        case "getDailyEarningsSummary":
+            return await getDailyEarningsSummary(event.info.fieldName, event.arguments.getDailyEarningsSummaryInput);
         case "createDailyEarningsSummary":
             return await createDailyEarningsSummary(event.info.fieldName, event.arguments.createDailyEarningsSummaryInput);
+        case "updateDailyEarningsSummary":
+            return await updateDailyEarningsSummary(event.info.fieldName, event.arguments.updateDailyEarningsSummaryInput);
         default:
             const errorMessage = `Unexpected field name: ${event.info.fieldName}`;
             console.log(errorMessage);

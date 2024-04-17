@@ -2,6 +2,14 @@ import {atom, selector} from "recoil";
 import {MoonbeamTransaction, TransactionsStatus} from "@moonbeam/moonbeam-models";
 
 /**
+ * Atom used to keep track of the state of the daily earnings summary confetti.
+ */
+const showDailySummaryConfettiState = atom<boolean>({
+    key: 'showDailySummaryConfettiState',
+    default: false
+});
+
+/**
  * Atom used to keep track of the state of the transactional data
  * for a particular user.
  */
@@ -120,5 +128,6 @@ export {
     showWalletBottomSheetState,
     transactionDataState,
     sortedTransactionDataState,
-    showTransactionBottomSheetState
+    showTransactionBottomSheetState,
+    showDailySummaryConfettiState
 };
