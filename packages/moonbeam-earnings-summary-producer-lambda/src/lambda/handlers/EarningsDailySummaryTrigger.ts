@@ -66,9 +66,7 @@ export const triggerEarningsDailySummariesCreation = async (): Promise<void> => 
             dailyEarningsSummaryResponse.data && dailyEarningsSummaryResponse.data.length !== 0) {
             // For each one of the summary reports created that day proceed to steps 3,4,5,6 and 7
             for (const dailyEarningsSummary of dailyEarningsSummaryResponse.data) {
-                // ToDo: remove once we roll it out to everyone
-                if (dailyEarningsSummary !== null && dailyEarningsSummary.id === 'e1a6afb2-ff4c-40d0-9f4b-b83396b0a966') {
-
+                if (dailyEarningsSummary !== null) {
                     // 3) Call the getDevicesForUser Moonbeam Appsync API endpoint.
                     const devicesForUserResponse: UserDevicesResponse = await moonbeamClient.getDevicesForUser({
                         id: dailyEarningsSummary.id
