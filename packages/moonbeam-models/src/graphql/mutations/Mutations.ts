@@ -404,22 +404,6 @@ export const createDevice = /* GraphQL */ `
     }
 `;
 
-// Mutation used to update the physical devices' details, for a user.
-export const updateDevice = /* GraphQL */ `
-    mutation UpdateDevice($updateDeviceInput: UpdateDeviceInput!) {
-        updateDevice(updateDeviceInput: $updateDeviceInput) {
-            errorType
-            errorMessage
-            data {
-                id
-                tokenId
-                deviceState
-                lastLoginDate
-            }
-        }
-    }
-`;
-
 // Mutation used to create a new notification.
 export const createNotification = /* GraphQL */ `
     mutation CreateNotification($createNotificationInput: CreateNotificationInput!) {

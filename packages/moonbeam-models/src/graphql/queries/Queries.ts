@@ -835,38 +835,6 @@ export const getDevicesForUser = /* GraphQL */ `
     }
 `;
 
-// Query used to retrieve a particular physical device for a user, based on a user ID and device token.
-export const getDevice = /* GraphQL */ `
-    query GetDevice($getDeviceInput: GetDeviceInput!) {
-        getDevice(getDeviceInput: $getDeviceInput) {
-            errorMessage
-            errorType
-            data {
-                id
-                tokenId
-                deviceState
-                lastLoginDate
-            }
-        }
-    }
-`;
-
-// Query used to retrieve a particular physical device, based its token.
-export const getDeviceByToken = /* GraphQL */ `
-    query GetDeviceByToken($getDeviceByTokenInput: GetDeviceByTokenInput!) {
-        getDeviceByToken(getDeviceByTokenInput: $getDeviceByTokenInput) {
-            errorMessage
-            errorType
-            data {
-                id
-                tokenId
-                deviceState
-                lastLoginDate
-            }
-        }
-    }
-`;
-
 // Query used to retrieve transactions within a specific timeframe
 export const getTransactionsInRange = /* GraphQL */ `
     query getTransactionsInRange($getTransactionsInRangeInput: GetTransactionsInRangeInput!) {

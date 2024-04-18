@@ -187,10 +187,7 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             physicalDevicesConfig: {
                 devicesFunctionName: 'devicesLambdaFunction',
                 createDeviceResolverName: 'createDevice',
-                updateDeviceResolverName: 'updateDevice',
                 getDevicesForUserResolverName: 'getDevicesForUser',
-                getDeviceByTokenResolverName: 'getDeviceByToken',
-                getDeviceResolverName: 'getDevice',
                 devicesTableName: 'physicalDevicesTable',
                 devicesIdGlobalIndex: 'devicesIdGlobalIndex',
                 deviceTokenIdGlobalIndex: 'deviceTokenIdGlobalIndex'
@@ -499,10 +496,7 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             physicalDevicesConfig: {
                 devicesFunctionName: 'devicesLambdaFunction',
                 createDeviceResolverName: 'createDevice',
-                updateDeviceResolverName: 'updateDevice',
                 getDevicesForUserResolverName: 'getDevicesForUser',
-                getDeviceByTokenResolverName: 'getDeviceByToken',
-                getDeviceResolverName: 'getDevice',
                 devicesTableName: 'physicalDevicesTable',
                 devicesIdGlobalIndex: 'devicesIdGlobalIndex',
                 deviceTokenIdGlobalIndex: 'deviceTokenIdGlobalIndex'

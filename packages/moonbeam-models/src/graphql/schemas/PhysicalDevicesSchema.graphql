@@ -36,23 +36,7 @@ input GetDevicesForUserInput {
     id: ID!
 }
 
-input GetDeviceInput {
-    id: ID!,
-    tokenId: ID!
-}
-
-input GetDeviceByTokenInput {
-    tokenId: ID!
-}
-
 input CreateDeviceInput {
-    id: ID! # this represents the userID which the devices belongs to
-    tokenId: ID! # this represents the Expo push token ID for a particular physical device
-    deviceState: UserDeviceState!
-    lastLoginDate: AWSDateTime
-}
-
-input UpdateDeviceInput {
     id: ID! # this represents the userID which the devices belongs to
     tokenId: ID! # this represents the Expo push token ID for a particular physical device
     deviceState: UserDeviceState!

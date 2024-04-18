@@ -11,8 +11,6 @@ type Query {
     getServicePartners: PartnerResponse! @aws_cognito_user_pools
     getEventSeries: EventSeriesResponse! @aws_cognito_user_pools @aws_api_key
     getDevicesForUser(getDevicesForUserInput: GetDevicesForUserInput!): UserDevicesResponse! @aws_cognito_user_pools @aws_api_key
-    getDevice(getDeviceInput: GetDeviceInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
-    getDeviceByToken(getDeviceByTokenInput: GetDeviceByTokenInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
     getTransaction(getTransactionInput: GetTransactionInput!): MoonbeamTransactionsResponse! @aws_cognito_user_pools @aws_api_key
     getTransactionsInRange(getTransactionsInRangeInput: GetTransactionsInRangeInput!): MoonbeamTransactionsResponse! @aws_cognito_user_pools @aws_api_key
     getTransactionByStatus(getTransactionByStatusInput: GetTransactionByStatusInput!): MoonbeamTransactionsByStatusResponse! @aws_cognito_user_pools @aws_api_key
@@ -49,7 +47,6 @@ type Mutation {
     addCard(addCardInput: AddCardInput!): CardLinkResponse! @aws_cognito_user_pools
     createFAQ(createFAQInput: CreateFAQInput!): FAQResponse! @aws_cognito_user_pools
     createDevice(createDeviceInput: CreateDeviceInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
-    updateDevice(updateDeviceInput: UpdateDeviceInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
     createNotification(createNotificationInput: CreateNotificationInput!): CreateNotificationResponse! @aws_cognito_user_pools @aws_api_key
     createTransaction(createTransactionInput: CreateTransactionInput!): MoonbeamTransactionResponse! @aws_cognito_user_pools @aws_api_key
     updateTransaction(updateTransactionInput: UpdateTransactionInput!): MoonbeamUpdatedTransactionResponse! @aws_cognito_user_pools @aws_api_key

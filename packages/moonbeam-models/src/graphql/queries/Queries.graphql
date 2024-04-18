@@ -716,30 +716,6 @@ query GetDevicesForUser($getDevicesForUserInput: GetDevicesForUserInput!) {
         }
     }
 }
-query GetDevice($getDeviceInput: GetDeviceInput!) {
-    getDevice(getDeviceInput: $getDeviceInput) {
-        errorMessage
-        errorType
-        data {
-            id
-            tokenId
-            deviceState
-            lastLoginDate
-        }
-    }
-}
-query GetDeviceByToken($getDeviceByTokenInput: GetDeviceByTokenInput!) {
-    getDeviceByToken(getDeviceByTokenInput: $getDeviceByTokenInput) {
-        errorMessage
-        errorType
-        data {
-            id
-            tokenId
-            deviceState
-            lastLoginDate
-        }
-    }
-}
 query getTransactionsInRange($getTransactionsInRangeInput: GetTransactionsInRangeInput!) {
     getTransactionsInRange(getTransactionsInRangeInput: $getTransactionsInRangeInput) {
         errorMessage

@@ -398,10 +398,7 @@ export interface NotificationsConfiguration {
 export interface PhysicalDevicesConfiguration {
     readonly devicesFunctionName: string;
     readonly createDeviceResolverName: string;
-    readonly updateDeviceResolverName: string;
     readonly getDevicesForUserResolverName: string;
-    readonly getDeviceByTokenResolverName: string;
-    readonly getDeviceResolverName: string;
     readonly devicesTableName: string;
     readonly devicesIdGlobalIndex: string;
     readonly deviceTokenIdGlobalIndex: string;

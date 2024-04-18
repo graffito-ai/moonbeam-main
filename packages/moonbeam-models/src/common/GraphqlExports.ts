@@ -600,15 +600,6 @@ export type GetDailyEarningsSummaryInput = {
   targetDate: Scalars['AWSDateTime'];
 };
 
-export type GetDeviceByTokenInput = {
-  tokenId: Scalars['ID'];
-};
-
-export type GetDeviceInput = {
-  id: Scalars['ID'];
-  tokenId: Scalars['ID'];
-};
-
 export type GetDevicesForUserInput = {
   id: Scalars['ID'];
 };
@@ -1124,7 +1115,6 @@ export type Mutation = {
   putMilitaryVerificationReport: MilitaryVerificationReportResponse;
   updateCard: EligibleLinkedUsersResponse;
   updateDailyEarningsSummary: DailyEarningsSummaryResponse;
-  updateDevice: UserDeviceResponse;
   updateMilitaryVerificationStatus: UpdateMilitaryVerificationResponse;
   updateNotificationReminder: NotificationReminderResponse;
   updateReferral: ReferralResponse;
@@ -1235,11 +1225,6 @@ export type MutationUpdateCardArgs = {
 
 export type MutationUpdateDailyEarningsSummaryArgs = {
   updateDailyEarningsSummaryInput: UpdateDailyEarningsSummaryInput;
-};
-
-
-export type MutationUpdateDeviceArgs = {
-  updateDeviceInput: UpdateDeviceInput;
 };
 
 
@@ -1622,8 +1607,6 @@ export type Query = {
   getAppUpgradeCredentials: AppUpgradeResponse;
   getCardLink: CardLinkResponse;
   getDailyEarningsSummary: DailyEarningsSummaryResponse;
-  getDevice: UserDeviceResponse;
-  getDeviceByToken: UserDeviceResponse;
   getDevicesForUser: UserDevicesResponse;
   getEligibleLinkedUsers: EligibleLinkedUsersResponse;
   getEventSeries: EventSeriesResponse;
@@ -1672,16 +1655,6 @@ export type QueryGetCardLinkArgs = {
 
 export type QueryGetDailyEarningsSummaryArgs = {
   getDailyEarningsSummaryInput: GetDailyEarningsSummaryInput;
-};
-
-
-export type QueryGetDeviceArgs = {
-  getDeviceInput: GetDeviceInput;
-};
-
-
-export type QueryGetDeviceByTokenArgs = {
-  getDeviceByTokenInput: GetDeviceByTokenInput;
 };
 
 
@@ -2081,13 +2054,6 @@ export type UpdateDailyEarningsSummaryInput = {
   targetDate: Scalars['AWSDateTime'];
 };
 
-export type UpdateDeviceInput = {
-  deviceState: UserDeviceState;
-  id: Scalars['ID'];
-  lastLoginDate?: InputMaybe<Scalars['AWSDateTime']>;
-  tokenId: Scalars['ID'];
-};
-
 export type UpdateMilitaryVerificationInput = {
   id: Scalars['ID'];
   militaryVerificationStatus: MilitaryVerificationStatusType;
@@ -2389,13 +2355,6 @@ export type CreateDeviceMutationVariables = Exact<{
 
 export type CreateDeviceMutation = { __typename?: 'Mutation', createDevice: { __typename?: 'UserDeviceResponse', errorType?: UserDeviceErrorType | null, errorMessage?: string | null, data?: { __typename?: 'PushDevice', id: string, tokenId: string, deviceState: UserDeviceState, lastLoginDate: string } | null } };
 
-export type UpdateDeviceMutationVariables = Exact<{
-  updateDeviceInput: UpdateDeviceInput;
-}>;
-
-
-export type UpdateDeviceMutation = { __typename?: 'Mutation', updateDevice: { __typename?: 'UserDeviceResponse', errorType?: UserDeviceErrorType | null, errorMessage?: string | null, data?: { __typename?: 'PushDevice', id: string, tokenId: string, deviceState: UserDeviceState, lastLoginDate: string } | null } };
-
 export type CreateNotificationMutationVariables = Exact<{
   createNotificationInput: CreateNotificationInput;
 }>;
@@ -2636,20 +2595,6 @@ export type GetDevicesForUserQueryVariables = Exact<{
 
 
 export type GetDevicesForUserQuery = { __typename?: 'Query', getDevicesForUser: { __typename?: 'UserDevicesResponse', errorMessage?: string | null, errorType?: UserDeviceErrorType | null, data?: Array<{ __typename?: 'PushDevice', id: string, tokenId: string, deviceState: UserDeviceState, lastLoginDate: string } | null> | null } };
-
-export type GetDeviceQueryVariables = Exact<{
-  getDeviceInput: GetDeviceInput;
-}>;
-
-
-export type GetDeviceQuery = { __typename?: 'Query', getDevice: { __typename?: 'UserDeviceResponse', errorMessage?: string | null, errorType?: UserDeviceErrorType | null, data?: { __typename?: 'PushDevice', id: string, tokenId: string, deviceState: UserDeviceState, lastLoginDate: string } | null } };
-
-export type GetDeviceByTokenQueryVariables = Exact<{
-  getDeviceByTokenInput: GetDeviceByTokenInput;
-}>;
-
-
-export type GetDeviceByTokenQuery = { __typename?: 'Query', getDeviceByToken: { __typename?: 'UserDeviceResponse', errorMessage?: string | null, errorType?: UserDeviceErrorType | null, data?: { __typename?: 'PushDevice', id: string, tokenId: string, deviceState: UserDeviceState, lastLoginDate: string } | null } };
 
 export type GetTransactionsInRangeQueryVariables = Exact<{
   getTransactionsInRangeInput: GetTransactionsInRangeInput;

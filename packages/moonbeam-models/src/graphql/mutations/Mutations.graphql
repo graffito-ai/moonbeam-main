@@ -334,18 +334,6 @@ mutation CreateDevice($createDeviceInput: CreateDeviceInput!) {
         }
     }
 }
-mutation UpdateDevice($updateDeviceInput: UpdateDeviceInput!) {
-    updateDevice(updateDeviceInput: $updateDeviceInput) {
-        errorType
-        errorMessage
-        data {
-            id
-            tokenId
-            deviceState
-            lastLoginDate
-        }
-    }
-}
 mutation CreateNotification($createNotificationInput: CreateNotificationInput!) {
     createNotification(createNotificationInput: $createNotificationInput) {
         errorType

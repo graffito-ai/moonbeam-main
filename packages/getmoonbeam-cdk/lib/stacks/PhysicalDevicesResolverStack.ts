@@ -56,14 +56,6 @@ export class PhysicalDevicesResolverStack extends Stack {
             devicesLambda);
 
         // add resolvers for which Query or Mutation type from the GraphQL schema listed above
-        devicesLambdaSource.createResolver(`${props.physicalDevicesConfig.getDeviceResolverName}-${props.stage}-${props.env!.region}`, {
-            typeName: "Query",
-            fieldName: `${props.physicalDevicesConfig.getDeviceResolverName}`
-        });
-        devicesLambdaSource.createResolver(`${props.physicalDevicesConfig.getDeviceByTokenResolverName}-${props.stage}-${props.env!.region}`, {
-            typeName: "Query",
-            fieldName: `${props.physicalDevicesConfig.getDeviceByTokenResolverName}`
-        });
         devicesLambdaSource.createResolver(`${props.physicalDevicesConfig.getDevicesForUserResolverName}-${props.stage}-${props.env!.region}`, {
             typeName: "Query",
             fieldName: `${props.physicalDevicesConfig.getDevicesForUserResolverName}`
@@ -71,10 +63,6 @@ export class PhysicalDevicesResolverStack extends Stack {
         devicesLambdaSource.createResolver(`${props.physicalDevicesConfig.createDeviceResolverName}-${props.stage}-${props.env!.region}`, {
             typeName: "Mutation",
             fieldName: `${props.physicalDevicesConfig.createDeviceResolverName}`
-        });
-        devicesLambdaSource.createResolver(`${props.physicalDevicesConfig.updateDeviceResolverName}-${props.stage}-${props.env!.region}`, {
-            typeName: "Mutation",
-            fieldName: `${props.physicalDevicesConfig.updateDeviceResolverName}`
         });
 
         // create a new table to be used for Physical Device-tracking purposes

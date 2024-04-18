@@ -5,7 +5,6 @@ import {
     RetrieveUserDetailsForNotifications,
     UserDeviceErrorType,
     UserDevicesResponse,
-    UserDeviceState,
     UserForNotificationReminderResponse,
     UserNotificationAssetsResponse,
     UserNotificationsAssets,
@@ -64,10 +63,8 @@ export const getUserNotificationAssets = async (fieldName: string, getUserNotifi
                             console.log(`No physical devices found for user ${userId}`);
                         } else {
                             if (devicesForUserResponse.data !== null && devicesForUserResponse.data !== undefined) {
-                                // 2) Filter obtained devices based on their status (only consider the ones that are ACTIVE for the user).
-                                for (const userDevice of devicesForUserResponse.data) {
-                                    userDevice!.deviceState === UserDeviceState.Active && deviceTokenIds.push(userDevice!.tokenId);
-                                }
+                                // we know that for now this returns exactly one device.
+                                deviceTokenIds.push(devicesForUserResponse.data[0]!.tokenId);
                             }
                         }
                         // retrieve the email details

@@ -1,15 +1,12 @@
 import {
-    CreateDeviceInput, GetDeviceByTokenInput, GetDevicesForUserInput, UpdateDeviceInput,
-    GetDeviceInput,
+    CreateDeviceInput,
+    GetDevicesForUserInput,
     UserDeviceErrorType,
     UserDeviceResponse,
     UserDevicesResponse
 } from "@moonbeam/moonbeam-models";
-import { createDevice } from "./resolvers/CreateDeviceResolver";
-import { getDevice } from "./resolvers/GetDeviceResolver";
-import { getDevicesForUser } from "./resolvers/GetDevicesForUserResolver";
-import {updateDevice} from "./resolvers/UpdateDeviceResolver";
-import {getDeviceByToken} from "./resolvers/GetDeviceByTokenResolver";
+import {createDevice} from "./resolvers/CreateDeviceResolver";
+import {getDevicesForUser} from "./resolvers/GetDevicesForUserResolver";
 
 /**
  * Mapping out the App Sync event type, so we can use it as a type in the Lambda Handler
@@ -20,9 +17,6 @@ type AppSyncEvent = {
     },
     arguments: {
         createDeviceInput: CreateDeviceInput,
-        updateDeviceInput: UpdateDeviceInput,
-        getDeviceInput: GetDeviceInput,
-        getDeviceByTokenInput: GetDeviceByTokenInput,
         getDevicesForUserInput: GetDevicesForUserInput
     },
     identity: {
@@ -42,16 +36,10 @@ type AppSyncEvent = {
 exports.handler = async (event: AppSyncEvent): Promise<UserDeviceResponse | UserDevicesResponse> => {
     console.log(`Received new physical device event for operation [${event.info.fieldName}], with arguments ${JSON.stringify(event.arguments)}`);
     switch (event.info.fieldName) {
-        case "getDevice":
-            return await getDevice(event.info.fieldName, event.arguments.getDeviceInput);
-        case "getDeviceByToken":
-            return await getDeviceByToken(event.info.fieldName, event.arguments.getDeviceByTokenInput);
         case "getDevicesForUser":
             return await getDevicesForUser(event.info.fieldName, event.arguments.getDevicesForUserInput);
         case "createDevice":
             return await createDevice(event.info.fieldName, event.arguments.createDeviceInput);
-        case "updateDevice":
-            return await updateDevice(event.info.fieldName, event.arguments.updateDeviceInput);
         default:
             const errorMessage = `Unexpected field name: ${event.info.fieldName}`;
             console.log(errorMessage);
