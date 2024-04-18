@@ -122,6 +122,11 @@ export namespace Constants {
         export const COURIER_INTERNAL_SECRET_NAME = `courier-internal-secret-pair`;
         export const COURIER_BASE_URL = `COURIER_BASE_URL`;
 
+        export const PLAID_INTERNAL_SECRET_NAME = `plaid-internal-secret-pair`;
+        export const PLAID_BASE_URL = `PLAID_BASE_URL`;
+        export const PLAID_CLIENT_ID = `PLAID_CLIENT_ID`;
+        export const PLAID_SECRET = `PLAID_SECRET`;
+
         export const COGNITO_USER_POOL_ID = `COGNITO_USER_POOL_ID`;
         export const CONGITO_CLI_ACCESS_KEY_ID = `CONGITO_CLI_ACCESS_KEY_ID`;
         export const COGNITO_CLI_SECRET_ACCESS_KEY = `COGNITO_CLI_SECRET_ACCESS_KEY`;
