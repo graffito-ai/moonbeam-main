@@ -7,6 +7,7 @@ import {
 } from "@moonbeam/moonbeam-models";
 import {createDevice} from "./resolvers/CreateDeviceResolver";
 import {getDevicesForUser} from "./resolvers/GetDevicesForUserResolver";
+import {getAllDevices} from "./resolvers/GetAllDevicesResolver";
 
 /**
  * Mapping out the App Sync event type, so we can use it as a type in the Lambda Handler
@@ -36,6 +37,8 @@ type AppSyncEvent = {
 exports.handler = async (event: AppSyncEvent): Promise<UserDeviceResponse | UserDevicesResponse> => {
     console.log(`Received new physical device event for operation [${event.info.fieldName}], with arguments ${JSON.stringify(event.arguments)}`);
     switch (event.info.fieldName) {
+        case "getAllDevices":
+            return await getAllDevices(event.info.fieldName);
         case "getDevicesForUser":
             return await getDevicesForUser(event.info.fieldName, event.arguments.getDevicesForUserInput);
         case "createDevice":

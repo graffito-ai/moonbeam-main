@@ -399,9 +399,11 @@ export interface PhysicalDevicesConfiguration {
     readonly devicesFunctionName: string;
     readonly createDeviceResolverName: string;
     readonly getDevicesForUserResolverName: string;
+    readonly getAllDevicesResolverName: string;
     readonly devicesTableName: string;
     readonly devicesIdGlobalIndex: string;
     readonly deviceTokenIdGlobalIndex: string;
+    readonly devicesByStateGlobalIndex: string;
 }
 
 /**

@@ -60,6 +60,10 @@ export class PhysicalDevicesResolverStack extends Stack {
             typeName: "Query",
             fieldName: `${props.physicalDevicesConfig.getDevicesForUserResolverName}`
         });
+        devicesLambdaSource.createResolver(`${props.physicalDevicesConfig.getAllDevicesResolverName}-${props.stage}-${props.env!.region}`, {
+            typeName: "Query",
+            fieldName: `${props.physicalDevicesConfig.getAllDevicesResolverName}`
+        });
         devicesLambdaSource.createResolver(`${props.physicalDevicesConfig.createDeviceResolverName}-${props.stage}-${props.env!.region}`, {
             typeName: "Mutation",
             fieldName: `${props.physicalDevicesConfig.createDeviceResolverName}`
@@ -108,6 +112,18 @@ export class PhysicalDevicesResolverStack extends Stack {
                 type: aws_dynamodb.AttributeType.STRING
             }
         });
+        /**
+         * creates a global secondary index for the table, so we can retrieve the devices by their state.
+         * {@link https://www.dynamodbguide.com/key-concepts/}
+         * {@link https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GSI.html}
+         */
+        physicalDevicesTable.addGlobalSecondaryIndex({
+            indexName: `${props.physicalDevicesConfig.devicesByStateGlobalIndex}-${props.stage}-${props.env!.region}`,
+            partitionKey: {
+                name: 'deviceState',
+                type: aws_dynamodb.AttributeType.STRING
+            }
+        });
 
         // enable the Lambda function to access the DynamoDB table (using IAM)
         physicalDevicesTable.grantFullAccess(devicesLambda);
@@ -128,7 +144,8 @@ export class PhysicalDevicesResolverStack extends Stack {
                     resources: [
                         `${physicalDevicesTable.tableArn}`,
                         `${physicalDevicesTable.tableArn}/index/${props.physicalDevicesConfig.deviceTokenIdGlobalIndex}-${props.stage}-${props.env!.region}`,
-                        `${physicalDevicesTable.tableArn}/index/${props.physicalDevicesConfig.devicesIdGlobalIndex}-${props.stage}-${props.env!.region}`
+                        `${physicalDevicesTable.tableArn}/index/${props.physicalDevicesConfig.devicesIdGlobalIndex}-${props.stage}-${props.env!.region}`,
+                        `${physicalDevicesTable.tableArn}/index/${props.physicalDevicesConfig.devicesByStateGlobalIndex}-${props.stage}-${props.env!.region}`
                     ]
                 }
             )
@@ -138,6 +155,7 @@ export class PhysicalDevicesResolverStack extends Stack {
         devicesLambda.addEnvironment(`${Constants.MoonbeamConstants.PHYSICAL_DEVICES_TABLE}`, physicalDevicesTable.tableName);
         devicesLambda.addEnvironment(`${Constants.MoonbeamConstants.PHYSICAL_DEVICES_ID_GLOBAL_INDEX}`, props.physicalDevicesConfig.devicesIdGlobalIndex);
         devicesLambda.addEnvironment(`${Constants.MoonbeamConstants.PHYSICAL_DEVICES_TOKEN_ID_GLOBAL_INDEX}`, props.physicalDevicesConfig.deviceTokenIdGlobalIndex);
+        devicesLambda.addEnvironment(`${Constants.MoonbeamConstants.PHYSICAL_DEVICES_BY_STATE_GLOBAL_INDEX}`, props.physicalDevicesConfig.devicesByStateGlobalIndex);
         devicesLambda.addEnvironment(`${Constants.MoonbeamConstants.ENV_NAME}`, props.stage);
     }
 }

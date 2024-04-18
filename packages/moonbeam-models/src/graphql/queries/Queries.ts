@@ -394,6 +394,25 @@ export const getFAQs = /* GraphQL */ `
     }
 `;
 
+/**
+ * Query used to retrieve all the User Devices in our DB irrespective of the user that they
+ * are associated with.
+ */
+export const getAllDevices = /* GraphQL */ `
+    query GetAllDevices {
+        getAllDevices {
+            errorMessage
+            errorType
+            data {
+                id
+                tokenId
+                deviceState
+                lastLoginDate
+            }
+        }
+    }
+`;
+
 // Query used to retrieve all Event Series for various partner organizations
 export const getEventSeries = /* GraphQL */ `
     query GetEventSeries {

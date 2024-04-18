@@ -37,6 +37,7 @@ type Query {
     getNotificationByType(getNotificationByTypeInput: GetNotificationByTypeInput!): GetNotificationByTypeResponse! @aws_cognito_user_pools @aws_api_key
     getDailyEarningsSummary(getDailyEarningsSummaryInput: GetDailyEarningsSummaryInput!): DailyEarningsSummaryResponse! @aws_cognito_user_pools @aws_api_key
     getUserNotificationAssets(getUserNotificationAssetsInput: GetUserNotificationAssetsInput!): UserNotificationAssetsResponse! @aws_cognito_user_pools @aws_api_key
+    getAllDevices: UserDevicesResponse! @aws_cognito_user_pools @aws_api_key
 }
 
 type Mutation {

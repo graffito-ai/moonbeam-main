@@ -188,9 +188,11 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 devicesFunctionName: 'devicesLambdaFunction',
                 createDeviceResolverName: 'createDevice',
                 getDevicesForUserResolverName: 'getDevicesForUser',
+                getAllDevicesResolverName: 'getAllDevices',
                 devicesTableName: 'physicalDevicesTable',
                 devicesIdGlobalIndex: 'devicesIdGlobalIndex',
-                deviceTokenIdGlobalIndex: 'deviceTokenIdGlobalIndex'
+                deviceTokenIdGlobalIndex: 'deviceTokenIdGlobalIndex',
+                devicesByStateGlobalIndex: 'devicesByStateGlobalIndex'
             },
             offersConfig: {
                 offersFunctionName: 'offersLambdaFunction',
@@ -497,9 +499,11 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 devicesFunctionName: 'devicesLambdaFunction',
                 createDeviceResolverName: 'createDevice',
                 getDevicesForUserResolverName: 'getDevicesForUser',
+                getAllDevicesResolverName: 'getAllDevices',
                 devicesTableName: 'physicalDevicesTable',
                 devicesIdGlobalIndex: 'devicesIdGlobalIndex',
-                deviceTokenIdGlobalIndex: 'deviceTokenIdGlobalIndex'
+                deviceTokenIdGlobalIndex: 'deviceTokenIdGlobalIndex',
+                devicesByStateGlobalIndex: 'devicesByStateGlobalIndex'
             },
             offersConfig: {
                 offersFunctionName: 'offersLambdaFunction',
