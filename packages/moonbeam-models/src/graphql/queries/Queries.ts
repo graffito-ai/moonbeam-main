@@ -2,6 +2,24 @@
  * This is a file used to define the all GraphQL query constants
  */
 
+/**
+ * Query used to retrieve a user's notification assets (such as email address and push token),
+ * used when sending notifications
+  */
+export const getUserNotificationAssets = /* GraphQL */ `
+    query getUserNotificationAssets($getUserNotificationAssetsInput: GetUserNotificationAssetsInput!) {
+        getUserNotificationAssets(getUserNotificationAssetsInput: $getUserNotificationAssetsInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                email
+                pushToken
+            }
+        }
+    }
+`;
+
 // Query used to retrieve a daily earnings summary for a particular user and date.
 export const getDailyEarningsSummary = /* GraphQL */ `
     query GetDailyEarningsSummary($getDailyEarningsSummaryInput: GetDailyEarningsSummaryInput!) {

@@ -383,6 +383,7 @@ export interface NotificationsConfiguration {
     readonly notificationsFunctionName: string;
     readonly createNotificationResolverName: string;
     readonly getNotificationByTypeResolverName: string;
+    readonly getUserNotificationAssetsResolverName: string;
     readonly notificationsTableName: string;
     readonly notificationsChannelTypeLocalIndex: string;
     readonly notificationsTypeLocalIndex: string;

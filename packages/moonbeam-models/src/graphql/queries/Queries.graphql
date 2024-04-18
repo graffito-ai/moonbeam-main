@@ -1,5 +1,16 @@
 # graphql/Queries.graphql
 # Queries Schema File
+query getUserNotificationAssets($getUserNotificationAssetsInput: GetUserNotificationAssetsInput!) {
+    getUserNotificationAssets(getUserNotificationAssetsInput: $getUserNotificationAssetsInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            email
+            pushToken
+        }
+    }
+}
 query GetDailyEarningsSummary($getDailyEarningsSummaryInput: GetDailyEarningsSummaryInput!) {
     getDailyEarningsSummary(getDailyEarningsSummaryInput: $getDailyEarningsSummaryInput) {
         errorMessage

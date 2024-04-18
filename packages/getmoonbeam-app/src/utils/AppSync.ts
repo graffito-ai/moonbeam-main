@@ -12,12 +12,14 @@ import {
     CreateReimbursementInput,
     createUserAuthSession,
     DailyEarningsSummary,
+    DailyEarningsSummaryStatus,
+    DailySummaryErrorType,
     EventSeries,
     FidelisPartner,
     geoCodeAsync,
     getAppReviewEligibility,
     getAppUpgradeCredentials,
-    getDeviceByToken,
+    getDailyEarningsSummary,
     getEventSeries,
     getFidelisPartners,
     getLocationPredictions,
@@ -30,7 +32,6 @@ import {
     getUserAuthSession,
     getUserCardLinkingId,
     getUserFromReferral,
-    getDailyEarningsSummary,
     LocationPredictionType,
     LoggingLevel,
     MarketingCampaignCode,
@@ -44,7 +45,6 @@ import {
     OfferStore,
     OsType,
     Partner,
-    PushDevice,
     RedemptionType,
     Referral,
     ReferralErrorType,
@@ -52,13 +52,12 @@ import {
     Reimbursement,
     searchOffers,
     Stages,
-    updateDevice,
+    updateDailyEarningsSummary,
     updateUserAuthSession,
     UserAuthSession,
     UserAuthSessionErrorType,
     UserAuthSessionResponse,
-    UserDeviceErrorType,
-    UserDeviceState, DailySummaryErrorType, updateDailyEarningsSummary, DailyEarningsSummaryStatus
+    UserDeviceState
 } from "@moonbeam/moonbeam-models";
 import {API, Cache, graphqlOperation} from "aws-amplify";
 import {dynamicSort} from "./Main";
@@ -78,7 +77,7 @@ import {LocationGeocodedLocation} from "expo-location/src/Location.types";
  * @returns a {@link Date} representing the current date in the current
  * user's timezone.
  */
-const calculateDateTime = (): Date=> {
+const calculateDateTime = (): Date => {
     const d = new Date();
     return d.getTimezoneOffset() > 0
         ? new Date(d.getTime() - (d.getTimezoneOffset() * 60000))
@@ -112,7 +111,7 @@ export const updateDailyEarningsSummaryStatus = async (userId: string): Promise<
         const dailyEarningsSummaryUpdateResult = await API.graphql(graphqlOperation(updateDailyEarningsSummary, {
             updateDailyEarningsSummaryInput: {
                 id: userId,
-                targetDate: new Date(targetDate.setUTCHours(0,0,0,0)).toISOString(),
+                targetDate: new Date(targetDate.setUTCHours(0, 0, 0, 0)).toISOString(),
                 status: DailyEarningsSummaryStatus.Acknowledged
             }
         }))
@@ -181,7 +180,7 @@ export const getDailyEarningSummaries = async (userId: string): Promise<DailyEar
         const dailyEarningsSummaryResult = await API.graphql(graphqlOperation(getDailyEarningsSummary, {
             getDailyEarningsSummaryInput: {
                 id: userId,
-                targetDate: new Date(targetDate.setUTCHours(0,0,0,0)).toISOString()
+                targetDate: new Date(targetDate.setUTCHours(0, 0, 0, 0)).toISOString()
             }
         }));
 
@@ -1362,110 +1361,6 @@ export const sendNotification = async (createNotificationInput: CreateNotificati
         return false;
     }
 };
-
-/**
- * Function used to determine whether we should proceed with the creation a physical device
- * or not. If so, it also updates the status of an existing association.
- *
- * @param userId generated for the user
- * @param tokenId the expo push token for the physical device
- *
- * @return a {@link Promise} of a pair, containing a {@link Boolean}, representing whether we should proceed with
- * the creation of a new physical device or not.
- */
-export const proceedWithDeviceCreation = async (userId: string, tokenId: string): Promise<boolean> => {
-    try {
-        // call the createDevice API
-        const getDeviceByTokenResult = await API.graphql(graphqlOperation(getDeviceByToken, {
-            getDeviceByTokenInput: {
-                tokenId: tokenId
-            }
-        }));
-
-        // retrieve the data block from the response
-        // @ts-ignore
-        const responseData = getDeviceByTokenResult ? getDeviceByTokenResult.data : null;
-
-        // check if there are any errors in the returned response
-        if (responseData && responseData.getDeviceByToken.errorMessage === null) {
-            // returning the military status
-            const pushDevice: PushDevice = responseData.getDeviceByToken.data as PushDevice;
-
-            // check if the IDs match, if they do then return false
-            if (pushDevice.id === userId) {
-                const errorMessage = `Device already associated to user!`;
-                console.log(errorMessage);
-                await logEvent(errorMessage, LoggingLevel.Info, false);
-
-                return false;
-            } else {
-                /**
-                 * if the device is associated to another user, ensure that chronologically
-                 * the incoming association is newer than the existing one. If so, then we
-                 * update the old association's status to INACTIVE, and return.
-                 */
-                if (Date.parse(new Date().toISOString()) > Date.parse(pushDevice.lastLoginDate)) {
-                    /**
-                     * update the old association's status to INACTIVE, since we only want one user associated to a device at a time.
-                     *
-                     * call the updateDevice API
-                     */
-                    const updateDeviceResult = await API.graphql(graphqlOperation(updateDevice, {
-                        updateDeviceInput: {
-                            id: pushDevice.id,
-                            tokenId: pushDevice.tokenId,
-                            deviceState: UserDeviceState.Inactive
-                        }
-                    }));
-                    // retrieve the data block from the response
-                    // @ts-ignore
-                    const responseData = updateDeviceResult ? updateDeviceResult.data : null;
-
-                    // check if there are any errors in the returned response
-                    if (responseData && responseData.updateDevice.errorMessage === null) {
-                        return true;
-                    } else {
-                        const errorMessage = `Unexpected error while updating the physical device ${JSON.stringify(updateDeviceResult)}`;
-                        console.log(errorMessage);
-                        await logEvent(errorMessage, LoggingLevel.Warning, false);
-
-                        return false;
-                    }
-                } else {
-                    const errorMessage = `Physical device association is older than existing one. Skipping.`;
-                    console.log(errorMessage);
-                    await logEvent(errorMessage, LoggingLevel.Warning, false);
-
-                    return false;
-                }
-            }
-        } else {
-            /**
-             * filter through any errors. If there are no physical devices with the incoming tokenId, then return true. For
-             * other errors, return false.
-             */
-            if (responseData.getDeviceByToken.errorMessage !== null && responseData.getDeviceByToken.errorType === UserDeviceErrorType.NoneOrAbsent) {
-                const errorMessage = `No physical devices with ${tokenId} found!`;
-                console.log(errorMessage);
-                await logEvent(errorMessage, LoggingLevel.Warning, false);
-
-                return true;
-            } else {
-                const errorMessage = `Unexpected error while creating retrieving physical device by token ${JSON.stringify(getDeviceByTokenResult)}`;
-                console.log(errorMessage);
-                await logEvent(errorMessage, LoggingLevel.Error, false);
-
-                return false;
-            }
-        }
-    } catch (error) {
-        const errorMessage = `Unexpected error while attempting to retrieve physical device by token ${JSON.stringify(error)} ${error}`;
-        console.log(errorMessage);
-        await logEvent(errorMessage, LoggingLevel.Error, false);
-
-        return false;
-    }
-}
 
 /**
  * Function used to create a new physical device, associated to a user.

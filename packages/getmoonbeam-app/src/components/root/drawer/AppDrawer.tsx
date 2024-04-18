@@ -63,7 +63,7 @@ import {fetchFile} from "../../../utils/File";
 import {Documents} from './documents/Documents';
 import {DocumentsViewer} from "../../common/DocumentsViewer";
 import {Support} from "./support/Support";
-import {createPhysicalDevice, logEvent, proceedWithDeviceCreation, retrieveCardLinkingId} from "../../../utils/AppSync";
+import {createPhysicalDevice, logEvent, retrieveCardLinkingId} from "../../../utils/AppSync";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import {Referral} from "./home/dashboard/referrals/Referral";
 import Constants from 'expo-constants';
@@ -164,24 +164,14 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                          * (only if we are not running the app in Expo Go)
                          */
                         Constants.appOwnership !== AppOwnership.Expo && expoPushToken.data.length !== 0 &&
-                        proceedWithDeviceCreation(userInformation["custom:userId"], expoPushToken.data).then((proceedWithDeviceCreationFlag) => {
-                            if (proceedWithDeviceCreationFlag) {
-                                // if so, we create the physical device accordingly (and associated to the new user)
-                                createPhysicalDevice(userInformation["custom:userId"], expoPushToken.data).then((physicalDeviceCreationFlag) => {
-                                    if (physicalDeviceCreationFlag) {
-                                        const message = `Successfully created a physical device for user!`;
-                                        console.log(message);
-                                        logEvent(message, LoggingLevel.Info, userIsAuthenticated).then(() => {
-                                        });
-                                    } else {
-                                        const message = `Unable to create a physical device for user!`;
-                                        console.log(message);
-                                        logEvent(message, LoggingLevel.Warning, userIsAuthenticated).then(() => {
-                                        });
-                                    }
+                        createPhysicalDevice(userInformation["custom:userId"], expoPushToken.data).then((physicalDeviceCreationFlag) => {
+                            if (physicalDeviceCreationFlag) {
+                                const message = `Successfully created a physical device for user!`;
+                                console.log(message);
+                                logEvent(message, LoggingLevel.Info, userIsAuthenticated).then(() => {
                                 });
                             } else {
-                                const message = `Not necessary to create a physical device for user!`;
+                                const message = `Unable to create a physical device for user!`;
                                 console.log(message);
                                 logEvent(message, LoggingLevel.Warning, userIsAuthenticated).then(() => {
                                 });
@@ -223,24 +213,16 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                              * (only if we are not running the app in Expo Go)
                              */
                             Constants.appOwnership !== AppOwnership.Expo && expoPushToken.data.length !== 0 &&
-                            proceedWithDeviceCreation(userInformation["custom:userId"], expoPushToken.data).then((proceedWithDeviceCreationFlag) => {
-                                if (proceedWithDeviceCreationFlag) {
-                                    // if so, we create the physical device accordingly (and associated to the new user)
-                                    createPhysicalDevice(userInformation["custom:userId"], expoPushToken.data).then((physicalDeviceCreationFlag) => {
-                                        if (physicalDeviceCreationFlag) {
-                                            const message = `Successfully created a physical device for user!`;
-                                            console.log(message);
-                                            logEvent(message, LoggingLevel.Info, userIsAuthenticated).then(() => {
-                                            });
-                                        } else {
-                                            const message = `Unable to create a physical device for user!`;
-                                            console.log(message);
-                                            logEvent(message, LoggingLevel.Warning, userIsAuthenticated).then(() => {
-                                            });
-                                        }
+
+                            // if so, we create the physical device accordingly (and associated to the new user)
+                            createPhysicalDevice(userInformation["custom:userId"], expoPushToken.data).then((physicalDeviceCreationFlag) => {
+                                if (physicalDeviceCreationFlag) {
+                                    const message = `Successfully created a physical device for user!`;
+                                    console.log(message);
+                                    logEvent(message, LoggingLevel.Info, userIsAuthenticated).then(() => {
                                     });
                                 } else {
-                                    const message = `Not necessary to create a physical device for user!`;
+                                    const message = `Unable to create a physical device for user!`;
                                     console.log(message);
                                     logEvent(message, LoggingLevel.Warning, userIsAuthenticated).then(() => {
                                     });

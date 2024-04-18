@@ -3434,8 +3434,6 @@ export class MoonbeamClient extends BaseAPIClient {
                 timeout: 15000, // in milliseconds here
                 timeoutErrorMessage: 'Moonbeam API timed out after 15000ms!'
             }).then(createDailyEarningsSummaryResponse => {
-                console.log(`${endpointInfo} response ${JSON.stringify(createDailyEarningsSummaryResponse.data)}`);
-
                 // retrieve the data block from the response
                 const responseData = (createDailyEarningsSummaryResponse && createDailyEarningsSummaryResponse.data) ? createDailyEarningsSummaryResponse.data.data : null;
 

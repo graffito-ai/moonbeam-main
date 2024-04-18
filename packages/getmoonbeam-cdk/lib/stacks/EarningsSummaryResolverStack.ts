@@ -48,7 +48,7 @@ export class EarningsSummaryResolverStack extends Stack {
             handler: 'handler',
             runtime: aws_lambda.Runtime.NODEJS_18_X,
             // we add a timeout here different from the default of 3 seconds, since we expect queries and filtering calls to take longer
-            timeout: Duration.seconds(20),
+            timeout: Duration.seconds(900),
             memorySize: 512,
             bundling: {
                 minify: true, // minify code, defaults to false

@@ -726,6 +726,10 @@ export type GetUserCardLinkingIdResponse = {
   errorType?: Maybe<CardLinkErrorType>;
 };
 
+export type GetUserNotificationAssetsInput = {
+  idList: Array<InputMaybe<Scalars['ID']>>;
+};
+
 export type GetUsersByGeographicalLocationInput = {
   zipCodes: Array<InputMaybe<Scalars['String']>>;
 };
@@ -1644,6 +1648,7 @@ export type Query = {
   getUserAuthSession: UserAuthSessionResponse;
   getUserCardLinkingId: GetUserCardLinkingIdResponse;
   getUserFromReferral: UserFromReferralResponse;
+  getUserNotificationAssets: UserNotificationAssetsResponse;
   getUsersByGeographyForNotificationReminders: UserForNotificationReminderResponse;
   getUsersWithNoCards: IneligibleLinkedUsersResponse;
   searchOffers: OffersResponse;
@@ -1767,6 +1772,11 @@ export type QueryGetUserCardLinkingIdArgs = {
 
 export type QueryGetUserFromReferralArgs = {
   userFromReferralInput: UserFromReferralInput;
+};
+
+
+export type QueryGetUserNotificationAssetsArgs = {
+  getUserNotificationAssetsInput: GetUserNotificationAssetsInput;
 };
 
 
@@ -2238,6 +2248,20 @@ export type UserFromReferralResponse = {
   errorType?: Maybe<ReferralErrorType>;
 };
 
+export type UserNotificationAssetsResponse = {
+  __typename?: 'UserNotificationAssetsResponse';
+  data?: Maybe<Array<Maybe<UserNotificationsAssets>>>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<NotificationsErrorType>;
+};
+
+export type UserNotificationsAssets = {
+  __typename?: 'UserNotificationsAssets';
+  email: Scalars['String'];
+  id: Scalars['ID'];
+  pushToken: Scalars['String'];
+};
+
 export enum UtilitiesErrorType {
   DuplicateObjectFound = 'DUPLICATE_OBJECT_FOUND',
   NoneOrAbsent = 'NONE_OR_ABSENT',
@@ -2434,6 +2458,13 @@ export type UpdateMilitaryVerificationStatusMutationVariables = Exact<{
 
 
 export type UpdateMilitaryVerificationStatusMutation = { __typename?: 'Mutation', updateMilitaryVerificationStatus: { __typename?: 'UpdateMilitaryVerificationResponse', errorType?: MilitaryVerificationErrorType | null, errorMessage?: string | null, id?: string | null, militaryVerificationStatus?: MilitaryVerificationStatusType | null } };
+
+export type GetUserNotificationAssetsQueryVariables = Exact<{
+  getUserNotificationAssetsInput: GetUserNotificationAssetsInput;
+}>;
+
+
+export type GetUserNotificationAssetsQuery = { __typename?: 'Query', getUserNotificationAssets: { __typename?: 'UserNotificationAssetsResponse', errorMessage?: string | null, errorType?: NotificationsErrorType | null, data?: Array<{ __typename?: 'UserNotificationsAssets', id: string, email: string, pushToken: string } | null> | null } };
 
 export type GetDailyEarningsSummaryQueryVariables = Exact<{
   getDailyEarningsSummaryInput: GetDailyEarningsSummaryInput;

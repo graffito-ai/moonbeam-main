@@ -38,6 +38,7 @@ type Query {
     getReimbursements(getReimbursementsInput: GetReimbursementsInput!): ReimbursementResponse! @aws_cognito_user_pools
     getNotificationByType(getNotificationByTypeInput: GetNotificationByTypeInput!): GetNotificationByTypeResponse! @aws_cognito_user_pools @aws_api_key
     getDailyEarningsSummary(getDailyEarningsSummaryInput: GetDailyEarningsSummaryInput!): DailyEarningsSummaryResponse! @aws_cognito_user_pools @aws_api_key
+    getUserNotificationAssets(getUserNotificationAssetsInput: GetUserNotificationAssetsInput!): UserNotificationAssetsResponse! @aws_cognito_user_pools @aws_api_key
 }
 
 type Mutation {
@@ -850,6 +851,12 @@ type Notification @aws_cognito_user_pools @aws_api_key {
     updatedAt: AWSDateTime!
 }
 
+type UserNotificationsAssets @aws_cognito_user_pools @aws_api_key {
+    id: ID! # this represents the userID of the user used to retrieve notification assets for
+    email: String! # email address of the user
+    pushToken: String!
+}
+
 input CreateNotificationInput {
     id: ID! # this represents the userID which the notification belongs to/was sent to
     timestamp: AWSTimestamp # this represents the timestamp, in a Number epoch based format (for sorting purposes)
@@ -920,6 +927,12 @@ type LocationBasedOfferReminderResponse @aws_cognito_user_pools @aws_iam {
     errorMessage: String
 }
 
+type UserNotificationAssetsResponse @aws_cognito_user_pools @aws_iam {
+    data: [UserNotificationsAssets]
+    errorType: NotificationsErrorType
+    errorMessage: String
+}
+
 input CreateLocationBasedOfferReminderInput {
     expoPushToken: [String]!
     latitude: String!
@@ -929,6 +942,10 @@ input CreateLocationBasedOfferReminderInput {
 input GetNotificationByTypeInput {
     type: NotificationType!
     endDate: AWSDateTime! ## the start time to filter notifications for
+}
+
+input GetUserNotificationAssetsInput {
+    idList: [ID]! # this represents a list of the userIds to be used when retrieving the details of the notification.
 }
 # graphql/PhysicalDevicesSchema.graphql
 # Physical Devices Schema File

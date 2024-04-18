@@ -109,6 +109,7 @@ export const triggerEarningsDailySummariesCreation = async (): Promise<void> => 
                                     dailyEarningsSummaryAmount += transaction.rewardAmount;
                                 }
                             });
+                            dailyEarningsSummaryAmount = Number(dailyEarningsSummaryAmount.toFixed(2));
 
                             // 6) Call the createNotification Moonbeam AppSync API endpoint to create an email notification for the daily earnings summary update
                             const createEmailNotificationResponse: CreateNotificationResponse = await moonbeamClient.createNotification({

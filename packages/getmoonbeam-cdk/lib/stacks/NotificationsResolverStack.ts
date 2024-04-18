@@ -31,7 +31,7 @@ export class NotificationsResolverStack extends Stack {
             handler: 'handler',
             runtime: aws_lambda.Runtime.NODEJS_18_X,
             // we add a timeout here different from the default of 3 seconds, since we expect queries and filtering calls to take longer
-            timeout: Duration.seconds(20),
+            timeout: Duration.seconds(900),
             memorySize: 512,
             bundling: {
                 minify: true, // minify code, defaults to false
@@ -64,6 +64,10 @@ export class NotificationsResolverStack extends Stack {
         notificationsLambdaSource.createResolver(`${props.notificationsConfig.getNotificationByTypeResolverName}-${props.stage}-${props.env!.region}`, {
             typeName: "Query",
             fieldName: `${props.notificationsConfig.getNotificationByTypeResolverName}`
+        });
+        notificationsLambdaSource.createResolver(`${props.notificationsConfig.getUserNotificationAssetsResolverName}-${props.stage}-${props.env!.region}`, {
+            typeName: "Query",
+            fieldName: `${props.notificationsConfig.getUserNotificationAssetsResolverName}`
         });
 
         // create a new table to be used for Notifications purposes
@@ -170,6 +174,20 @@ export class NotificationsResolverStack extends Stack {
                 }
             )
         );
+        // enable the Lambda function the retrieval of the Moonbeam internal API secrets
+        notificationsLambda.addToRolePolicy(
+            new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: [
+                    "secretsmanager:GetSecretValue"
+                ],
+                resources: [
+                    // this ARN is retrieved post secret creation
+                    ...props.stage === Stages.DEV ? ["arn:aws:secretsmanager:us-west-2:963863720257:secret:moonbeam-internal-secret-pair-dev-us-west-2-vgMpp2"] : [],
+                    ...props.stage === Stages.PROD ? ["arn:aws:secretsmanager:us-west-2:251312580862:secret:moonbeam-internal-secret-pair-prod-us-west-2-9xP6tj"] : []
+                ]
+            })
+        );
         // enable the Lambda function the retrieval of the Courier internal API secrets
         notificationsLambda.addToRolePolicy(
             new PolicyStatement({
@@ -181,6 +199,33 @@ export class NotificationsResolverStack extends Stack {
                     // this ARN is retrieved post secret creation
                     ...props.stage === Stages.DEV ? ["arn:aws:secretsmanager:us-west-2:963863720257:secret:courier-internal-secret-pair-dev-us-west-2-cPEXmP"] : [],
                     ...props.stage === Stages.PROD ? ["arn:aws:secretsmanager:us-west-2:251312580862:secret:courier-internal-secret-pair-prod-us-west-2-PpvduA"] : []
+                ]
+            })
+        );
+        // enable the Lambda function to access the AppSync mutations and queries
+        notificationsLambda.addToRolePolicy(
+            new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: [
+                    "appsync:GraphQL"
+                ],
+                resources: [
+                    // this ARN is retrieved post GraphQL API creation
+                    ...props.stage === Stages.DEV ? ["arn:aws:appsync:us-west-2:963863720257:apis/pkr6ygyik5bqjigb6nd57jl2cm/types/Mutation/*"] : [],
+                    ...props.stage === Stages.PROD ? ["arn:aws:appsync:us-west-2:251312580862:apis/p3a4pwssi5dejox33pvznpvz4u/types/Mutation/*"] : []
+                ]
+            })
+        );
+        notificationsLambda.addToRolePolicy(
+            new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: [
+                    "appsync:GraphQL"
+                ],
+                resources: [
+                    // this ARN is retrieved post GraphQL API creation
+                    ...props.stage === Stages.DEV ? [ "arn:aws:appsync:us-west-2:963863720257:apis/pkr6ygyik5bqjigb6nd57jl2cm/types/Query/*"] : [],
+                    ...props.stage === Stages.PROD ? ["arn:aws:appsync:us-west-2:251312580862:apis/p3a4pwssi5dejox33pvznpvz4u/types/Query/*"] : []
                 ]
             })
         );

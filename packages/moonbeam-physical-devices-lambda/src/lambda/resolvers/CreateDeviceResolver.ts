@@ -1,11 +1,5 @@
 import {DynamoDBClient, GetItemCommand, PutItemCommand, UpdateItemCommand} from "@aws-sdk/client-dynamodb";
-import {
-    CreateDeviceInput,
-    UserDeviceResponse,
-    PushDevice,
-    UserDeviceErrorType,
-    UserDeviceState
-} from "@moonbeam/moonbeam-models";
+import {CreateDeviceInput, PushDevice, UserDeviceErrorType, UserDeviceResponse} from "@moonbeam/moonbeam-models";
 
 /**
  * CreateDevice resolver
@@ -57,52 +51,37 @@ export const createDevice = async (fieldName: string, createDeviceInput: CreateD
         if (preExistingPhysicalDevice && preExistingPhysicalDevice.Item) {
             /**
              * if there is a pre-existing device with the same composite primary key (userId/id, tokenId) combination,
-             * then we check if that device is active. If so, then cannot duplicate that, so we will return an error.
-             * Otherwise, we will update that device's state to active accordingly, so that we can 'revive' an old
-             * device.
+             * then we update that device's state and login date accordingly.
              */
-            if (preExistingPhysicalDevice.Item.deviceState.S! === UserDeviceState.Inactive) {
-                console.log(`Reviving old device ${createDeviceInput.tokenId} for account id ${createDeviceInput.id}`);
-
-                // update the physical device object based on the passed in object
-                await dynamoDbClient.send(new UpdateItemCommand({
-                    TableName: process.env.PHYSICAL_DEVICES_TABLE!,
-                    Key: {
-                        id: {
-                            S: createDeviceInput.id
-                        },
-                        tokenId: {
-                            S: createDeviceInput.tokenId
-                        }
+            await dynamoDbClient.send(new UpdateItemCommand({
+                TableName: process.env.PHYSICAL_DEVICES_TABLE!,
+                Key: {
+                    id: {
+                        S: createDeviceInput.id
                     },
-                    ExpressionAttributeNames: {
-                        "#dst": "deviceState",
-                        "#llog": "lastLoginDate"
+                    tokenId: {
+                        S: createDeviceInput.tokenId
+                    }
+                },
+                ExpressionAttributeNames: {
+                    "#dst": "deviceState",
+                    "#llog": "lastLoginDate"
+                },
+                ExpressionAttributeValues: {
+                    ":dst": {
+                        S: createDeviceInput.deviceState
                     },
-                    ExpressionAttributeValues: {
-                        ":dst": {
-                            S: createDeviceInput.deviceState
-                        },
-                        ":llog": {
-                            S: createDeviceInput.lastLoginDate
-                        }
-                    },
-                    UpdateExpression: "SET #dst = :dst, #llog = :llog",
-                    ReturnValues: "UPDATED_NEW"
-                }));
+                    ":llog": {
+                        S: createDeviceInput.lastLoginDate
+                    }
+                },
+                UpdateExpression: "SET #dst = :dst, #llog = :llog",
+                ReturnValues: "UPDATED_NEW"
+            }));
 
-                // return the updated physical device object
-                return {
-                    data: createDeviceInput as PushDevice
-                }
-            } else {
-                const errorMessage = `Duplicate physical device found!`;
-                console.log(errorMessage);
-
-                return {
-                    errorMessage: errorMessage,
-                    errorType: UserDeviceErrorType.DuplicateObjectFound
-                }
+            // return the updated physical device object
+            return {
+                data: createDeviceInput as PushDevice
             }
         } else {
             // store the physical device object
@@ -124,7 +103,7 @@ export const createDevice = async (fieldName: string, createDeviceInput: CreateD
                 },
             }));
 
-            // return the physical device object
+            // return the stored physical device object
             return {
                 data: createDeviceInput as PushDevice
             }
