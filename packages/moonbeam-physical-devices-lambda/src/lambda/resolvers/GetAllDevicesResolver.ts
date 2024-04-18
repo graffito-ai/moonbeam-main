@@ -68,6 +68,7 @@ export const getAllDevices = async (fieldName: string): Promise<UserDevicesRespo
 
         // if there are physical devices retrieved, then return them accordingly
         if (result && result.length !== 0) {
+            console.log(`Results Length: ${result.length}`);
             // build out a map to return for users and their devices. For each user keep the one with the last login date as most recent
             const pushDevicesData: Map<string, PushDevice[]> = new Map<string, PushDevice[]>();
             result.forEach(pushDeviceResult => {
@@ -96,8 +97,8 @@ export const getAllDevices = async (fieldName: string): Promise<UserDevicesRespo
             const results: PushDevice[] = [];
             pushDevicesData.forEach((pushDeviceList, _) => {
                 const resultToAdd = pushDeviceList.sort((a, b) => Date.parse(b.lastLoginDate) - Date.parse(a.lastLoginDate));
-                resultToAdd.length === 1 && results.push(resultToAdd[0]); // push the first device in the list of active devices since we know that's the latest one that the user has logged into
-            })
+                results.push(resultToAdd[0]); // push the first device in the list of active devices since we know that's the latest one that the user has logged into
+            });
             // return the list of physical devices
             return {
                 data: results

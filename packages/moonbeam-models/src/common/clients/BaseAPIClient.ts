@@ -653,6 +653,15 @@ export abstract class BaseAPIClient {
     protected searchOffers?(searchOffersInput: SearchOffersInput): Promise<OffersResponse>;
 
     /**
+     * Function used to get all devices which have a linked push token.
+     *
+     * @returns a {@link UserDevicesResponse} representing the matched physical devices' information.
+     *
+     * @protected
+     */
+    protected getAllDevices?(): Promise<UserDevicesResponse>;
+
+    /**
      * Function used to get all the physical devices associated with a particular user.
      *
      * @param getDevicesForUserInput the devices for user input, containing the filtering information
