@@ -79,13 +79,15 @@ export const getDevicesForUser = async (fieldName: string, getDevicesForUserInpu
             // convert the Dynamo DB data from Dynamo DB JSON format to a Moonbeam push device  data format
             const pushDevicesData: PushDevice[] = [];
             result.forEach(pushDeviceResult => {
-                const pushDevice: PushDevice = {
-                    id: pushDeviceResult.id.S!,
-                    tokenId: pushDeviceResult.tokenId.S!,
-                    deviceState: pushDeviceResult.deviceState.S! as UserDeviceState,
-                    lastLoginDate: pushDeviceResult.lastLoginDate.S!
-                };
-                pushDevicesData.push(pushDevice);
+                if (pushDeviceResult.deviceState.S! as UserDeviceState === UserDeviceState.Active) {
+                    const pushDevice: PushDevice = {
+                        id: pushDeviceResult.id.S!,
+                        tokenId: pushDeviceResult.tokenId.S!,
+                        deviceState: pushDeviceResult.deviceState.S! as UserDeviceState,
+                        lastLoginDate: pushDeviceResult.lastLoginDate.S!
+                    };
+                    pushDevicesData.push(pushDevice);
+                }
             });
 
             /**
