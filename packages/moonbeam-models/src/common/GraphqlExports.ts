@@ -180,6 +180,19 @@ export type CreateAppReviewInput = {
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
+export type CreateBulkNotificationInput = {
+  bulkNotifications: Array<InputMaybe<CreateNotificationInput>>;
+  channelType: NotificationChannelType;
+  type: NotificationType;
+};
+
+export type CreateBulkNotificationResponse = {
+  __typename?: 'CreateBulkNotificationResponse';
+  data?: Maybe<Array<Maybe<Notification>>>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<NotificationsErrorType>;
+};
+
 export type CreateCardLinkInput = {
   card: CardInput;
   createdAt?: InputMaybe<Scalars['AWSDateTime']>;
@@ -1097,6 +1110,7 @@ export type Mutation = {
   acknowledgeLocationUpdate: LocationBasedOfferReminderResponse;
   addCard: CardLinkResponse;
   createAppReview: AppReviewResponse;
+  createBulkNotification: CreateBulkNotificationResponse;
   createCardLink: CardLinkResponse;
   createDailyEarningsSummary: DailyEarningsSummaryResponse;
   createDevice: UserDeviceResponse;
@@ -1135,6 +1149,11 @@ export type MutationAddCardArgs = {
 
 export type MutationCreateAppReviewArgs = {
   createAppReviewInput: CreateAppReviewInput;
+};
+
+
+export type MutationCreateBulkNotificationArgs = {
+  createBulkNotificationInput: CreateBulkNotificationInput;
 };
 
 
@@ -1892,6 +1911,14 @@ export type SearchOffersInput = {
   searchText: Scalars['String'];
 };
 
+export type SendBulkEmailNotificationInput = {
+  emailNotificationInputs: Array<InputMaybe<SendEmailNotificationInput>>;
+};
+
+export type SendBulkMobilePushNotificationInput = {
+  mobilePushNotificationInputs: Array<InputMaybe<SendMobilePushNotificationInput>>;
+};
+
 export type SendEmailNotificationInput = {
   dailyEarningsSummaryAmount?: InputMaybe<Scalars['Float']>;
   emailDestination: Scalars['String'];
@@ -2355,6 +2382,13 @@ export type CreateDeviceMutationVariables = Exact<{
 
 
 export type CreateDeviceMutation = { __typename?: 'Mutation', createDevice: { __typename?: 'UserDeviceResponse', errorType?: UserDeviceErrorType | null, errorMessage?: string | null, data?: { __typename?: 'PushDevice', id: string, tokenId: string, deviceState: UserDeviceState, lastLoginDate: string } | null } };
+
+export type CreateBulkNotificationMutationVariables = Exact<{
+  createBulkNotificationInput: CreateBulkNotificationInput;
+}>;
+
+
+export type CreateBulkNotificationMutation = { __typename?: 'Mutation', createBulkNotification: { __typename?: 'CreateBulkNotificationResponse', errorType?: NotificationsErrorType | null, errorMessage?: string | null, data?: Array<{ __typename?: 'Notification', id: string, timestamp: number, notificationId: string, emailDestination?: string | null, userFullName?: string | null, type: NotificationType, channelType: NotificationChannelType, status: NotificationStatus, expoPushTokens?: Array<string | null> | null, pendingCashback?: number | null, merchantName?: string | null, actionUrl?: string | null, createdAt: string, updatedAt: string } | null> | null } };
 
 export type CreateNotificationMutationVariables = Exact<{
   createNotificationInput: CreateNotificationInput;

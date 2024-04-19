@@ -1,4 +1,5 @@
 import {
+    CreateBulkNotificationInput, CreateBulkNotificationResponse,
     CreateNotificationInput,
     CreateNotificationResponse,
     GetNotificationByTypeInput,
@@ -9,6 +10,7 @@ import {
 import {createNotification} from "./resolvers/CreateNotificationResolver";
 import { getNotificationByType } from "./resolvers/GetNotificationByTypeResolver";
 import { getUserNotificationAssets } from "./resolvers/GetUserNotificationAssetsResolver";
+import {createBulkNotification} from "./resolvers/CreateBulkNotificationResolver";
 
 /**
  * Mapping out the App Sync event type, so we can use it as a type in the Lambda Handler
@@ -18,6 +20,7 @@ type AppSyncEvent = {
         fieldName: string
     },
     arguments: {
+        createBulkNotificationInput: CreateBulkNotificationInput,
         createNotificationInput: CreateNotificationInput,
         getNotificationByTypeInput: GetNotificationByTypeInput,
         getUserNotificationAssetsInput: GetUserNotificationAssetsInput
@@ -33,11 +36,14 @@ type AppSyncEvent = {
  * depending on the AppSync field name.
  *
  * @param event AppSync event to be passed in the handler
- * @returns a {@link Promise} containing a {@link CreateNotificationResponse}, {@link UserNotificationAssetsResponse} or {@link GetNotificationByTypeResponse}
+ * @returns a {@link Promise} containing a {@link CreateBulkNotificationResponse}, {@link CreateNotificationResponse},
+ * {@link UserNotificationAssetsResponse} or {@link GetNotificationByTypeResponse}
  */
-exports.handler = async (event: AppSyncEvent): Promise<CreateNotificationResponse | GetNotificationByTypeResponse | UserNotificationAssetsResponse> => {
+exports.handler = async (event: AppSyncEvent): Promise<CreateBulkNotificationResponse | CreateNotificationResponse | GetNotificationByTypeResponse | UserNotificationAssetsResponse> => {
     console.log(`Received new notification event for operation [${event.info.fieldName}], with arguments ${JSON.stringify(event.arguments)}`);
     switch (event.info.fieldName) {
+        case "createBulkNotification":
+            return await createBulkNotification(event.info.fieldName, event.arguments.createBulkNotificationInput);
         case "createNotification":
             return await createNotification(event.info.fieldName, event.arguments.createNotificationInput);
         case "getNotificationByType":

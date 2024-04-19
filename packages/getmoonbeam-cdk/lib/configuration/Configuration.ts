@@ -176,6 +176,7 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             notificationsConfig: {
                 notificationsFunctionName: 'notificationsLambdaFunction',
                 notificationsTableName: 'notificationsTable',
+                createBulkNotificationResolverName: 'createBulkNotification',
                 createNotificationResolverName: 'createNotification',
                 getNotificationByTypeResolverName: 'getNotificationByType',
                 getUserNotificationAssetsResolverName: 'getUserNotificationAssets',
@@ -488,6 +489,7 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 notificationsFunctionName: 'notificationsLambdaFunction',
                 notificationsTableName: 'notificationsTable',
                 createNotificationResolverName: 'createNotification',
+                createBulkNotificationResolverName: 'createBulkNotification',
                 getNotificationByTypeResolverName: 'getNotificationByType',
                 getUserNotificationAssetsResolverName: 'getUserNotificationAssets',
                 notificationsChannelTypeLocalIndex: 'notificationsChannelTypeLocalIndex',

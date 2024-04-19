@@ -334,6 +334,28 @@ mutation CreateDevice($createDeviceInput: CreateDeviceInput!) {
         }
     }
 }
+mutation CreateBulkNotification($createBulkNotificationInput: CreateBulkNotificationInput!) {
+    createBulkNotification(createBulkNotificationInput: $createBulkNotificationInput) {
+        errorType
+        errorMessage
+        data {
+            id
+            timestamp
+            notificationId
+            emailDestination
+            userFullName
+            type
+            channelType
+            status
+            expoPushTokens
+            pendingCashback
+            merchantName
+            actionUrl
+            createdAt
+            updatedAt
+        }
+    }
+}
 mutation CreateNotification($createNotificationInput: CreateNotificationInput!) {
     createNotification(createNotificationInput: $createNotificationInput) {
         errorType

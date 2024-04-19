@@ -49,6 +49,7 @@ type Mutation {
     createFAQ(createFAQInput: CreateFAQInput!): FAQResponse! @aws_cognito_user_pools
     createDevice(createDeviceInput: CreateDeviceInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
     createNotification(createNotificationInput: CreateNotificationInput!): CreateNotificationResponse! @aws_cognito_user_pools @aws_api_key
+    createBulkNotification(createBulkNotificationInput: CreateBulkNotificationInput!): CreateBulkNotificationResponse! @aws_cognito_user_pools @aws_api_key
     createTransaction(createTransactionInput: CreateTransactionInput!): MoonbeamTransactionResponse! @aws_cognito_user_pools @aws_api_key
     updateTransaction(updateTransactionInput: UpdateTransactionInput!): MoonbeamUpdatedTransactionResponse! @aws_cognito_user_pools @aws_api_key
     createCardLink(createCardLinkInput: CreateCardLinkInput!): CardLinkResponse! @aws_cognito_user_pools

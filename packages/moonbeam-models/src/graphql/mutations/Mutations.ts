@@ -404,6 +404,32 @@ export const createDevice = /* GraphQL */ `
     }
 `;
 
+// Mutation used to create a bulk notification.
+export const createBulkNotification = /* GraphQL */ `
+    mutation CreateBulkNotification($createBulkNotificationInput: CreateBulkNotificationInput!) {
+        createBulkNotification(createBulkNotificationInput: $createBulkNotificationInput) {
+            errorType
+            errorMessage
+            data {
+                id
+                timestamp
+                notificationId
+                emailDestination
+                userFullName
+                type
+                channelType
+                status
+                expoPushTokens
+                pendingCashback
+                merchantName
+                actionUrl
+                createdAt
+                updatedAt
+            }
+        }
+    }
+`;
+
 // Mutation used to create a new notification.
 export const createNotification = /* GraphQL */ `
     mutation CreateNotification($createNotificationInput: CreateNotificationInput!) {

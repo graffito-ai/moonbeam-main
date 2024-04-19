@@ -381,6 +381,7 @@ export interface EarningsSummaryConfig {
  */
 export interface NotificationsConfiguration {
     readonly notificationsFunctionName: string;
+    readonly createBulkNotificationResolverName: string;
     readonly createNotificationResolverName: string;
     readonly getNotificationByTypeResolverName: string;
     readonly getUserNotificationAssetsResolverName: string;

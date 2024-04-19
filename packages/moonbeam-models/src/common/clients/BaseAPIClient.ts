@@ -45,7 +45,7 @@ import {
     PutMilitaryVerificationReportInput,
     ReferralResponse, ReimbursementProcessingResponse,
     RemoveCardResponse,
-    SearchOffersInput,
+    SearchOffersInput, SendBulkEmailNotificationInput, SendBulkMobilePushNotificationInput,
     SendEmailNotificationInput,
     SendMobilePushNotificationInput, StorageResponse,
     Transaction,
@@ -687,6 +687,19 @@ export abstract class BaseAPIClient {
     protected sendMobilePushNotification?(sendMobilePushNotificationInput: SendMobilePushNotificationInput, notificationType: NotificationType): Promise<NotificationResponse>;
 
     /**
+     * Function used to send a bulk mobile push notification.
+     *
+     * @param sendBulkMobilePushNotificationInput the notification input details to be passed in, in order to send
+     * a bulk mobile push notification
+     * @param notificationType the type of notification to send email notifications for
+     *
+     * @returns a {@link NotificationResponse} representing the Courier notification response
+     *
+     * @protected
+     */
+    protected sendBulkMobilePushNotification?(sendBulkMobilePushNotificationInput: SendBulkMobilePushNotificationInput, notificationType: NotificationType): Promise<NotificationResponse>;
+
+    /**
      * Function used to send an email notification.
      *
      * @param sendEmailNotificationInput the notification input details to be passed in, in order to send
@@ -698,6 +711,19 @@ export abstract class BaseAPIClient {
      * @protected
      */
     protected sendEmailNotification?(sendEmailNotificationInput: SendEmailNotificationInput, notificationType: NotificationType): Promise<NotificationResponse>;
+
+    /**
+     * Function used to send a bulk email notification.
+     *
+     * @param sendBulkEmailNotificationInput the notification input details to be passed in, in order to send
+     * an email notification
+     * @param notificationType the type of notification to send email notifications for
+     *
+     * @returns a {@link NotificationResponse} representing the Courier notification response
+     *
+     * @protected
+     */
+    protected sendBulkEmailNotification?(sendBulkEmailNotificationInput: SendBulkEmailNotificationInput, notificationType: NotificationType): Promise<NotificationResponse>;
 
     /**
      * Function used to create daily earning summaries for all applicable users, who spent

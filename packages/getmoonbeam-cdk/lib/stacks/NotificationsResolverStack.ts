@@ -57,6 +57,10 @@ export class NotificationsResolverStack extends Stack {
             notificationsLambda);
 
         // add resolvers for which Query or Mutation type from the GraphQL schema listed above
+        notificationsLambdaSource.createResolver(`${props.notificationsConfig.createBulkNotificationResolverName}-${props.stage}-${props.env!.region}`, {
+            typeName: "Mutation",
+            fieldName: `${props.notificationsConfig.createBulkNotificationResolverName}`
+        });
         notificationsLambdaSource.createResolver(`${props.notificationsConfig.createNotificationResolverName}-${props.stage}-${props.env!.region}`, {
             typeName: "Mutation",
             fieldName: `${props.notificationsConfig.createNotificationResolverName}`
