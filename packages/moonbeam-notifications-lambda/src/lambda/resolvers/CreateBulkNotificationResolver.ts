@@ -82,7 +82,9 @@ const newBulkDailyEarningsSummaryNotification = async (createBulkNotificationInp
                 if (notification !== null) {
                     // validate that we have the necessary information to send an email
                     if (notification.emailDestination && notification.emailDestination.length !== 0 &&
-                        notification.userFullName && notification.userFullName.length !== 0) {
+                        notification.userFullName && notification.userFullName.length !== 0 &&
+                        notification.transactions && notification.transactions !== null && notification.transactions.length !== 0 &&
+                        notification.dailyEarningsSummaryAmount && notification.dailyEarningsSummaryAmount !== null) {
                         // build the notification results and sendEmailNotificationInputs array
                         const sendEmailNotificationInput: SendEmailNotificationInput = {
                             emailDestination: notification.emailDestination!,
@@ -155,7 +157,8 @@ const newBulkDailyEarningsSummaryNotification = async (createBulkNotificationInp
             createBulkNotificationInput.bulkNotifications.forEach(notification => {
                 if (notification !== null) {
                     // validate that we have the necessary information to send a mobile push
-                    if (notification.expoPushTokens && notification.expoPushTokens.length !== 0) {
+                    if (notification.expoPushTokens && notification.expoPushTokens.length !== 0 &&
+                        notification.dailyEarningsSummaryAmount && notification.dailyEarningsSummaryAmount !== null) {
                         // build the notification results and sendMobilePushNotificationInputs array
                         const sendMobilePushNotificationInput: SendMobilePushNotificationInput = {
                             expoPushTokens: notification.expoPushTokens!,

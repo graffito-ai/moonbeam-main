@@ -602,6 +602,13 @@ export class CourierClient extends BaseAPIClient {
             sendBulkMobilePushNotificationInput.mobilePushNotificationInputs.forEach(mobilePushNotificationInput => {
                 if (mobilePushNotificationInput !== null) {
                     ingestedUsers.push({
+                        profile: {
+                            expo: {
+                                tokens: mobilePushNotificationInput.expoPushTokens
+                            },
+                            user_id: `expo_${Date.parse(new Date().toISOString())}`
+                        },
+                        template: notificationTemplateId,
                         to: {
                             expo: {
                                 tokens: mobilePushNotificationInput.expoPushTokens
@@ -654,7 +661,8 @@ export class CourierClient extends BaseAPIClient {
                  * if we reached this, then we assume that a 2xx response code was returned.
                  * check the contents of the response, and act appropriately.
                  */
-                if (ingestBulkJobUsersForMobilePushResponse.data && !ingestBulkJobUsersForMobilePushResponse.data["errors"] &&
+                if (ingestBulkJobUsersForMobilePushResponse.data &&
+                    (!ingestBulkJobUsersForMobilePushResponse.data["errors"] || (ingestBulkJobUsersForMobilePushResponse.data["errors"] && ingestBulkJobUsersForMobilePushResponse.data["errors"].length === 0)) &&
                     ingestBulkJobUsersForMobilePushResponse.data["total"] && ingestBulkJobUsersForMobilePushResponse.data["total"] === ingestedUsers.length) {
                     return true;
                 } else {
@@ -742,6 +750,11 @@ export class CourierClient extends BaseAPIClient {
             sendBulkEmailNotificationInput.emailNotificationInputs.forEach(emailNotificationInput => {
                 if (emailNotificationInput !== null) {
                     ingestedUsers.push({
+                        profile: {
+                            email: emailNotificationInput.emailDestination,
+                            userId: `email_${Date.parse(new Date().toISOString())}`
+                        },
+                        template: notificationTemplateId,
                         to: {
                             email: emailNotificationInput.emailDestination
                         },
@@ -774,7 +787,8 @@ export class CourierClient extends BaseAPIClient {
                  * if we reached this, then we assume that a 2xx response code was returned.
                  * check the contents of the response, and act appropriately.
                  */
-                if (ingestBulkJobUsersForEmailResponse.data && !ingestBulkJobUsersForEmailResponse.data["errors"] &&
+                if (ingestBulkJobUsersForEmailResponse.data &&
+                    (!ingestBulkJobUsersForEmailResponse.data["errors"] || (ingestBulkJobUsersForEmailResponse.data["errors"] && ingestBulkJobUsersForEmailResponse.data["errors"].length === 0)) &&
                     ingestBulkJobUsersForEmailResponse.data["total"] && ingestBulkJobUsersForEmailResponse.data["total"] === ingestedUsers.length) {
                     return true;
                 } else {
@@ -856,18 +870,21 @@ export class CourierClient extends BaseAPIClient {
              * error for a better customer experience.
              */
             const requestData = {
-                message: {
-                    event: notificationTemplateId,
-                    locale: "en_US",
-                    template: notificationTemplateId
-                },
+                ...(notificationChannelType === NotificationChannelType.Email && {
+                    message: {
+                        event: notificationTemplateId
+                    }
+                }),
                 ...(notificationChannelType === NotificationChannelType.Push && {
-                    providers: {
-                        expo: {
-                            override: {
-                                ttl: 300,
-                                sound: "default",
-                                priority: "high"
+                    message: {
+                        event: notificationTemplateId,
+                        providers: {
+                            expo: {
+                                override: {
+                                    ttl: 300,
+                                    sound: "default",
+                                    priority: "high"
+                                }
                             }
                         }
                     }
