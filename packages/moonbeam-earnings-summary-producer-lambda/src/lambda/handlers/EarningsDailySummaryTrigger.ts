@@ -1,15 +1,14 @@
 import {
-    CreateNotificationResponse,
+    CreateBulkNotificationResponse,
+    CreateNotificationInput,
     DailyEarningsSummaryResponse,
     DailySummaryErrorType,
-    EmailFromCognitoResponse,
     MoonbeamClient,
+    MoonbeamTransaction,
     NotificationChannelType,
     NotificationStatus,
     NotificationType,
-    UserDeviceErrorType,
-    UserDevicesResponse,
-    UserDeviceState
+    UserNotificationAssetsResponse
 } from "@moonbeam/moonbeam-models";
 
 /**
@@ -27,13 +26,14 @@ export const triggerEarningsDailySummariesCreation = async (): Promise<void> => 
      * 1) We want to get the previous day's date, and set that as our target date in the next step.
      * 2) Call the createDailyEarningsSummary AppSync Mutation API in order to determine which users
      * spent in the previous day, and create a summary for them.
+     * 3) Create a map of users obtained from daily earnings summaries created and the
+     * [dailyEarningsSummaryAmounts, transactions] from the daily earnings summaries created.
+     * 4) Call the getUserNotificationAssets AppSync Query API, in order to get a list of the emails and push tokens
+     * for the list of users from step 3).
+     * 5) Create a list of emailNotifications and a list of pushNotifications to be used in sending bulk notifications.
+     * 6) Call the createBulkNotification for emails.
+     * 7) Call the createBulkNotification for push notifications.
      *
-     * For each one of the summary reports created that day:
-     * 3) Call the getDevicesForUser Moonbeam Appsync API endpoint.
-     * 4) Filter obtained devices based on their status (only consider the ones that are ACTIVE for the user).
-     * 5) Retrieve the email of a user based on their userId.
-     * 6) Call the createNotification Moonbeam AppSync API endpoint to create an email notification for the daily earnings summary update.
-     * 7) Call the createNotification Moonbeam AppSync API endpoint to create a push notification for the daily earnings summary update.
      */
     try {
         // retrieving the current function region
@@ -58,105 +58,128 @@ export const triggerEarningsDailySummariesCreation = async (): Promise<void> => 
          * spent in the previous day, and create a summary for them.
          */
         const dailyEarningsSummaryResponse: DailyEarningsSummaryResponse = await moonbeamClient.createDailyEarningsSummary({
-            targetDate: new Date(targetDate.setUTCHours(0,0,0,0)).toISOString()
+            targetDate: new Date(targetDate.setUTCHours(0, 0, 0, 0)).toISOString()
         });
 
         // make sure that creating the daily earnings summaries call was successful or not
         if (dailyEarningsSummaryResponse && !dailyEarningsSummaryResponse.errorMessage && !dailyEarningsSummaryResponse.errorType &&
             dailyEarningsSummaryResponse.data && dailyEarningsSummaryResponse.data.length !== 0) {
-            // For each one of the summary reports created that day proceed to steps 3,4,5,6 and 7
+            /**
+             * 3) Create a map of users obtained from daily earnings summaries created and the
+             * [dailyEarningsSummaryAmounts, transactions] from the daily earnings summaries created.
+             */
+            const summariesMap: Map<string, [number, MoonbeamTransaction[]]> = new Map<string, [number, MoonbeamTransaction[]]>();
+            // build out a list of ids for faster retrieval
+            const userIds: string[] = [];
             for (const dailyEarningsSummary of dailyEarningsSummaryResponse.data) {
-                if (dailyEarningsSummary !== null) {
-                    // 3) Call the getDevicesForUser Moonbeam Appsync API endpoint.
-                    const devicesForUserResponse: UserDevicesResponse = await moonbeamClient.getDevicesForUser({
-                        id: dailyEarningsSummary.id
+                if (dailyEarningsSummary !== null && (dailyEarningsSummary.id === "e1a6afb2-ff4c-40d0-9f4b-b83396b0a966" || dailyEarningsSummary.id === "21204d10-047b-475f-aae0-397016e5f70c")) {
+                    // compute the dailyEarningsSummaryAmount from the summary transactions
+                    let dailyEarningsSummaryAmount = 0;
+                    dailyEarningsSummary.transactions.forEach(transaction => {
+                        if (transaction !== null) {
+                            dailyEarningsSummaryAmount += transaction.rewardAmount;
+                        }
                     });
-
-                    /**
-                     * check to see if the get devices for user call was successful or not.
-                     *
-                     * we also consider the failure message, for users with no physical devices. In that case we only send an
-                     * email.
-                     */
-                    if ((devicesForUserResponse && !devicesForUserResponse.errorMessage && !devicesForUserResponse.errorType &&
-                            devicesForUserResponse.data && devicesForUserResponse.data.length !== 0) ||
-                        (devicesForUserResponse && devicesForUserResponse.errorType !== null && devicesForUserResponse.errorType !== undefined &&
-                            devicesForUserResponse.errorType === UserDeviceErrorType.NoneOrAbsent)) {
-
-                        const deviceTokenIds: string[] = [];
-                        if (devicesForUserResponse && devicesForUserResponse.errorType !== null && devicesForUserResponse.errorType !== undefined &&
-                            devicesForUserResponse.errorType === UserDeviceErrorType.NoneOrAbsent) {
-                            console.log(`No physical devices found for user ${dailyEarningsSummary.id}`);
-                        } else {
-                            if (devicesForUserResponse.data !== null && devicesForUserResponse.data !== undefined) {
-                                // 4) Filter obtained devices based on their status (only consider the ones that are ACTIVE for the user).
-                                for (const userDevice of devicesForUserResponse.data) {
-                                    userDevice!.deviceState === UserDeviceState.Active && deviceTokenIds.push(userDevice!.tokenId);
-                                }
-                            }
-                        }
-
-                        // 5) Retrieve the email of a user based on their userId.
-                        const emailFromUserInformationResponse: EmailFromCognitoResponse = await moonbeamClient.getEmailByUserId(dailyEarningsSummary.id);
-
-                        // check to see if the get email for user call was successful or not
-                        if (emailFromUserInformationResponse && !emailFromUserInformationResponse.errorMessage && !emailFromUserInformationResponse.errorType &&
-                            emailFromUserInformationResponse.data && emailFromUserInformationResponse.data.length !== 0) {
-                            // compute the dailyEarningsSummaryAmount from the summary transactions
-                            let dailyEarningsSummaryAmount = 0;
-                            dailyEarningsSummary.transactions.forEach(transaction => {
-                                if (transaction !== null) {
-                                    dailyEarningsSummaryAmount += transaction.rewardAmount;
-                                }
-                            });
-                            dailyEarningsSummaryAmount = Number(dailyEarningsSummaryAmount.toFixed(2));
-
-                            // 6) Call the createNotification Moonbeam AppSync API endpoint to create an email notification for the daily earnings summary update
-                            const createEmailNotificationResponse: CreateNotificationResponse = await moonbeamClient.createNotification({
-                                id: dailyEarningsSummary.id,
-                                type: NotificationType.DailyEarningsSummary,
-                                channelType: NotificationChannelType.Email,
-                                userFullName: `Placeholder`, // we back-fill this as a placeholder, as it won't be needed for this type of email notification
-                                emailDestination: emailFromUserInformationResponse.data!,
-                                dailyEarningsSummaryAmount: dailyEarningsSummaryAmount,
-                                transactions: dailyEarningsSummary.transactions,
-                                status: NotificationStatus.Sent
-                            });
-
-                            // check to see if the email notification call was successful or not
-                            if (createEmailNotificationResponse && !createEmailNotificationResponse.errorMessage && !createEmailNotificationResponse.errorType && createEmailNotificationResponse.data) {
-                                console.log(`Notification email event successfully processed, with notification id ${createEmailNotificationResponse.data.notificationId}`);
-
-                                // if there are user associated physical devices that are active, to send notifications to, then proceed accordingly
-                                if (deviceTokenIds.length !== 0) {
-                                    // 7) Call the createNotification Moonbeam AppSync API endpoint to create a push notification for the daily earnings summary update
-                                    const createPushNotificationResponse: CreateNotificationResponse = await moonbeamClient.createNotification({
-                                        id: dailyEarningsSummary.id,
-                                        type: NotificationType.DailyEarningsSummary,
-                                        expoPushTokens: deviceTokenIds,
-                                        channelType: NotificationChannelType.Push,
-                                        dailyEarningsSummaryAmount: dailyEarningsSummaryAmount,
-                                        status: NotificationStatus.Sent
-                                    });
-
-                                    // check to see if the email notification call was successful or not
-                                    if (createPushNotificationResponse && !createPushNotificationResponse.errorMessage && !createPushNotificationResponse.errorType && createPushNotificationResponse.data) {
-                                        console.log(`Notification push event successfully processed, with notification id ${createPushNotificationResponse.data.notificationId}`);
-                                    } else {
-                                        console.log(`Notification push event through Create Notification call failed`);
-                                    }
-                                }
-                            } else {
-                                console.log(`Notification email event through Create Notification call failed`);
-                            }
-
-                        } else {
-                            console.log(`User email mapping through GET email for user call failed`);
-                        }
-                    } else {
-                        console.log(`Physical Devices mapping through GET devices for user call failed`);
-                    }
+                    dailyEarningsSummaryAmount = Number(dailyEarningsSummaryAmount.toFixed(2));
+                    // store this in the map accordingly
+                    // @ts-ignore
+                    summariesMap.set(dailyEarningsSummary.id, [dailyEarningsSummaryAmount, dailyEarningsSummary.transactions]);
+                    // store the id in the list of userIds for faster retrieval
+                    userIds.push(dailyEarningsSummary.id);
                 }
+            }
+
+            /**
+             * 4) Call the getUserNotificationAssets AppSync Query API, in order to get a list of the emails and push tokens
+             * for the list of users from step 3).
+             */
+            const userNotificationAssetsResponse: UserNotificationAssetsResponse = await moonbeamClient.getUserNotificationAssets({
+                idList: userIds
+            });
+
+            // make sure that the get user notification assets call was successful or not
+            if (userNotificationAssetsResponse && !userNotificationAssetsResponse.errorMessage && !userNotificationAssetsResponse.errorType &&
+                userNotificationAssetsResponse.data && userNotificationAssetsResponse.data.length !== 0) {
+                // 5) Create a list of emailNotifications and a list of pushNotifications to be used in sending bulk notifications.
+                const bulkEmailNotifications: CreateNotificationInput[] = [];
+                const bulkMobilePushNotifications: CreateNotificationInput[] = [];
+                summariesMap.forEach((value, userId) => {
+                    // retrieve the corresponding user's notification details
+                    const dailyEarningsSummaryAmount: number = value[0];
+                    const transactions: MoonbeamTransaction[] = value[1];
+
+                    // retrieve the corresponding user's notification assets
+                    const userNotificationAssets = userNotificationAssetsResponse.data!.filter(notificationAssets => notificationAssets !== null && notificationAssets.id === userId);
+                    if (userNotificationAssets.length === 1) {
+                        // create the bulk email notification list
+                        const newBulkEmailNotification: CreateNotificationInput = {
+                            id: userId,
+                            channelType: NotificationChannelType.Email,
+                            status: NotificationStatus.Sent,
+                            type: NotificationType.DailyEarningsSummary,
+                            dailyEarningsSummaryAmount: dailyEarningsSummaryAmount,
+                            emailDestination: userNotificationAssets[0]!.email,
+                            transactions: transactions,
+                            userFullName: 'Placeholder Name' // for now, we do not need names for this type of notification so we just put a placeholder here instead
+                        }
+                        bulkEmailNotifications.push(newBulkEmailNotification);
+
+                        // create the bulk mobile push notification list
+                        const newMobilePushNotification: CreateNotificationInput = {
+                            id: userId,
+                            channelType: NotificationChannelType.Push,
+                            status: NotificationStatus.Sent,
+                            type: NotificationType.DailyEarningsSummary,
+                            dailyEarningsSummaryAmount: dailyEarningsSummaryAmount,
+                            expoPushTokens: [userNotificationAssets[0]!.pushToken]
+                        }
+                        bulkMobilePushNotifications.push(newMobilePushNotification);
+                    }
+                });
+                // 6) Call the createBulkNotification for emails.
+                const createBulkEmailNotificationResponse: CreateBulkNotificationResponse = await moonbeamClient.createBulkNotification({
+                    type: NotificationType.DailyEarningsSummary,
+                    channelType: NotificationChannelType.Email,
+                    bulkNotifications: bulkEmailNotifications
+                });
+                // make sure that this bulk notification call was successful
+                if (createBulkEmailNotificationResponse && !createBulkEmailNotificationResponse.errorMessage && !createBulkEmailNotificationResponse.errorType &&
+                    createBulkEmailNotificationResponse.data && createBulkEmailNotificationResponse.data.length !== 0) {
+                    console.log(`Bulk email notification successfully created for ${NotificationType.DailyEarningsSummary}!`);
+
+                    // 7) Call the createBulkNotification for push notifications.
+                    const createBulkMobilePushNotificationResponse: CreateBulkNotificationResponse = await moonbeamClient.createBulkNotification({
+                        type: NotificationType.DailyEarningsSummary,
+                        channelType: NotificationChannelType.Push,
+                        bulkNotifications: bulkMobilePushNotifications
+                    });
+                    // make sure that this bulk notification call was successful
+                    if (createBulkMobilePushNotificationResponse && !createBulkMobilePushNotificationResponse.errorMessage && !createBulkMobilePushNotificationResponse.errorType &&
+                        createBulkMobilePushNotificationResponse.data && createBulkMobilePushNotificationResponse.data.length !== 0) {
+                        console.log(`Bulk mobile push notification successfully created for ${NotificationType.DailyEarningsSummary}!`);
+                    } else {
+                        /**
+                         * no need for further actions, since this error will be logged and nothing will execute further.
+                         * in the future we might need some alerts and metrics emitting here
+                         */
+                        const errorMessage = `Creating a bulk mobile push notification call through the createBulkNotification call failed`;
+                        console.log(errorMessage);
+                    }
+                } else {
+                    /**
+                     * no need for further actions, since this error will be logged and nothing will execute further.
+                     * in the future we might need some alerts and metrics emitting here
+                     */
+                    const errorMessage = `Creating a bulk email notification call through the createBulkNotification call failed`;
+                    console.log(errorMessage);
+                }
+            } else {
+                /**
+                 * no need for further actions, since this error will be logged and nothing will execute further.
+                 * in the future we might need some alerts and metrics emitting here
+                 */
+                const errorMessage = `Retrieving user notification assets through the getUserNotificationAssets call failed`;
+                console.log(errorMessage);
             }
         } else {
             // check if there are no daily summaries needed to get generated first
@@ -177,7 +200,8 @@ export const triggerEarningsDailySummariesCreation = async (): Promise<void> => 
                 console.log(errorMessage);
             }
         }
-    } catch (error) {
+    } catch
+        (error) {
         /**
          * no need for further actions, since this error will be logged and nothing will execute further.
          * in the future we might need some alerts and metrics emitting here

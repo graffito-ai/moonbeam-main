@@ -173,7 +173,7 @@ export class EarningsSummaryResolverStack extends Stack {
             schedule: Schedule.cron({
                 day: '*',
                 minute: '00',
-                hour: '15'
+                hour: '00'
             }),
             targets: [new LambdaFunction(earningsDailySummaryProducerLambda, {
                 event: events.RuleTargetInput.fromObject({

@@ -4,7 +4,8 @@ import {Constants} from "../Constants";
 import {
     AppUpgradeResponse,
     Card, CardDetailsResponse,
-    CardLinkResponse, CreateDailyEarningsSummaryInput, CreateEventSeriesInput,
+    CardLinkResponse, CreateBulkNotificationInput,
+    CreateBulkNotificationResponse, CreateDailyEarningsSummaryInput, CreateEventSeriesInput,
     CreateNotificationInput,
     CreateNotificationResponse,
     DailyEarningsSummaryResponse,
@@ -19,7 +20,7 @@ import {
     GetTransactionByStatusInput,
     GetTransactionInput, GetTransactionsInRangeInput,
     GetUserCardLinkingIdInput,
-    GetUserCardLinkingIdResponse, GetUsersByGeographicalLocationInput,
+    GetUserCardLinkingIdResponse, GetUserNotificationAssetsInput, GetUsersByGeographicalLocationInput,
     IneligibleLinkedUsersResponse,
     IneligibleTransaction,
     IneligibleTransactionResponse,
@@ -56,7 +57,8 @@ import {
     UpdateReferralInput,
     UpdateTransactionInput,
     UserDevicesResponse,
-    UserForNotificationReminderResponse
+    UserForNotificationReminderResponse,
+    UserNotificationAssetsResponse
 } from "../GraphqlExports";
 
 /**
@@ -397,6 +399,18 @@ export abstract class BaseAPIClient {
      * @protected
      */
     protected getNotificationByType?(getNotificationByTypeInput: GetNotificationByTypeInput): Promise<GetNotificationByTypeResponse>;
+
+    /**
+     * Function used to get the notification assets for a particular user.
+     *
+     * @param getUserNotificationAssetsInput input passed in, which will be used in retrieving the notifications
+     * assets for the user accordingly.
+     *
+     * @returns a {@link UserNotificationAssetsResponse}, representing the retrieved notification assets, if any applicable.
+     *
+     * @protected
+     */
+    protected getUserNotificationAssets?(getUserNotificationAssetsInput: GetUserNotificationAssetsInput): Promise<UserNotificationAssetsResponse>;
 
     /**
      * Function used to create a new event series for a particular organization, by extracting
@@ -750,6 +764,18 @@ export abstract class BaseAPIClient {
      * @protected
      */
     protected createNotification?(createNotificationInput: CreateNotificationInput): Promise<CreateNotificationResponse>;
+
+    /**
+     * Function used to create a bulk notification.
+     *
+     * @param createBulkNotificationInput the bulk notification details to be passed in, in order to create a new
+     * bulk notification
+     *
+     * @returns a {@link CreateBulkNotificationResponse} representing the newly created bulk notification data
+     *
+     * @protected
+     */
+    protected createBulkNotification?(createBulkNotificationInput: CreateBulkNotificationInput): Promise<CreateBulkNotificationResponse>;
 
     /**
      * Function used to get all transactions, for a particular user.
