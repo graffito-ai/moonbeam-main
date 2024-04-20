@@ -164,7 +164,7 @@ type LocationBasedOfferReminderResponse @aws_cognito_user_pools @aws_iam {
     errorMessage: String
 }
 
-type UserNotificationAssetsResponse @aws_cognito_user_pools @aws_iam {
+type UserNotificationAssetsResponse @aws_cognito_user_pools @aws_api_key @aws_iam {
     data: [UserNotificationsAssets]
     errorType: NotificationsErrorType
     errorMessage: String

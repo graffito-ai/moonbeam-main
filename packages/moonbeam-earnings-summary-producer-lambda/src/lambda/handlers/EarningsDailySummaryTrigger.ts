@@ -31,6 +31,8 @@ export const triggerEarningsDailySummariesCreation = async (): Promise<void> => 
      * 4) Call the getUserNotificationAssets AppSync Query API, in order to get a list of the emails and push tokens
      * for the list of users from step 3).
      * 5) Create a list of emailNotifications and a list of pushNotifications to be used in sending bulk notifications.
+     *
+     * For the following steps we will chunk the requests in chunks of 250 items, so we can fit everything in the Lambda requests
      * 6) Call the createBulkNotification for emails.
      * 7) Call the createBulkNotification for push notifications.
      *
@@ -72,7 +74,7 @@ export const triggerEarningsDailySummariesCreation = async (): Promise<void> => 
             // build out a list of ids for faster retrieval
             const userIds: string[] = [];
             for (const dailyEarningsSummary of dailyEarningsSummaryResponse.data) {
-                if (dailyEarningsSummary !== null && (dailyEarningsSummary.id === "e1a6afb2-ff4c-40d0-9f4b-b83396b0a966" || dailyEarningsSummary.id === "21204d10-047b-475f-aae0-397016e5f70c")) {
+                if (dailyEarningsSummary !== null) {
                     // compute the dailyEarningsSummaryAmount from the summary transactions
                     let dailyEarningsSummaryAmount = 0;
                     dailyEarningsSummary.transactions.forEach(transaction => {
@@ -136,27 +138,48 @@ export const triggerEarningsDailySummariesCreation = async (): Promise<void> => 
                         bulkMobilePushNotifications.push(newMobilePushNotification);
                     }
                 });
-                // 6) Call the createBulkNotification for emails.
-                const createBulkEmailNotificationResponse: CreateBulkNotificationResponse = await moonbeamClient.createBulkNotification({
-                    type: NotificationType.DailyEarningsSummary,
-                    channelType: NotificationChannelType.Email,
-                    bulkNotifications: bulkEmailNotifications
-                });
-                // make sure that this bulk notification call was successful
-                if (createBulkEmailNotificationResponse && !createBulkEmailNotificationResponse.errorMessage && !createBulkEmailNotificationResponse.errorType &&
-                    createBulkEmailNotificationResponse.data && createBulkEmailNotificationResponse.data.length !== 0) {
-                    console.log(`Bulk email notification successfully created for ${NotificationType.DailyEarningsSummary}!`);
+
+                // Bulk Email: For the following steps we will chunk the requests in chunks of 250 items, so we can fit everything in the Lambda requests
+                let bulkEmailCounter = 0;
+                while (bulkEmailNotifications.slice(bulkEmailCounter, bulkEmailCounter + 250).length !== 0) {
+                    const bulkEmailNotificationsSliced = bulkEmailNotifications.slice(bulkEmailCounter, bulkEmailCounter + 250);
+
+                    // 6) Call the createBulkNotification for emails.
+                    const createBulkEmailNotificationResponse: CreateBulkNotificationResponse = await moonbeamClient.createBulkNotification({
+                        type: NotificationType.DailyEarningsSummary,
+                        channelType: NotificationChannelType.Email,
+                        bulkNotifications: bulkEmailNotificationsSliced
+                    });
+                    // make sure that this bulk notification call was successful
+                    if (createBulkEmailNotificationResponse && !createBulkEmailNotificationResponse.errorMessage && !createBulkEmailNotificationResponse.errorType &&
+                        createBulkEmailNotificationResponse.data && createBulkEmailNotificationResponse.data.length !== 0) {
+                        console.log(`Bulk email notification successfully created for ${NotificationType.DailyEarningsSummary} for ${bulkEmailNotificationsSliced.length} notifications!`);
+                    } else {
+                        /**
+                         * no need for further actions, since this error will be logged and nothing will execute further.
+                         * in the future we might need some alerts and metrics emitting here
+                         */
+                        const errorMessage = `Creating a bulk email notification call through the createBulkNotification call failed`;
+                        console.log(errorMessage);
+                    }
+                    bulkEmailCounter += 250;
+                }
+
+                // Mobile Push: For the following steps we will chunk the requests in chunks of 250 items, so we can fit everything in the Lambda requests
+                let bulkMobilePushCounter = 0;
+                while (bulkMobilePushNotifications.slice(bulkMobilePushCounter, bulkMobilePushCounter + 250).length !== 0) {
+                    const bulkMobilePushNotificationsSliced = bulkMobilePushNotifications.slice(bulkMobilePushCounter, bulkMobilePushCounter + 250);
 
                     // 7) Call the createBulkNotification for push notifications.
                     const createBulkMobilePushNotificationResponse: CreateBulkNotificationResponse = await moonbeamClient.createBulkNotification({
                         type: NotificationType.DailyEarningsSummary,
                         channelType: NotificationChannelType.Push,
-                        bulkNotifications: bulkMobilePushNotifications
+                        bulkNotifications: bulkMobilePushNotificationsSliced
                     });
                     // make sure that this bulk notification call was successful
                     if (createBulkMobilePushNotificationResponse && !createBulkMobilePushNotificationResponse.errorMessage && !createBulkMobilePushNotificationResponse.errorType &&
                         createBulkMobilePushNotificationResponse.data && createBulkMobilePushNotificationResponse.data.length !== 0) {
-                        console.log(`Bulk mobile push notification successfully created for ${NotificationType.DailyEarningsSummary}!`);
+                        console.log(`Bulk mobile push notification successfully created for ${NotificationType.DailyEarningsSummary} for ${bulkMobilePushNotificationsSliced.length} notifications!`);
                     } else {
                         /**
                          * no need for further actions, since this error will be logged and nothing will execute further.
@@ -165,13 +188,8 @@ export const triggerEarningsDailySummariesCreation = async (): Promise<void> => 
                         const errorMessage = `Creating a bulk mobile push notification call through the createBulkNotification call failed`;
                         console.log(errorMessage);
                     }
-                } else {
-                    /**
-                     * no need for further actions, since this error will be logged and nothing will execute further.
-                     * in the future we might need some alerts and metrics emitting here
-                     */
-                    const errorMessage = `Creating a bulk email notification call through the createBulkNotification call failed`;
-                    console.log(errorMessage);
+
+                    bulkMobilePushCounter += 250;
                 }
             } else {
                 /**
