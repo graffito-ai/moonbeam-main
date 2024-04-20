@@ -11,8 +11,7 @@ import {AttributeValue, DynamoDBClient, QueryCommand} from "@aws-sdk/client-dyna
  * GetDevicesForUser resolver
  *
  * @param fieldName name of the resolver path from the AppSync event
- * @param getDevicesForUserInput devices for user input used for the physical devices
- * for a particular user, to be retrieved
+ * @param getDevicesForUserInput get devices input used to retrieve the user devices
  * @returns {@link Promise} of {@link UserDevicesResponse}
  */
 export const getDevicesForUser = async (fieldName: string, getDevicesForUserInput: GetDevicesForUserInput): Promise<UserDevicesResponse> => {
@@ -36,8 +35,7 @@ export const getDevicesForUser = async (fieldName: string, getDevicesForUserInpu
              * retrieve all the physical devices for a particular user, given the global secondary index
              *
              * Limit of 1 MB per paginated response data (in our case 7,000 items). An average size for an Item is about 110 bytes, which means that we won't
-             * need to do pagination here, since we actually retrieve all users in a looped format, and we account for
-             * paginated responses.
+             * need to do pagination here, since we actually retrieve all devices in a looped format, and we account for paginated responses.
              *
              * @link {https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Query.Pagination.html}
              * @link {https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Query.html}
@@ -79,13 +77,15 @@ export const getDevicesForUser = async (fieldName: string, getDevicesForUserInpu
             // convert the Dynamo DB data from Dynamo DB JSON format to a Moonbeam push device  data format
             const pushDevicesData: PushDevice[] = [];
             result.forEach(pushDeviceResult => {
-                const pushDevice: PushDevice = {
-                    id: pushDeviceResult.id.S!,
-                    tokenId: pushDeviceResult.tokenId.S!,
-                    deviceState: pushDeviceResult.deviceState.S! as UserDeviceState,
-                    lastLoginDate: pushDeviceResult.lastLoginDate.S!
-                };
-                pushDevicesData.push(pushDevice);
+                if (pushDeviceResult.deviceState.S! as UserDeviceState === UserDeviceState.Active) {
+                    const pushDevice: PushDevice = {
+                        id: pushDeviceResult.id.S!,
+                        tokenId: pushDeviceResult.tokenId.S!,
+                        deviceState: pushDeviceResult.deviceState.S! as UserDeviceState,
+                        lastLoginDate: pushDeviceResult.lastLoginDate.S!
+                    };
+                    pushDevicesData.push(pushDevice);
+                }
             });
 
             /**

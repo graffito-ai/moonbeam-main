@@ -1,5 +1,16 @@
 # graphql/Queries.graphql
 # Queries Schema File
+query getUserNotificationAssets($getUserNotificationAssetsInput: GetUserNotificationAssetsInput!) {
+    getUserNotificationAssets(getUserNotificationAssetsInput: $getUserNotificationAssetsInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            email
+            pushToken
+        }
+    }
+}
 query GetDailyEarningsSummary($getDailyEarningsSummaryInput: GetDailyEarningsSummaryInput!) {
     getDailyEarningsSummary(getDailyEarningsSummaryInput: $getDailyEarningsSummaryInput) {
         errorMessage
@@ -693,32 +704,20 @@ query GetPremierOffers($getOffersInput: GetOffersInput!) {
         }
     }
 }
+query GetAllDevices {
+    getAllDevices {
+        errorMessage
+        errorType
+        data {
+            id
+            tokenId
+            deviceState
+            lastLoginDate
+        }
+    }
+}
 query GetDevicesForUser($getDevicesForUserInput: GetDevicesForUserInput!) {
     getDevicesForUser(getDevicesForUserInput: $getDevicesForUserInput) {
-        errorMessage
-        errorType
-        data {
-            id
-            tokenId
-            deviceState
-            lastLoginDate
-        }
-    }
-}
-query GetDevice($getDeviceInput: GetDeviceInput!) {
-    getDevice(getDeviceInput: $getDeviceInput) {
-        errorMessage
-        errorType
-        data {
-            id
-            tokenId
-            deviceState
-            lastLoginDate
-        }
-    }
-}
-query GetDeviceByToken($getDeviceByTokenInput: GetDeviceByTokenInput!) {
-    getDeviceByToken(getDeviceByTokenInput: $getDeviceByTokenInput) {
         errorMessage
         errorType
         data {

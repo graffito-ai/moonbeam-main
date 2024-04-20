@@ -4,7 +4,8 @@ import {Constants} from "../Constants";
 import {
     AppUpgradeResponse,
     Card, CardDetailsResponse,
-    CardLinkResponse, CreateDailyEarningsSummaryInput, CreateEventSeriesInput,
+    CardLinkResponse, CreateBulkNotificationInput,
+    CreateBulkNotificationResponse, CreateDailyEarningsSummaryInput, CreateEventSeriesInput,
     CreateNotificationInput,
     CreateNotificationResponse,
     DailyEarningsSummaryResponse,
@@ -19,7 +20,7 @@ import {
     GetTransactionByStatusInput,
     GetTransactionInput, GetTransactionsInRangeInput,
     GetUserCardLinkingIdInput,
-    GetUserCardLinkingIdResponse, GetUsersByGeographicalLocationInput,
+    GetUserCardLinkingIdResponse, GetUserNotificationAssetsInput, GetUsersByGeographicalLocationInput,
     IneligibleLinkedUsersResponse,
     IneligibleTransaction,
     IneligibleTransactionResponse,
@@ -45,7 +46,7 @@ import {
     PutMilitaryVerificationReportInput,
     ReferralResponse, ReimbursementProcessingResponse,
     RemoveCardResponse,
-    SearchOffersInput,
+    SearchOffersInput, SendBulkEmailNotificationInput, SendBulkMobilePushNotificationInput,
     SendEmailNotificationInput,
     SendMobilePushNotificationInput, StorageResponse,
     Transaction,
@@ -56,7 +57,8 @@ import {
     UpdateReferralInput,
     UpdateTransactionInput,
     UserDevicesResponse,
-    UserForNotificationReminderResponse
+    UserForNotificationReminderResponse,
+    UserNotificationAssetsResponse
 } from "../GraphqlExports";
 
 /**
@@ -399,6 +401,18 @@ export abstract class BaseAPIClient {
     protected getNotificationByType?(getNotificationByTypeInput: GetNotificationByTypeInput): Promise<GetNotificationByTypeResponse>;
 
     /**
+     * Function used to get the notification assets for a particular user.
+     *
+     * @param getUserNotificationAssetsInput input passed in, which will be used in retrieving the notifications
+     * assets for the user accordingly.
+     *
+     * @returns a {@link UserNotificationAssetsResponse}, representing the retrieved notification assets, if any applicable.
+     *
+     * @protected
+     */
+    protected getUserNotificationAssets?(getUserNotificationAssetsInput: GetUserNotificationAssetsInput): Promise<UserNotificationAssetsResponse>;
+
+    /**
      * Function used to create a new event series for a particular organization, by extracting
      * the appropriate events information from EventBrite.
      *
@@ -653,6 +667,15 @@ export abstract class BaseAPIClient {
     protected searchOffers?(searchOffersInput: SearchOffersInput): Promise<OffersResponse>;
 
     /**
+     * Function used to get all devices which have a linked push token.
+     *
+     * @returns a {@link UserDevicesResponse} representing the matched physical devices' information.
+     *
+     * @protected
+     */
+    protected getAllDevices?(): Promise<UserDevicesResponse>;
+
+    /**
      * Function used to get all the physical devices associated with a particular user.
      *
      * @param getDevicesForUserInput the devices for user input, containing the filtering information
@@ -678,6 +701,19 @@ export abstract class BaseAPIClient {
     protected sendMobilePushNotification?(sendMobilePushNotificationInput: SendMobilePushNotificationInput, notificationType: NotificationType): Promise<NotificationResponse>;
 
     /**
+     * Function used to send a bulk mobile push notification.
+     *
+     * @param sendBulkMobilePushNotificationInput the notification input details to be passed in, in order to send
+     * a bulk mobile push notification
+     * @param notificationType the type of notification to send email notifications for
+     *
+     * @returns a {@link NotificationResponse} representing the Courier notification response
+     *
+     * @protected
+     */
+    protected sendBulkMobilePushNotification?(sendBulkMobilePushNotificationInput: SendBulkMobilePushNotificationInput, notificationType: NotificationType): Promise<NotificationResponse>;
+
+    /**
      * Function used to send an email notification.
      *
      * @param sendEmailNotificationInput the notification input details to be passed in, in order to send
@@ -689,6 +725,19 @@ export abstract class BaseAPIClient {
      * @protected
      */
     protected sendEmailNotification?(sendEmailNotificationInput: SendEmailNotificationInput, notificationType: NotificationType): Promise<NotificationResponse>;
+
+    /**
+     * Function used to send a bulk email notification.
+     *
+     * @param sendBulkEmailNotificationInput the notification input details to be passed in, in order to send
+     * an email notification
+     * @param notificationType the type of notification to send email notifications for
+     *
+     * @returns a {@link NotificationResponse} representing the Courier notification response
+     *
+     * @protected
+     */
+    protected sendBulkEmailNotification?(sendBulkEmailNotificationInput: SendBulkEmailNotificationInput, notificationType: NotificationType): Promise<NotificationResponse>;
 
     /**
      * Function used to create daily earning summaries for all applicable users, who spent
@@ -715,6 +764,18 @@ export abstract class BaseAPIClient {
      * @protected
      */
     protected createNotification?(createNotificationInput: CreateNotificationInput): Promise<CreateNotificationResponse>;
+
+    /**
+     * Function used to create a bulk notification.
+     *
+     * @param createBulkNotificationInput the bulk notification details to be passed in, in order to create a new
+     * bulk notification
+     *
+     * @returns a {@link CreateBulkNotificationResponse} representing the newly created bulk notification data
+     *
+     * @protected
+     */
+    protected createBulkNotification?(createBulkNotificationInput: CreateBulkNotificationInput): Promise<CreateBulkNotificationResponse>;
 
     /**
      * Function used to get all transactions, for a particular user.

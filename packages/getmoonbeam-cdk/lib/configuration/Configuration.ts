@@ -176,8 +176,10 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             notificationsConfig: {
                 notificationsFunctionName: 'notificationsLambdaFunction',
                 notificationsTableName: 'notificationsTable',
+                createBulkNotificationResolverName: 'createBulkNotification',
                 createNotificationResolverName: 'createNotification',
                 getNotificationByTypeResolverName: 'getNotificationByType',
+                getUserNotificationAssetsResolverName: 'getUserNotificationAssets',
                 notificationsChannelTypeLocalIndex: 'notificationsChannelTypeLocalIndex',
                 notificationsTypeLocalIndex: 'notificationsTypeLocalIndex',
                 notificationsStatusLocalIndex: 'notificationsStatusLocalIndex',
@@ -186,13 +188,12 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             physicalDevicesConfig: {
                 devicesFunctionName: 'devicesLambdaFunction',
                 createDeviceResolverName: 'createDevice',
-                updateDeviceResolverName: 'updateDevice',
                 getDevicesForUserResolverName: 'getDevicesForUser',
-                getDeviceByTokenResolverName: 'getDeviceByToken',
-                getDeviceResolverName: 'getDevice',
+                getAllDevicesResolverName: 'getAllDevices',
                 devicesTableName: 'physicalDevicesTable',
                 devicesIdGlobalIndex: 'devicesIdGlobalIndex',
-                deviceTokenIdGlobalIndex: 'deviceTokenIdGlobalIndex'
+                deviceTokenIdGlobalIndex: 'deviceTokenIdGlobalIndex',
+                devicesByStateGlobalIndex: 'devicesByStateGlobalIndex'
             },
             offersConfig: {
                 offersFunctionName: 'offersLambdaFunction',
@@ -488,7 +489,9 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 notificationsFunctionName: 'notificationsLambdaFunction',
                 notificationsTableName: 'notificationsTable',
                 createNotificationResolverName: 'createNotification',
+                createBulkNotificationResolverName: 'createBulkNotification',
                 getNotificationByTypeResolverName: 'getNotificationByType',
+                getUserNotificationAssetsResolverName: 'getUserNotificationAssets',
                 notificationsChannelTypeLocalIndex: 'notificationsChannelTypeLocalIndex',
                 notificationsTypeLocalIndex: 'notificationsTypeLocalIndex',
                 notificationsStatusLocalIndex: 'notificationsStatusLocalIndex',
@@ -497,13 +500,12 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             physicalDevicesConfig: {
                 devicesFunctionName: 'devicesLambdaFunction',
                 createDeviceResolverName: 'createDevice',
-                updateDeviceResolverName: 'updateDevice',
                 getDevicesForUserResolverName: 'getDevicesForUser',
-                getDeviceByTokenResolverName: 'getDeviceByToken',
-                getDeviceResolverName: 'getDevice',
+                getAllDevicesResolverName: 'getAllDevices',
                 devicesTableName: 'physicalDevicesTable',
                 devicesIdGlobalIndex: 'devicesIdGlobalIndex',
-                deviceTokenIdGlobalIndex: 'deviceTokenIdGlobalIndex'
+                deviceTokenIdGlobalIndex: 'deviceTokenIdGlobalIndex',
+                devicesByStateGlobalIndex: 'devicesByStateGlobalIndex'
             },
             offersConfig: {
                 offersFunctionName: 'offersLambdaFunction',

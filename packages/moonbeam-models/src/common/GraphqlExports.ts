@@ -180,6 +180,19 @@ export type CreateAppReviewInput = {
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
+export type CreateBulkNotificationInput = {
+  bulkNotifications: Array<InputMaybe<CreateNotificationInput>>;
+  channelType: NotificationChannelType;
+  type: NotificationType;
+};
+
+export type CreateBulkNotificationResponse = {
+  __typename?: 'CreateBulkNotificationResponse';
+  data?: Maybe<Array<Maybe<Notification>>>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<NotificationsErrorType>;
+};
+
 export type CreateCardLinkInput = {
   card: CardInput;
   createdAt?: InputMaybe<Scalars['AWSDateTime']>;
@@ -600,15 +613,6 @@ export type GetDailyEarningsSummaryInput = {
   targetDate: Scalars['AWSDateTime'];
 };
 
-export type GetDeviceByTokenInput = {
-  tokenId: Scalars['ID'];
-};
-
-export type GetDeviceInput = {
-  id: Scalars['ID'];
-  tokenId: Scalars['ID'];
-};
-
 export type GetDevicesForUserInput = {
   id: Scalars['ID'];
 };
@@ -724,6 +728,10 @@ export type GetUserCardLinkingIdResponse = {
   data?: Maybe<Scalars['ID']>;
   errorMessage?: Maybe<Scalars['String']>;
   errorType?: Maybe<CardLinkErrorType>;
+};
+
+export type GetUserNotificationAssetsInput = {
+  idList: Array<InputMaybe<Scalars['ID']>>;
 };
 
 export type GetUsersByGeographicalLocationInput = {
@@ -1102,6 +1110,7 @@ export type Mutation = {
   acknowledgeLocationUpdate: LocationBasedOfferReminderResponse;
   addCard: CardLinkResponse;
   createAppReview: AppReviewResponse;
+  createBulkNotification: CreateBulkNotificationResponse;
   createCardLink: CardLinkResponse;
   createDailyEarningsSummary: DailyEarningsSummaryResponse;
   createDevice: UserDeviceResponse;
@@ -1120,7 +1129,6 @@ export type Mutation = {
   putMilitaryVerificationReport: MilitaryVerificationReportResponse;
   updateCard: EligibleLinkedUsersResponse;
   updateDailyEarningsSummary: DailyEarningsSummaryResponse;
-  updateDevice: UserDeviceResponse;
   updateMilitaryVerificationStatus: UpdateMilitaryVerificationResponse;
   updateNotificationReminder: NotificationReminderResponse;
   updateReferral: ReferralResponse;
@@ -1141,6 +1149,11 @@ export type MutationAddCardArgs = {
 
 export type MutationCreateAppReviewArgs = {
   createAppReviewInput: CreateAppReviewInput;
+};
+
+
+export type MutationCreateBulkNotificationArgs = {
+  createBulkNotificationInput: CreateBulkNotificationInput;
 };
 
 
@@ -1231,11 +1244,6 @@ export type MutationUpdateCardArgs = {
 
 export type MutationUpdateDailyEarningsSummaryArgs = {
   updateDailyEarningsSummaryInput: UpdateDailyEarningsSummaryInput;
-};
-
-
-export type MutationUpdateDeviceArgs = {
-  updateDeviceInput: UpdateDeviceInput;
 };
 
 
@@ -1611,6 +1619,7 @@ export type PutMilitaryVerificationReportInput = {
 export type Query = {
   __typename?: 'Query';
   geoCodeAsync: GeocodeAsyncResponse;
+  getAllDevices: UserDevicesResponse;
   getAllUsersEligibleForReimbursements: UserForNotificationReminderResponse;
   getAllUsersForNotificationReminders: UserForNotificationReminderResponse;
   getAllUsersIneligibleForReimbursements: UserForNotificationReminderResponse;
@@ -1618,8 +1627,6 @@ export type Query = {
   getAppUpgradeCredentials: AppUpgradeResponse;
   getCardLink: CardLinkResponse;
   getDailyEarningsSummary: DailyEarningsSummaryResponse;
-  getDevice: UserDeviceResponse;
-  getDeviceByToken: UserDeviceResponse;
   getDevicesForUser: UserDevicesResponse;
   getEligibleLinkedUsers: EligibleLinkedUsersResponse;
   getEventSeries: EventSeriesResponse;
@@ -1644,6 +1651,7 @@ export type Query = {
   getUserAuthSession: UserAuthSessionResponse;
   getUserCardLinkingId: GetUserCardLinkingIdResponse;
   getUserFromReferral: UserFromReferralResponse;
+  getUserNotificationAssets: UserNotificationAssetsResponse;
   getUsersByGeographyForNotificationReminders: UserForNotificationReminderResponse;
   getUsersWithNoCards: IneligibleLinkedUsersResponse;
   searchOffers: OffersResponse;
@@ -1667,16 +1675,6 @@ export type QueryGetCardLinkArgs = {
 
 export type QueryGetDailyEarningsSummaryArgs = {
   getDailyEarningsSummaryInput: GetDailyEarningsSummaryInput;
-};
-
-
-export type QueryGetDeviceArgs = {
-  getDeviceInput: GetDeviceInput;
-};
-
-
-export type QueryGetDeviceByTokenArgs = {
-  getDeviceByTokenInput: GetDeviceByTokenInput;
 };
 
 
@@ -1767,6 +1765,11 @@ export type QueryGetUserCardLinkingIdArgs = {
 
 export type QueryGetUserFromReferralArgs = {
   userFromReferralInput: UserFromReferralInput;
+};
+
+
+export type QueryGetUserNotificationAssetsArgs = {
+  getUserNotificationAssetsInput: GetUserNotificationAssetsInput;
 };
 
 
@@ -1906,6 +1909,14 @@ export type SearchOffersInput = {
   radiusLatitude?: InputMaybe<Scalars['Float']>;
   radiusLongitude?: InputMaybe<Scalars['Float']>;
   searchText: Scalars['String'];
+};
+
+export type SendBulkEmailNotificationInput = {
+  emailNotificationInputs: Array<InputMaybe<SendEmailNotificationInput>>;
+};
+
+export type SendBulkMobilePushNotificationInput = {
+  mobilePushNotificationInputs: Array<InputMaybe<SendMobilePushNotificationInput>>;
 };
 
 export type SendEmailNotificationInput = {
@@ -2071,13 +2082,6 @@ export type UpdateDailyEarningsSummaryInput = {
   targetDate: Scalars['AWSDateTime'];
 };
 
-export type UpdateDeviceInput = {
-  deviceState: UserDeviceState;
-  id: Scalars['ID'];
-  lastLoginDate?: InputMaybe<Scalars['AWSDateTime']>;
-  tokenId: Scalars['ID'];
-};
-
 export type UpdateMilitaryVerificationInput = {
   id: Scalars['ID'];
   militaryVerificationStatus: MilitaryVerificationStatusType;
@@ -2238,6 +2242,20 @@ export type UserFromReferralResponse = {
   errorType?: Maybe<ReferralErrorType>;
 };
 
+export type UserNotificationAssetsResponse = {
+  __typename?: 'UserNotificationAssetsResponse';
+  data?: Maybe<Array<Maybe<UserNotificationsAssets>>>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<NotificationsErrorType>;
+};
+
+export type UserNotificationsAssets = {
+  __typename?: 'UserNotificationsAssets';
+  email: Scalars['String'];
+  id: Scalars['ID'];
+  pushToken: Scalars['String'];
+};
+
 export enum UtilitiesErrorType {
   DuplicateObjectFound = 'DUPLICATE_OBJECT_FOUND',
   NoneOrAbsent = 'NONE_OR_ABSENT',
@@ -2365,12 +2383,12 @@ export type CreateDeviceMutationVariables = Exact<{
 
 export type CreateDeviceMutation = { __typename?: 'Mutation', createDevice: { __typename?: 'UserDeviceResponse', errorType?: UserDeviceErrorType | null, errorMessage?: string | null, data?: { __typename?: 'PushDevice', id: string, tokenId: string, deviceState: UserDeviceState, lastLoginDate: string } | null } };
 
-export type UpdateDeviceMutationVariables = Exact<{
-  updateDeviceInput: UpdateDeviceInput;
+export type CreateBulkNotificationMutationVariables = Exact<{
+  createBulkNotificationInput: CreateBulkNotificationInput;
 }>;
 
 
-export type UpdateDeviceMutation = { __typename?: 'Mutation', updateDevice: { __typename?: 'UserDeviceResponse', errorType?: UserDeviceErrorType | null, errorMessage?: string | null, data?: { __typename?: 'PushDevice', id: string, tokenId: string, deviceState: UserDeviceState, lastLoginDate: string } | null } };
+export type CreateBulkNotificationMutation = { __typename?: 'Mutation', createBulkNotification: { __typename?: 'CreateBulkNotificationResponse', errorType?: NotificationsErrorType | null, errorMessage?: string | null, data?: Array<{ __typename?: 'Notification', id: string, timestamp: number, notificationId: string, emailDestination?: string | null, userFullName?: string | null, type: NotificationType, channelType: NotificationChannelType, status: NotificationStatus, expoPushTokens?: Array<string | null> | null, pendingCashback?: number | null, merchantName?: string | null, actionUrl?: string | null, createdAt: string, updatedAt: string } | null> | null } };
 
 export type CreateNotificationMutationVariables = Exact<{
   createNotificationInput: CreateNotificationInput;
@@ -2434,6 +2452,13 @@ export type UpdateMilitaryVerificationStatusMutationVariables = Exact<{
 
 
 export type UpdateMilitaryVerificationStatusMutation = { __typename?: 'Mutation', updateMilitaryVerificationStatus: { __typename?: 'UpdateMilitaryVerificationResponse', errorType?: MilitaryVerificationErrorType | null, errorMessage?: string | null, id?: string | null, militaryVerificationStatus?: MilitaryVerificationStatusType | null } };
+
+export type GetUserNotificationAssetsQueryVariables = Exact<{
+  getUserNotificationAssetsInput: GetUserNotificationAssetsInput;
+}>;
+
+
+export type GetUserNotificationAssetsQuery = { __typename?: 'Query', getUserNotificationAssets: { __typename?: 'UserNotificationAssetsResponse', errorMessage?: string | null, errorType?: NotificationsErrorType | null, data?: Array<{ __typename?: 'UserNotificationsAssets', id: string, email: string, pushToken: string } | null> | null } };
 
 export type GetDailyEarningsSummaryQueryVariables = Exact<{
   getDailyEarningsSummaryInput: GetDailyEarningsSummaryInput;
@@ -2599,26 +2624,17 @@ export type GetPremierOffersQueryVariables = Exact<{
 
 export type GetPremierOffersQuery = { __typename?: 'Query', getPremierOffers: { __typename?: 'OffersResponse', errorMessage?: string | null, errorType?: OffersErrorType | null, data?: { __typename?: 'OffersPaginatedResponse', totalNumberOfPages: number, totalNumberOfRecords: number, offers: Array<{ __typename?: 'Offer', id?: string | null, corporateId?: string | null, created?: string | null, offerState?: OfferState | null, availability?: OfferAvailability | null, brandId?: string | null, brandDba?: string | null, brandLogo?: string | null, brandLogoSm?: string | null, brandBanner?: string | null, brandParentCategory?: string | null, brandStubCopy?: string | null, brandWebsite?: string | null, description?: string | null, reach?: OfferReach | null, title?: string | null, qualifier?: string | null, tile?: string | null, startDate?: string | null, endDate?: string | null, currency?: CurrencyCodeType | null, extOfferId?: string | null, supplierOfferKey?: string | null, redemptionType?: RedemptionType | null, redemptionInstructionUrl?: string | null, redemptionTrigger?: RedemptionTrigger | null, budget?: number | null, daysAvailability?: Array<number | null> | null, stores?: Array<string | null> | null, totalRedeemLimit?: number | null, redeemLimitPerUser?: number | null, purchaseAmount?: number | null, purchaseFrequency?: number | null, storeDetails?: Array<{ __typename?: 'OfferStore', id?: string | null, name?: string | null, phone?: string | null, address1?: string | null, city?: string | null, state?: string | null, countryCode?: CountryCode | null, postCode?: string | null, isOnline?: boolean | null, distance?: number | null, geoLocation?: { __typename?: 'OfferStoreGeoLocation', latitude?: number | null, longitude?: number | null } | null } | null> | null, reward?: { __typename?: 'Reward', type?: RewardType | null, value?: number | null, maxValue?: number | null } | null } | null> } | null } };
 
+export type GetAllDevicesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetAllDevicesQuery = { __typename?: 'Query', getAllDevices: { __typename?: 'UserDevicesResponse', errorMessage?: string | null, errorType?: UserDeviceErrorType | null, data?: Array<{ __typename?: 'PushDevice', id: string, tokenId: string, deviceState: UserDeviceState, lastLoginDate: string } | null> | null } };
+
 export type GetDevicesForUserQueryVariables = Exact<{
   getDevicesForUserInput: GetDevicesForUserInput;
 }>;
 
 
 export type GetDevicesForUserQuery = { __typename?: 'Query', getDevicesForUser: { __typename?: 'UserDevicesResponse', errorMessage?: string | null, errorType?: UserDeviceErrorType | null, data?: Array<{ __typename?: 'PushDevice', id: string, tokenId: string, deviceState: UserDeviceState, lastLoginDate: string } | null> | null } };
-
-export type GetDeviceQueryVariables = Exact<{
-  getDeviceInput: GetDeviceInput;
-}>;
-
-
-export type GetDeviceQuery = { __typename?: 'Query', getDevice: { __typename?: 'UserDeviceResponse', errorMessage?: string | null, errorType?: UserDeviceErrorType | null, data?: { __typename?: 'PushDevice', id: string, tokenId: string, deviceState: UserDeviceState, lastLoginDate: string } | null } };
-
-export type GetDeviceByTokenQueryVariables = Exact<{
-  getDeviceByTokenInput: GetDeviceByTokenInput;
-}>;
-
-
-export type GetDeviceByTokenQuery = { __typename?: 'Query', getDeviceByToken: { __typename?: 'UserDeviceResponse', errorMessage?: string | null, errorType?: UserDeviceErrorType | null, data?: { __typename?: 'PushDevice', id: string, tokenId: string, deviceState: UserDeviceState, lastLoginDate: string } | null } };
 
 export type GetTransactionsInRangeQueryVariables = Exact<{
   getTransactionsInRangeInput: GetTransactionsInRangeInput;

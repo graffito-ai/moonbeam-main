@@ -381,8 +381,10 @@ export interface EarningsSummaryConfig {
  */
 export interface NotificationsConfiguration {
     readonly notificationsFunctionName: string;
+    readonly createBulkNotificationResolverName: string;
     readonly createNotificationResolverName: string;
     readonly getNotificationByTypeResolverName: string;
+    readonly getUserNotificationAssetsResolverName: string;
     readonly notificationsTableName: string;
     readonly notificationsChannelTypeLocalIndex: string;
     readonly notificationsTypeLocalIndex: string;
@@ -397,13 +399,12 @@ export interface NotificationsConfiguration {
 export interface PhysicalDevicesConfiguration {
     readonly devicesFunctionName: string;
     readonly createDeviceResolverName: string;
-    readonly updateDeviceResolverName: string;
     readonly getDevicesForUserResolverName: string;
-    readonly getDeviceByTokenResolverName: string;
-    readonly getDeviceResolverName: string;
+    readonly getAllDevicesResolverName: string;
     readonly devicesTableName: string;
     readonly devicesIdGlobalIndex: string;
     readonly deviceTokenIdGlobalIndex: string;
+    readonly devicesByStateGlobalIndex: string;
 }
 
 /**

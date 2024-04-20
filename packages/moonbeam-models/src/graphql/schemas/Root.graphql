@@ -11,8 +11,6 @@ type Query {
     getServicePartners: PartnerResponse! @aws_cognito_user_pools
     getEventSeries: EventSeriesResponse! @aws_cognito_user_pools @aws_api_key
     getDevicesForUser(getDevicesForUserInput: GetDevicesForUserInput!): UserDevicesResponse! @aws_cognito_user_pools @aws_api_key
-    getDevice(getDeviceInput: GetDeviceInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
-    getDeviceByToken(getDeviceByTokenInput: GetDeviceByTokenInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
     getTransaction(getTransactionInput: GetTransactionInput!): MoonbeamTransactionsResponse! @aws_cognito_user_pools @aws_api_key
     getTransactionsInRange(getTransactionsInRangeInput: GetTransactionsInRangeInput!): MoonbeamTransactionsResponse! @aws_cognito_user_pools @aws_api_key
     getTransactionByStatus(getTransactionByStatusInput: GetTransactionByStatusInput!): MoonbeamTransactionsByStatusResponse! @aws_cognito_user_pools @aws_api_key
@@ -38,6 +36,8 @@ type Query {
     getReimbursements(getReimbursementsInput: GetReimbursementsInput!): ReimbursementResponse! @aws_cognito_user_pools
     getNotificationByType(getNotificationByTypeInput: GetNotificationByTypeInput!): GetNotificationByTypeResponse! @aws_cognito_user_pools @aws_api_key
     getDailyEarningsSummary(getDailyEarningsSummaryInput: GetDailyEarningsSummaryInput!): DailyEarningsSummaryResponse! @aws_cognito_user_pools @aws_api_key
+    getUserNotificationAssets(getUserNotificationAssetsInput: GetUserNotificationAssetsInput!): UserNotificationAssetsResponse! @aws_cognito_user_pools @aws_api_key
+    getAllDevices: UserDevicesResponse! @aws_cognito_user_pools @aws_api_key
 }
 
 type Mutation {
@@ -48,8 +48,8 @@ type Mutation {
     addCard(addCardInput: AddCardInput!): CardLinkResponse! @aws_cognito_user_pools
     createFAQ(createFAQInput: CreateFAQInput!): FAQResponse! @aws_cognito_user_pools
     createDevice(createDeviceInput: CreateDeviceInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
-    updateDevice(updateDeviceInput: UpdateDeviceInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
     createNotification(createNotificationInput: CreateNotificationInput!): CreateNotificationResponse! @aws_cognito_user_pools @aws_api_key
+    createBulkNotification(createBulkNotificationInput: CreateBulkNotificationInput!): CreateBulkNotificationResponse! @aws_cognito_user_pools @aws_api_key
     createTransaction(createTransactionInput: CreateTransactionInput!): MoonbeamTransactionResponse! @aws_cognito_user_pools @aws_api_key
     updateTransaction(updateTransactionInput: UpdateTransactionInput!): MoonbeamUpdatedTransactionResponse! @aws_cognito_user_pools @aws_api_key
     createCardLink(createCardLinkInput: CreateCardLinkInput!): CardLinkResponse! @aws_cognito_user_pools

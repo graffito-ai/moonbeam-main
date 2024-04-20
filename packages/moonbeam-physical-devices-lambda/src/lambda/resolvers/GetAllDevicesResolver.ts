@@ -1,21 +1,13 @@
-import {
-    GetDeviceByTokenInput,
-    PushDevice,
-    UserDeviceErrorType,
-    UserDeviceResponse,
-    UserDeviceState
-} from "@moonbeam/moonbeam-models";
+import {PushDevice, UserDeviceErrorType, UserDevicesResponse, UserDeviceState} from "@moonbeam/moonbeam-models";
 import {AttributeValue, DynamoDBClient, QueryCommand} from "@aws-sdk/client-dynamodb";
 
 /**
- * GetDeviceByToken resolver
+ * GetAllDevices resolver
  *
  * @param fieldName name of the resolver path from the AppSync event
- * @param getDeviceByTokenInput device by token input used for the physical device
- * for a particular user, to be retrieved
- * @returns {@link Promise} of {@link UserDeviceResponse}
+ * @returns {@link Promise} of {@link UserDevicesResponse}
  */
-export const getDeviceByToken = async (fieldName: string, getDeviceByTokenInput: GetDeviceByTokenInput): Promise<UserDeviceResponse> => {
+export const getAllDevices = async (fieldName: string): Promise<UserDevicesResponse> => {
     try {
         // retrieving the current function region
         const region = process.env.AWS_REGION!;
@@ -33,18 +25,17 @@ export const getDeviceByToken = async (fieldName: string, getDeviceByTokenInput:
 
         do {
             /**
-             * retrieve all the physical device, given the global secondary index
+             * retrieve all the ACTIVE physical devices, given the global secondary index.
              *
              * Limit of 1 MB per paginated response data (in our case 7,000 items). An average size for an Item is about 110 bytes, which means that we won't
-             * need to do pagination here, since we actually retrieve all users in a looped format, and we account for
-             * paginated responses.
+             * need to do pagination here, since we actually retrieve all devices in a looped format, and we account for paginated responses.
              *
              * @link {https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Query.Pagination.html}
              * @link {https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Query.html}
              */
             retrievedData = await dynamoDbClient.send(new QueryCommand({
                 TableName: process.env.PHYSICAL_DEVICES_TABLE!,
-                IndexName: `${process.env.PHYSICAL_DEVICES_TOKEN_ID_GLOBAL_INDEX!}-${process.env.ENV_NAME!}-${region}`,
+                IndexName: `${process.env.PHYSICAL_DEVICES_BY_STATE_GLOBAL_INDEX!}-${process.env.ENV_NAME!}-${region}`,
                 ...(exclusiveStartKey && {ExclusiveStartKey: exclusiveStartKey}),
                 Limit: 7000, // 7000 * 1110 bytes = 770,000 bytes = 0.777 MB (leave a margin of error here up to 1 MB)
                 /**
@@ -61,11 +52,12 @@ export const getDeviceByToken = async (fieldName: string, getDeviceByTokenInput:
                     '#llog': 'lastLoginDate'
                 },
                 ExpressionAttributeValues: {
-                    ":tId": {
-                        S: getDeviceByTokenInput.tokenId
-                    }
+                    ":dst": {
+                        S: UserDeviceState.Active
+                    },
+
                 },
-                KeyConditionExpression: '#tId = :tId'
+                KeyConditionExpression: '#dst = :dst'
             }));
 
             exclusiveStartKey = retrievedData.LastEvaluatedKey;
@@ -74,43 +66,49 @@ export const getDeviceByToken = async (fieldName: string, getDeviceByTokenInput:
         retrievedData.Items.length && retrievedData.Count !== 0 &&
         retrievedData.Items.length !== 0 && retrievedData.LastEvaluatedKey);
 
-        // if there is a physical device retrieved, then return it accordingly
+        // if there are physical devices retrieved, then return them accordingly
         if (result && result.length !== 0) {
-            // convert the Dynamo DB data from Dynamo DB JSON format to a Moonbeam push device data format
-            let pushDeviceData: PushDevice[] = [];
+            console.log(`Results Length: ${result.length}`);
+            // build out a map to return for users and their devices. For each user keep the one with the last login date as most recent
+            const pushDevicesData: Map<string, PushDevice[]> = new Map<string, PushDevice[]>();
             result.forEach(pushDeviceResult => {
-                // only retrieve the push device that's in an ACTIVE state (if it exists) - should only be one
-                if (pushDeviceResult.deviceState.S! as UserDeviceState === UserDeviceState.Active) {
-                    const pushDevice: PushDevice = {
-                        id: pushDeviceResult.id.S!,
-                        tokenId: pushDeviceResult.tokenId.S!,
-                        deviceState: pushDeviceResult.deviceState.S! as UserDeviceState,
-                        lastLoginDate: pushDeviceResult.lastLoginDate.S!
-                    };
-                    pushDeviceData.push(pushDevice);
+                if (pushDeviceResult !== null) {
+                    // check if there is already a user with entries in the map
+                    if (pushDevicesData.has(pushDeviceResult.id.S!)) {
+                        const updatedDevicesForUser = pushDevicesData.get(pushDeviceResult.id.S!);
+                        updatedDevicesForUser!.push({
+                            id: pushDeviceResult.id.S!,
+                            tokenId: pushDeviceResult.tokenId.S!,
+                            deviceState: pushDeviceResult.deviceState.S! as UserDeviceState,
+                            lastLoginDate: pushDeviceResult.lastLoginDate.S!
+                        });
+                        pushDevicesData.set(pushDeviceResult.id.S!, updatedDevicesForUser!);
+                    } else {
+                        pushDevicesData.set(pushDeviceResult.id.S!, [{
+                            id: pushDeviceResult.id.S!,
+                            tokenId: pushDeviceResult.tokenId.S!,
+                            deviceState: pushDeviceResult.deviceState.S! as UserDeviceState,
+                            lastLoginDate: pushDeviceResult.lastLoginDate.S!
+                        }])
+                    }
                 }
             });
-
-            // only return if we found an active physical device (ignore the inactive entries)
-            if (pushDeviceData.length !== 0) {
-                // return the physical device
-                return {
-                    data: pushDeviceData[0]
-                }
-            } else {
-                const errorMessage = `Active Physical Device with token ${getDeviceByTokenInput.tokenId} not found!`;
-                console.log(errorMessage);
-
-                return {
-                    errorMessage: errorMessage,
-                    errorType: UserDeviceErrorType.NoneOrAbsent
-                }
+            // for each one of the entries in the newly formed map, add a new result into the end results to be returned
+            const results: PushDevice[] = [];
+            pushDevicesData.forEach((pushDeviceList, _) => {
+                const resultToAdd = pushDeviceList.sort((a, b) => Date.parse(b.lastLoginDate) - Date.parse(a.lastLoginDate));
+                results.push(resultToAdd[0]); // push the first device in the list of active devices since we know that's the latest one that the user has logged into
+            });
+            // return the list of physical devices
+            return {
+                data: results
             }
         } else {
-            const errorMessage = `Physical Device with token ${getDeviceByTokenInput.tokenId} not found!`;
+            const errorMessage = `No Physical Devices found!`;
             console.log(errorMessage);
 
             return {
+                data: [],
                 errorMessage: errorMessage,
                 errorType: UserDeviceErrorType.NoneOrAbsent
             }

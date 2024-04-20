@@ -110,7 +110,6 @@ import RegistrationBackgroundImage from '../../../../../assets/backgrounds/regis
 import {
     createPhysicalDevice,
     logEvent,
-    proceedWithDeviceCreation,
     processUserReferral,
     retrieveClickOnlyOnlineOffersList,
     retrieveFidelisPartnerList,
@@ -581,23 +580,16 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                      * (only if we are not running the app in Expo Go)
                      */
                     if (Constants.appOwnership !== AppOwnership.Expo) {
-                        const proceedWithDeviceCreationFlag = await proceedWithDeviceCreation(userInformation["userId"], expoPushToken.data);
-                        if (proceedWithDeviceCreationFlag) {
-                            // if so, we create the physical device accordingly (and associated to the new user)
-                            const physicalDeviceCreationFlag = await createPhysicalDevice(userInformation["userId"], expoPushToken.data);
-                            if (physicalDeviceCreationFlag) {
-                                const message = `Successfully created a physical device for user!`;
-                                console.log(message);
-                                await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
-                            } else {
-                                const message = `Unable to create a physical device for user!`;
-                                console.log(message);
-                                await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
-                            }
-                        } else {
-                            const message = `Not necessary to create a physical device for user!`;
+                        // if so, we create the physical device accordingly (and associated to the new user)
+                        const physicalDeviceCreationFlag = await createPhysicalDevice(userInformation["userId"], expoPushToken.data);
+                        if (physicalDeviceCreationFlag) {
+                            const message = `Successfully created a physical device for user!`;
                             console.log(message);
-                            await logEvent(message, LoggingLevel.Warning, userIsAuthenticated);
+                            await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+                        } else {
+                            const message = `Unable to create a physical device for user!`;
+                            console.log(message);
+                            await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
                         }
                     }
 

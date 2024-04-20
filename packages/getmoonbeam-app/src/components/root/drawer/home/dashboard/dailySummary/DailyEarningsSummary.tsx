@@ -168,7 +168,7 @@ export const DailyEarningsSummaryPopUp = () => {
                                                         {`Review yesterday's earnings!\n`}
                                                         {`Total Saved: `}
                                                         <Text style={{fontFamily: 'Saira-ExtraBold', color: '#FFFFFF'}}>
-                                                            ${totalSavedAmount}
+                                                            ${Number(totalSavedAmount.toFixed(2))}
                                                         </Text>
                                                     </>
                                             }

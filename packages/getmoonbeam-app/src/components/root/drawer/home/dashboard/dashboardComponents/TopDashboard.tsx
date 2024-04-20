@@ -237,7 +237,7 @@ export const TopDashboard = (props: {
                         <View style={styles.legendItem} key={dataItem.name}>
                             <FontAwesome name="circle" size={20} color={dataItem.color}/>
                             <View>
-                                <Text style={styles.legendItemValue}>{`$ ${dataItem.totalSavings} Saved`}
+                                <Text style={styles.legendItemValue}>{`$ ${Number(Number(dataItem.totalSavings).toFixed(2))} Saved`}
                                 </Text>
                                 <Text
                                     numberOfLines={1}
@@ -473,7 +473,7 @@ export const TopDashboard = (props: {
                                             top: Number(currentBalance.toFixed(2)) > 0.00
                                                 ? hp(10.5) - currentBalance / calculateReimbursementLimit() * hp(20)
                                                 : hp(10)
-                                        }}>{`Available\n$ ${currentBalance.toFixed(2)}`}</Text>
+                                        }}>{`Available\n$ ${Number(currentBalance.toFixed(2))}`}</Text>
                                     </View>
                                     {
                                         Number(currentBalance.toFixed(2)) > 0.00 &&
@@ -508,7 +508,7 @@ export const TopDashboard = (props: {
                                     <Text
                                         numberOfLines={1}
                                         style={styles.totalSavingsLabel2Text}>
-                                        {`$ ${lifetimeSavings}`}
+                                        {`$ ${Number(lifetimeSavings.toFixed(2))}`}
                                     </Text>
                                 </View>
                                 <View style={{

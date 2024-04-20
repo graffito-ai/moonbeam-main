@@ -404,17 +404,27 @@ export const createDevice = /* GraphQL */ `
     }
 `;
 
-// Mutation used to update the physical devices' details, for a user.
-export const updateDevice = /* GraphQL */ `
-    mutation UpdateDevice($updateDeviceInput: UpdateDeviceInput!) {
-        updateDevice(updateDeviceInput: $updateDeviceInput) {
+// Mutation used to create a bulk notification.
+export const createBulkNotification = /* GraphQL */ `
+    mutation CreateBulkNotification($createBulkNotificationInput: CreateBulkNotificationInput!) {
+        createBulkNotification(createBulkNotificationInput: $createBulkNotificationInput) {
             errorType
             errorMessage
             data {
                 id
-                tokenId
-                deviceState
-                lastLoginDate
+                timestamp
+                notificationId
+                emailDestination
+                userFullName
+                type
+                channelType
+                status
+                expoPushTokens
+                pendingCashback
+                merchantName
+                actionUrl
+                createdAt
+                updatedAt
             }
         }
     }

@@ -2,6 +2,24 @@
  * This is a file used to define the all GraphQL query constants
  */
 
+/**
+ * Query used to retrieve a user's notification assets (such as email address and push token),
+ * used when sending notifications
+  */
+export const getUserNotificationAssets = /* GraphQL */ `
+    query getUserNotificationAssets($getUserNotificationAssetsInput: GetUserNotificationAssetsInput!) {
+        getUserNotificationAssets(getUserNotificationAssetsInput: $getUserNotificationAssetsInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                email
+                pushToken
+            }
+        }
+    }
+`;
+
 // Query used to retrieve a daily earnings summary for a particular user and date.
 export const getDailyEarningsSummary = /* GraphQL */ `
     query GetDailyEarningsSummary($getDailyEarningsSummaryInput: GetDailyEarningsSummaryInput!) {
@@ -371,6 +389,25 @@ export const getFAQs = /* GraphQL */ `
                     linkLocation
                     type
                 }
+            }
+        }
+    }
+`;
+
+/**
+ * Query used to retrieve all the User Devices in our DB irrespective of the user that they
+ * are associated with.
+ */
+export const getAllDevices = /* GraphQL */ `
+    query GetAllDevices {
+        getAllDevices {
+            errorMessage
+            errorType
+            data {
+                id
+                tokenId
+                deviceState
+                lastLoginDate
             }
         }
     }
@@ -805,38 +842,6 @@ export const getPremierOffers = /* GraphQL */ `
 export const getDevicesForUser = /* GraphQL */ `
     query GetDevicesForUser($getDevicesForUserInput: GetDevicesForUserInput!) {
         getDevicesForUser(getDevicesForUserInput: $getDevicesForUserInput) {
-            errorMessage
-            errorType
-            data {
-                id
-                tokenId
-                deviceState
-                lastLoginDate
-            }
-        }
-    }
-`;
-
-// Query used to retrieve a particular physical device for a user, based on a user ID and device token.
-export const getDevice = /* GraphQL */ `
-    query GetDevice($getDeviceInput: GetDeviceInput!) {
-        getDevice(getDeviceInput: $getDeviceInput) {
-            errorMessage
-            errorType
-            data {
-                id
-                tokenId
-                deviceState
-                lastLoginDate
-            }
-        }
-    }
-`;
-
-// Query used to retrieve a particular physical device, based its token.
-export const getDeviceByToken = /* GraphQL */ `
-    query GetDeviceByToken($getDeviceByTokenInput: GetDeviceByTokenInput!) {
-        getDeviceByToken(getDeviceByTokenInput: $getDeviceByTokenInput) {
             errorMessage
             errorType
             data {
