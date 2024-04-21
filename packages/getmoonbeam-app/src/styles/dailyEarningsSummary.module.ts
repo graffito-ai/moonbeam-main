@@ -25,7 +25,6 @@ export const styles = StyleSheet.create({
         textAlign: 'center'
     },
     dialogActionButtons: {
-        position: 'absolute',
         bottom: hp(1),
         alignSelf: 'center',
         flexDirection: 'column',
@@ -96,6 +95,7 @@ export const styles = StyleSheet.create({
     earningsList: {
         height: hp(42),
         width: wp(95),
-        alignSelf: 'center'
+        alignSelf: 'center',
+        top: hp(1)
     }
 });
