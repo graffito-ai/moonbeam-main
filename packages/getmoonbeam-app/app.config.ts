@@ -44,7 +44,17 @@ export default ({config}: ConfigContext): ExpoConfig => ({
             "NSContactsUsageDescription": "$(PRODUCT_NAME) will access your contacts, in order to automatically add our support information in your list of contacts, for ease of access. Please note that Moonbeam will not store any of your contact information.",
             "NSLocationWhenInUseUsageDescription": "$(PRODUCT_NAME) will access your location once, while using the app, in order to provide you with accurate military offers nearby. Please note that any location information will be stored according to our Privacy Policy and Terms and Conditions, which are presented during account registration, and can also be accessed in the Documents section of our app.",
             "NSLocationAlwaysAndWhenInUseUsageDescription": "$(PRODUCT_NAME) will access your location while using the app, in order to provide you with accurate military offers nearby. Please note that any location information will be stored according to our Privacy Policy and Terms and Conditions, which are presented during account registration, and can also be accessed in the Documents section of our app.",
-            "NSLocationAlwaysUsageDescription": "$(PRODUCT_NAME) will always have access to your location, in order to provide you with accurate military offers nearby. Please note that any location information will be stored according to our Privacy Policy and Terms and Conditions, which are presented during account registration, and can also be accessed in the Documents section of our app."
+            "NSLocationAlwaysUsageDescription": "$(PRODUCT_NAME) will always have access to your location, in order to provide you with accurate military offers nearby. Please note that any location information will be stored according to our Privacy Policy and Terms and Conditions, which are presented during account registration, and can also be accessed in the Documents section of our app.",
+            "NSAppTransportSecurity": {
+                "NSAllowsArbitraryLoads": true,
+                "NSAllowsLocalNetworking": true,
+                "NSExceptionDomains": {
+                    "xxx.xx.xx.xxx": {
+                        "NSIncludesSubdomains": true,
+                        "NSExceptionAllowsInsecureHTTPLoads": true
+                    }
+                }
+            }
         },
         config: {
             googleMapsApiKey: process.env.GOOGLE_MAPS_APIS_IOS_KEY,
@@ -100,7 +110,8 @@ export default ({config}: ConfigContext): ExpoConfig => ({
         policy: "nativeVersion"
     },
     updates: {
-        url: process.env.EAS_UPDATES_URL,
+        url: "https://u.expo.dev/c3b0411c-168c-4e25-b525-9499a4277c8f",
+        // url: process.env.EAS_UPDATES_URL,
         fallbackToCacheTimeout: 5000
     },
     plugins: [

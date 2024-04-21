@@ -27,8 +27,8 @@ export const StoreOfferWebView = ({navigation}: StoreOfferWebViewProps) => {
     const [offerWebsiteRetrieved, setOfferWebsiteRetrieved] = useState<boolean>(false);
     const webViewRef = useRef(null);
     // constants used to keep track of shared states
-    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
-    const [cardLinkingId, ] = useRecoilState(cardLinkingIdState);
+    const [userIsAuthenticated,] = useRecoilState(userIsAuthenticatedState);
+    const [cardLinkingId,] = useRecoilState(cardLinkingIdState);
     const [storeOfferClicked,] = useRecoilState(storeOfferState);
 
     /**
@@ -48,12 +48,22 @@ export const StoreOfferWebView = ({navigation}: StoreOfferWebViewProps) => {
                 // @ts-ignore
                 if (storeOfferClicked!.redemptionType === 'click' && storeOfferClicked!.redemptionInstructionUrl !== undefined && storeOfferClicked!.redemptionInstructionUrl !== null) {
                     // @ts-ignore
-                    setInitialOfferWebsite(`${storeOfferClicked!.redemptionInstructionUrl}${cardLinkingId}`);
+                    const initialUrl = `${storeOfferClicked!.redemptionInstructionUrl}${cardLinkingId}`;
+                    if (initialUrl.includes("http://")) {
+                        initialUrl.replace("http://", "https://");
+                    }
+                    // @ts-ignore
+                    setInitialOfferWebsite(`${initialUrl}`);
                 } else {
                     // @ts-ignore
                     if (storeOfferClicked!.brandWebsite) {
                         // @ts-ignore
-                        setInitialOfferWebsite(`${storeOfferClicked!.brandWebsite!}`)
+                        const initialUrl = `${storeOfferClicked!.brandWebsite!}`;
+                        if (initialUrl.includes("http://")) {
+                            initialUrl.replace("http://", "https://");
+                        }
+                        // @ts-ignore
+                        setInitialOfferWebsite(`${initialUrl}`);
                     } else {
                         // @ts-ignore
                         setInitialOfferWebsite(`https://www.google.com/search?q=${storeOfferClicked!.brandDba!}`)
@@ -64,14 +74,20 @@ export const StoreOfferWebView = ({navigation}: StoreOfferWebViewProps) => {
                 // @ts-ignore
                 if (storeOfferClicked!.offers![0].brandWebsite) {
                     // @ts-ignore
-                    setInitialOfferWebsite(`${storeOfferClicked!.offers![0].brandWebsite!}`)
+                    const initialUrl = `${storeOfferClicked!.offers![0].brandWebsite!}`;
+                    if (initialUrl.includes("http://")) {
+                        initialUrl.replace("http://", "https://");
+                    }
+                    // @ts-ignore
+                    setInitialOfferWebsite(`${initialUrl}`);
                 } else {
                     // @ts-ignore
                     setInitialOfferWebsite(`https://www.google.com/search?q=${storeOfferClicked!.offers![0].brandDba!}`)
                 }
             }
         }
-        logEvent(initialOfferWebsite, LoggingLevel.Info, userIsAuthenticated).then(() => {});
+        logEvent(initialOfferWebsite, LoggingLevel.Info, userIsAuthenticated).then(() => {
+        });
     }, [storeOfferClicked, cardLinkingId, offerWebsiteRetrieved]);
 
     // return the component for the StoreOfferWebView page
@@ -118,23 +134,26 @@ export const StoreOfferWebView = ({navigation}: StoreOfferWebViewProps) => {
                     </View>
                 </View>
             </View>
-            <WebView
-                ref={webViewRef}
-                style={{backgroundColor: 'transparent'}}
-                scalesPageToFit={true}
-                automaticallyAdjustContentInsets={true}
-                startInLoadingState={true}
-                source={{
-                    uri: initialOfferWebsite,
-                }}
-                originWhiteList={['*']}
-                onNavigationStateChange={state => {
-                    const back = state.canGoBack;
-                    const forward = state.canGoForward;
-                    setIsBackButtonDisabled(!back);
-                    setIsForwardButtonDisabled(!forward);
-                }}
-            />
+            {
+                offerWebsiteRetrieved &&
+                <WebView
+                    ref={webViewRef}
+                    style={{backgroundColor: 'transparent'}}
+                    scalesPageToFit={true}
+                    automaticallyAdjustContentInsets={true}
+                    startInLoadingState={true}
+                    source={{
+                        uri: initialOfferWebsite,
+                    }}
+                    originWhiteList={['*']}
+                    onNavigationStateChange={state => {
+                        const back = state.canGoBack;
+                        const forward = state.canGoForward;
+                        setIsBackButtonDisabled(!back);
+                        setIsForwardButtonDisabled(!forward);
+                    }}
+                />
+            }
             <View style={styles.webViewNavbar}>
                 <View style={{alignSelf: 'center', flexDirection: 'row', width: wp(25)}}>
                     <IconButton

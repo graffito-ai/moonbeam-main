@@ -3,33 +3,6 @@ import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-nativ
 
 // styles to be used within the Wallet component
 export const styles = StyleSheet.create({
-    membershipCardTitleView: {
-        width: wp(75),
-        height: hp(12),
-        flexDirection: 'row',
-        alignSelf: 'center',
-        top: hp(1)
-    },
-    membershipCardActions: {
-        width: wp(95),
-        height: hp(10),
-        alignSelf: 'center',
-        flexDirection: 'row',
-        position: 'absolute',
-        bottom: hp(0)
-    },
-    membershipCard: {
-        height: hp(55),
-        width: wp(95),
-        backgroundColor: '#313030',
-        borderColor: '#FFFFFF',
-        borderWidth: hp(0.075),
-        borderRadius: hp(2),
-        alignSelf: 'center',
-        alignItems: 'center',
-        bottom: hp(17),
-        flexDirection: 'column'
-    },
     priceTitle: {
         alignSelf: 'center',
         fontFamily: 'Saira-Bold',
@@ -40,23 +13,6 @@ export const styles = StyleSheet.create({
         left: wp(15),
         lineHeight: hp(4),
         top: hp(0.5)
-    },
-    basicMembershipTitle: {
-        alignSelf: 'center',
-        fontFamily: 'Saira-SemiBold',
-        fontSize: hp(2.75),
-        textAlign: 'left',
-        color: '#F2FF5D',
-        left: wp(10),
-        lineHeight: hp(3.5)
-    },
-    membershipTitle: {
-        alignSelf: 'center',
-        fontFamily: 'Saira-SemiBold',
-        fontSize: hp(3),
-        textAlign: 'center',
-        color: '#FFFFFF',
-        bottom: hp(18.5)
     },
     cardView: {
         flexDirection: 'column',
@@ -73,18 +29,6 @@ export const styles = StyleSheet.create({
         height: hp(55),
         width: wp(55),
         bottom: hp(15),
-        alignSelf: 'center'
-    },
-    membershipImage: {
-        height: hp(30),
-        width: wp(30),
-        bottom: hp(9),
-        alignSelf: 'center'
-    },
-    basicMembershipImage: {
-        height: hp(22),
-        width: wp(22),
-        left: wp(5),
         alignSelf: 'center'
     },
     walletTopTitleView: {
@@ -174,25 +118,6 @@ export const styles = StyleSheet.create({
         alignSelf: 'center',
         textAlign: 'center'
     },
-    membershipPerkText: {
-        fontFamily: 'Saira-Regular',
-        fontSize: hp(2.1),
-        textAlign: 'left',
-        alignSelf: 'flex-start',
-        color: '#FFFFFF',
-        left: wp(18),
-        bottom: hp(2.5),
-        lineHeight: hp(2.5)
-    },
-    membershipPerkNumberText: {
-        fontFamily: 'Saira-Regular',
-        fontSize: hp(3.5),
-        textAlign: 'left',
-        alignSelf: 'flex-start',
-        top: hp(2),
-        left: wp(5),
-        color: '#F2FF5D'
-    },
     disclaimerText: {
         fontFamily: 'Saira-Regular',
         fontSize: hp(2.1),
@@ -260,7 +185,9 @@ export const styles = StyleSheet.create({
         width: wp(30),
         height: hp(5.5),
         left: wp(35),
-        borderRadius: 0
+        borderRadius: 0,
+        position: 'absolute',
+        bottom: hp(5.5)
     },
     startMembershipButtonContentStyle: {
         color: '#313030',
@@ -269,5 +196,60 @@ export const styles = StyleSheet.create({
         marginTop: hp(1),
         alignItems: 'center',
         alignSelf: 'center'
+    },
+    firstClassImage: {
+        height: hp(20),
+        width: wp(43),
+        alignSelf: 'center'
+    },
+    firstClassTitle: {
+        color: '#F2FF5D',
+        fontFamily: 'Saira-SemiBold',
+        fontSize: hp(3.50),
+        alignSelf: 'center',
+        width: wp(80),
+        textAlign: 'center'
+    },
+    firstClassPrice: {
+        color: '#FFFFFF',
+        lineHeight: hp(2.5),
+        fontFamily: 'Saira-SemiBold',
+        fontSize: hp(2),
+        alignSelf: 'center',
+        width: wp(95),
+        textAlign: 'center'
+    },
+    firstClassPerksTitle: {
+        color: '#FFFFFF',
+        lineHeight: hp(2.75),
+        fontFamily: 'Saira-SemiBold',
+        fontSize: hp(2.40),
+        alignSelf: 'center',
+        width: wp(95),
+        textAlign: 'center',
+        top: hp(1),
+        marginBottom: hp(5),
+    },
+    firstClassPerksView: {
+        height: hp(45),
+        width: wp(100),
+        alignSelf: 'center',
+        bottom: hp(2.5),
+        flexDirection: 'column'
+    },
+    firstClassPerk: {
+        color: '#FFFFFF',
+        lineHeight: hp(2.50),
+        fontFamily: 'Raleway-SemiBold',
+        fontSize: hp(1.85),
+        alignSelf: 'flex-end',
+        width: wp(95),
+        textAlign: 'center',
+        bottom: hp(5)
+    },
+    firstClassIndividualPerk: {
+        height: hp(10),
+        alignSelf: 'center',
+        flexDirection: 'row',
     }
 });

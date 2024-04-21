@@ -25,6 +25,7 @@ export const requestAppTrackingTransparencyPermission = async () => {
  */
 export const receiveBackgroundLocationUpdates = async (taskName: string): Promise<void> => {
     const isBackgroundUpdatesTaskRegistered = await TaskManager.isTaskRegisteredAsync(taskName);
+
     // if the task is already registered, unregister it first before registering it again
     if (isBackgroundUpdatesTaskRegistered) {
         await Location.stopLocationUpdatesAsync(taskName);
