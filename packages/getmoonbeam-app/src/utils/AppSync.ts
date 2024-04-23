@@ -289,6 +289,9 @@ export const geocodeAsync = async (address: string, osType: OsType): Promise<Loc
  */
 export const triggerLocationUpdateAcknowledgment = async (createLocationBasedOfferReminderInput: CreateLocationBasedOfferReminderInput): Promise<boolean> => {
     try {
+        // wait before executing the rest of the code, in order to avoid flooding our location updates function
+        await delay(3000);
+
         // call the acknowledgeLocationUpdate API to acknowledge the location update
         const locationUpdateAcknowledgementResult = await API.graphql({
             query: acknowledgeLocationUpdate,
@@ -2832,3 +2835,10 @@ const retrieveCategorizedOffersNearLocation = async (address: string, pageNumber
 
     return nearbyOffers;
 }
+
+/**
+ * Function used to delay before executing the next line.
+ *
+ * @param ms number of milliseconds to delay by
+ */
+const delay = (ms) => new Promise(res => setTimeout(res, ms));

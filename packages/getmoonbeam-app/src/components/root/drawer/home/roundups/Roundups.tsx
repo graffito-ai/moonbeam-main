@@ -8,6 +8,7 @@ import {RoundupsStackParamList} from "../../../../../models/props/RoundupsProps"
 import {RoundupsSplash} from "./roundupsSplash/RoundupsSplash";
 import {roundupsActiveState} from "../../../../../recoil/RoundupsAtom";
 import {bottomTabShownState} from "../../../../../recoil/HomeAtom";
+import {RoundupsHome} from "./roundupsHome/RoundupsHome";
 
 /**
  * Roundups component.
@@ -38,12 +39,16 @@ export const Roundups = ({navigation}: RoundupsProps) => {
     useEffect(() => {
         // set the app drawer status accordingly, custom banner visibility and drawer swipe actions accordingly
         if (navigation.getState().index === 1) {
-            appDrawerHeaderShown && setAppDrawerHeaderShown(false);
-            bannerShown && setBannerShown(false);
-            drawerSwipeEnabled && setDrawerSwipeEnabled(false);
-            // depending on whether the roundups product is active or not, make sure to hide the bottom bar accordingly
             if (!areRoundupsActive) {
+                appDrawerHeaderShown && setAppDrawerHeaderShown(false);
+                bannerShown && setBannerShown(false);
+                drawerSwipeEnabled && setDrawerSwipeEnabled(false);
                 bottomTabShown && setBottomTabShown(false);
+            } else {
+                appDrawerHeaderShown && setAppDrawerHeaderShown(false);
+                bannerShown && setBannerShown(false);
+                !drawerSwipeEnabled && setDrawerSwipeEnabled(true);
+                !bottomTabShown && setBottomTabShown(true);
             }
         }
     }, [navigation.getState(), areRoundupsActive, bottomTabShown]);
@@ -67,9 +72,7 @@ export const Roundups = ({navigation}: RoundupsProps) => {
                         />
                         <Stack.Screen
                             name="RoundupsHome"
-                            component={() => {
-                                return (<></>)
-                            }}
+                            component={RoundupsHome}
                             initialParams={{}}
                         />
                     </Stack.Navigator>

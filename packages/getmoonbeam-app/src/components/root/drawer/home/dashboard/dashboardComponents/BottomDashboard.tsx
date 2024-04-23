@@ -152,7 +152,7 @@ export const BottomDashboard = (props: {
                     borderRightWidth: hp(0.65)
                 }]}>
                     <List.Subheader style={styles.subHeaderTitle}>
-                        Transactions
+                        Military Discounts
                     </List.Subheader>
                     <Divider
                         style={[styles.mainDivider, {backgroundColor: '#FFFFFF'}]}/>

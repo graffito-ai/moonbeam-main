@@ -60,8 +60,9 @@ const LOCATION_BACKGROUND_UPDATES_TASK = `LOCATION_BACKGROUND_UPDATES_TASK`;
 let timeToSendBackgroundUpdate = 0;
 /**
  * constant used to keep track of the time elapsed since the last
- * foreground location subscription update
+ * foreground location subscription update.
  */
+// @ts-ignore
 let timeToSendForegroundUpdate = 0;
 
 // Task definition for the task used for receiving background location updates from the Background Fetch task
@@ -278,35 +279,35 @@ export default function App() {
                 const lastKnownPositionAsync: LocationObject | null = await Location.getLastKnownPositionAsync();
                 setCurrentUserLocation(lastKnownPositionAsync !== null ? lastKnownPositionAsync : await Location.getCurrentPositionAsync());
 
-                // subscribe to receiving location updates when app is in the Foreground
-                await Location.watchPositionAsync({
-                    accuracy: Location.Accuracy.Highest,
-                    distanceInterval: 0, // minimum change (in meters) between updates
-                    timeInterval: 300000, // only Android
-                    // @ts-ignore
-                }, async location => {
-                    /**
-                     * calculate the time between this update and the next one
-                     * to ensure that we do not send updates more often than every 5 minutes.
-                     */
-                    const currentTime = Date.now();
-                    const timeToSend = currentTime - timeToSendForegroundUpdate;
-                    if (timeToSend > 300000) {
-                        // acknowledge the location update
-                        const expoPushToken: ExpoPushToken = await Notifications.getExpoPushTokenAsync({
-                            projectId: Constants.expoConfig && Constants.expoConfig.extra ? Constants.expoConfig.extra.eas.projectId : '',
-                        });
-                        const token: string = expoPushToken.data.trim();
-                        await triggerLocationUpdateAcknowledgment({
-                            expoPushToken: [
-                                token
-                            ],
-                            latitude: location.coords.latitude.toString(),
-                            longitude: location.coords.longitude.toString()
-                        });
-                        timeToSendForegroundUpdate = currentTime;
-                    }
-                });
+                // subscribe to receiving location updates when app is in the Foreground - for now we disable this as we just want to observe background location.
+                // await Location.watchPositionAsync({
+                //     accuracy: Location.Accuracy.Highest,
+                //     distanceInterval: 0, // minimum change (in meters) between updates
+                //     timeInterval: 300000, // only Android
+                //     // @ts-ignore
+                // }, async location => {
+                //     /**
+                //      * calculate the time between this update and the next one
+                //      * to ensure that we do not send updates more often than every 5 minutes.
+                //      */
+                //     const currentTime = Date.now();
+                //     const timeToSend = currentTime - timeToSendForegroundUpdate;
+                //     if (timeToSend > 300000) {
+                //         // acknowledge the location update
+                //         const expoPushToken: ExpoPushToken = await Notifications.getExpoPushTokenAsync({
+                //             projectId: Constants.expoConfig && Constants.expoConfig.extra ? Constants.expoConfig.extra.eas.projectId : '',
+                //         });
+                //         const token: string = expoPushToken.data.trim();
+                //         await triggerLocationUpdateAcknowledgment({
+                //             expoPushToken: [
+                //                 token
+                //             ],
+                //             latitude: location.coords.latitude.toString(),
+                //             longitude: location.coords.longitude.toString()
+                //         });
+                //         timeToSendForegroundUpdate = currentTime;
+                //     }
+                // });
             }
         }
 

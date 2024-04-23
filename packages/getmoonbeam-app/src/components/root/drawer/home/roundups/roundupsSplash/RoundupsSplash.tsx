@@ -50,6 +50,7 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
     const [, setBannerShown] = useRecoilState(customBannerShown);
     const [, setBottomTabShown] = useRecoilState(bottomTabShownState);
     const [, setBottomTabNeedsShowing] = useRecoilState(bottomTabNeedsShowingState);
+    const [, setAreRoundupsActive] = useRecoilState(roundupsActiveState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -292,6 +293,13 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                                     // increase the step number all the way to Step 5
                                     if (roundupsSplashStepNumber < 4) {
                                         setRoundupsSplashStepNumber(roundupsSplashStepNumber + 1);
+                                    }
+                                    // for the last step, once we click Get Started
+                                    if (roundupsSplashStepNumber === 4) {
+                                        // navigate to the RoundupsHome screen
+                                        navigation.navigate('RoundupsHome', {});
+                                        // set the Roundups activation state accordingly
+                                        setAreRoundupsActive(true);
                                     }
                                 }}
                             >

@@ -67,7 +67,6 @@ export const styles = StyleSheet.create({
         alignSelf: 'center',
         textAlign: 'center'
     },
-
     roundupsSplashStepView: {
         height: hp(5),
         alignSelf: 'center',
