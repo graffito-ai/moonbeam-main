@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from 'react';
-import {Icon} from "@rneui/base";
 import {HomeProps} from "../../../../models/props/AppDrawerProps";
 import {HomeStackParamList} from "../../../../models/props/HomeProps";
 import {useRecoilState} from "recoil";
@@ -16,12 +15,34 @@ import {Wallet} from "./cards/Wallet";
 import {DashboardController} from "./dashboard/DashboardController";
 import {Marketplace} from "./marketplace/Marketplace";
 import {drawerDashboardState} from "../../../../recoil/AppDrawerAtom";
-import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import {createBottomTabNavigator} from "@react-navigation/bottom-tabs";
 import {filteredByDiscountPressedState, filtersActiveState} from "../../../../recoil/StoreOfferAtom";
 import {Spinner} from "../../../common/Spinner";
 import {SafeAreaProvider} from "react-native-safe-area-context";
 import {Services} from "./services/Services";
+import {Image} from 'react-native';
+// @ts-ignore
+import ServicesActive from '../../../../../assets/icons/moonbeam-services-active.png';
+// @ts-ignore
+import ServicesInActive from '../../../../../assets/icons/moonbeam-services-inactive.png';
+// @ts-ignore
+import CardsActive from '../../../../../assets/icons/moonbeam-cards-active.png';
+// @ts-ignore
+import CardsInActive from '../../../../../assets/icons/moonbeam-cards-inactive.png';
+// @ts-ignore
+import MarketplaceActive from '../../../../../assets/icons/moonbeam-marketplace-active.png';
+// @ts-ignore
+import MarketplaceInActive from '../../../../../assets/icons/moonbeam-marketplace-inactive.png';
+// @ts-ignore
+import RoundupsActive from '../../../../../assets/icons/moonbeam-roundups-active.png';
+// @ts-ignore
+import RoundupsInActive from '../../../../../assets/icons/moonbeam-roundups-inactive.png';
+// @ts-ignore
+import DashboardActive from '../../../../../assets/icons/moonbeam-dashboard-active.png';
+// @ts-ignore
+import DashboardInActive from '../../../../../assets/icons/moonbeam-dashboard-inactive.png';
+import {Roundups} from "./roundups/Roundups";
 
 /**
  * Home component. This is where the bottom bar components will reside, as well
@@ -85,9 +106,9 @@ export const Home = ({navigation}: HomeProps) => {
                 :
                 <SafeAreaProvider style={{flex: 1, backgroundColor: '#313030'}}>
                     <HomeTabStack.Navigator
-                        initialRouteName={bottomBarNavigation === null ? "DashboardController" : (bottomBarNavigation.getState().index === 0 ? "DashboardController" : (bottomBarNavigation.getState().index === 1 ? "Marketplace" : (bottomBarNavigation.getState().index === 2 ? "Cards" : "Services")))}
+                        initialRouteName={bottomBarNavigation === null ? "DashboardController" : (bottomBarNavigation.getState().index === 0 ? "DashboardController" : (bottomBarNavigation.getState().index === 1 ? "Roundups" : (bottomBarNavigation.getState().index === 2) ?  "Marketplace" : (bottomBarNavigation.getState().index === 3 ? "Cards" : "Services")))}
                         screenOptions={() => ({
-                            tabBarShowLabel: false,
+                            tabBarShowLabel: true,
                             header: () => {
                                 return (<></>)
                             },
@@ -108,38 +129,41 @@ export const Home = ({navigation}: HomeProps) => {
                                              component={DashboardController}
                                              initialParams={{}}
                                              options={{
+                                                 tabBarLabel: 'Discounts',
+                                                 tabBarLabelStyle: {
+                                                     fontSize: hp(1.5),
+                                                     fontFamily: 'Raleway-Bold',
+                                                     color: 'white',
+                                                     textAlign: 'center'
+                                                 },
                                                  tabBarIcon: ({focused}) => (
-                                                     <Icon
-                                                         type={"antdesign"}
-                                                         name={!focused ? 'linechart' : 'areachart'}
-                                                         size={hp(3.5)}
-                                                         color={!focused ? 'white' : '#F2FF5D'}
+                                                     <Image
+                                                         style={{alignSelf: 'center', height: hp(12), width: wp(12)}}
+                                                         source={focused ? DashboardActive : DashboardInActive}
+                                                         resizeMethod={"scale"}
+                                                         resizeMode={"contain"}
                                                      />
-                                                     // <View style={{
-                                                     //     left: wp(1),
-                                                     //     right: wp(1),
-                                                     //     alignItems: 'center',
-                                                     //     justifyContent: 'center',
-                                                     //     top: hp(0.5),
-                                                     //     width: wp(15),
-                                                     //     height: hp(6)
-                                                     // }}>
-                                                     //     <Icon
-                                                     //         type={"antdesign"}
-                                                     //         name={!focused ? 'linechart' : 'areachart'}
-                                                     //         size={hp(3)}
-                                                     //         color={!focused ? 'white' : '#F2FF5D'}
-                                                     //     />
-                                                     //     <Text style={{
-                                                     //         top: hp(0.5),
-                                                     //         fontFamily: 'Raleway-Bold',
-                                                     //         fontSize: hp(1.6),
-                                                     //         color: !focused ? 'white' : '#F2FF5D',
-                                                     //         textAlign: 'center'
-                                                     //     }}>
-                                                     //         {'Home'}
-                                                     //     </Text>
-                                                     // </View>
+                                                 )
+                                             }}
+                        />
+                        <HomeTabStack.Screen name="Roundups"
+                                             component={Roundups}
+                                             initialParams={{}}
+                                             options={{
+                                                 tabBarLabel: 'Savings',
+                                                 tabBarLabelStyle: {
+                                                     fontSize: hp(1.5),
+                                                     fontFamily: 'Raleway-Bold',
+                                                     color: 'white',
+                                                     textAlign: 'center'
+                                                 },
+                                                 tabBarIcon: ({focused}) => (
+                                                     <Image
+                                                         style={{alignSelf: 'center', height: hp(12), width: wp(12)}}
+                                                         source={focused ? RoundupsActive : RoundupsInActive}
+                                                         resizeMethod={"scale"}
+                                                         resizeMode={"contain"}
+                                                     />
                                                  )
                                              }}
                         />
@@ -147,116 +171,41 @@ export const Home = ({navigation}: HomeProps) => {
                                              component={Marketplace}
                                              initialParams={{}}
                                              options={({}) => ({
+                                                 tabBarLabel: 'Offers',
+                                                 tabBarLabelStyle: {
+                                                     fontSize: hp(1.5),
+                                                     fontFamily: 'Raleway-Bold',
+                                                     color: 'white',
+                                                     textAlign: 'center'
+                                                 },
                                                  tabBarIcon: ({focused}) => (
-                                                     <Icon
-                                                         type={"ionicon"}
-                                                         name={!focused ? 'storefront-outline' : 'storefront'}
-                                                         size={hp(3.5)}
-                                                         color={!focused ? 'white' : '#F2FF5D'}
+                                                     <Image
+                                                         style={{alignSelf: 'center', height: hp(12), width: wp(12)}}
+                                                         source={focused ? MarketplaceActive : MarketplaceInActive}
+                                                         resizeMethod={"scale"}
+                                                         resizeMode={"contain"}
                                                      />
-                                                     // <View style={{
-                                                     //     left: wp(1),
-                                                     //     right: wp(1),
-                                                     //     alignItems: 'center',
-                                                     //     justifyContent: 'center',
-                                                     //     top: hp(0.56),
-                                                     //     width: wp(15),
-                                                     //     height: hp(6)
-                                                     // }}>
-                                                     //     <Icon
-                                                     //         type={"ionicon"}
-                                                     //         name={!focused ? 'storefront-outline' : 'storefront'}
-                                                     //         size={hp(3)}
-                                                     //         color={!focused ? 'white' : '#F2FF5D'}
-                                                     //     />
-                                                     //     <Text style={{
-                                                     //         top: hp(0.5),
-                                                     //         fontFamily: 'Raleway-Bold',
-                                                     //         fontSize: hp(1.6),
-                                                     //         color: !focused ? 'white' : '#F2FF5D',
-                                                     //         textAlign: 'center'
-                                                     //     }}>
-                                                     //         {'Offers'}
-                                                     //     </Text>
-                                                     // </View>
                                                  )
-                                                 // tabBarButton: ({}) => (
-                                                 //     <TouchableOpacity
-                                                 //         activeOpacity={0.90}
-                                                 //         onPress={() => {
-                                                 //             // navigate to the Marketplace
-                                                 //             navigation.navigate('Marketplace', {});
-                                                 //         }}
-                                                 //         style={{
-                                                 //             zIndex: 10000,
-                                                 //             justifyContent: 'center',
-                                                 //             alignContent: 'center',
-                                                 //             shadowColor: 'black',
-                                                 //             shadowOffset: {width: -2, height: 10},
-                                                 //             shadowOpacity: 0.65,
-                                                 //             shadowRadius: 15,
-                                                 //             elevation: 20,
-                                                 //             borderRadius: 10,
-                                                 //             bottom: hp(2.5)
-                                                 //         }}>
-                                                 //         <View style={{
-                                                 //             left: wp(5),
-                                                 //             width: hp(8),
-                                                 //             height: hp(8),
-                                                 //             borderRadius: 50,
-                                                 //             backgroundColor: '#F2FF5D',
-                                                 //             justifyContent: 'center',
-                                                 //             alignItems: 'center',
-                                                 //             alignContent: 'center'
-                                                 //         }}>
-                                                 //             <Icon
-                                                 //                 type={"ionicon"}
-                                                 //                 name={navigation.getState().index === 1 ? 'storefront' : 'storefront'}
-                                                 //                 size={hp(5)}
-                                                 //                 color={'#3b3b3b'}
-                                                 //             />
-                                                 //         </View>
-                                                 //     </TouchableOpacity>
-                                                 // )
                                              })}
                         />
                         <HomeTabStack.Screen name="Cards"
                                              component={Wallet}
                                              initialParams={{}}
                                              options={{
+                                                 tabBarLabel: 'Wallet',
+                                                 tabBarLabelStyle: {
+                                                     fontSize: hp(1.5),
+                                                     fontFamily: 'Raleway-Bold',
+                                                     color: 'white',
+                                                     textAlign: 'center'
+                                                 },
                                                  tabBarIcon: ({focused}) => (
-                                                     <Icon
-                                                         type={"ionicon"}
-                                                         name={!focused ? 'card-outline' : 'card'}
-                                                         size={hp(3.5)}
-                                                         color={!focused ? 'white' : '#F2FF5D'}
+                                                     <Image
+                                                         style={{alignSelf: 'center', height: hp(12), width: wp(12)}}
+                                                         source={focused ? CardsActive : CardsInActive}
+                                                         resizeMethod={"scale"}
+                                                         resizeMode={"contain"}
                                                      />
-                                                     // <View style={{
-                                                     //     left: wp(1),
-                                                     //     marginRight: wp(3),
-                                                     //     alignItems: 'center',
-                                                     //     justifyContent: 'center',
-                                                     //     top: hp(0.43),
-                                                     //     width: wp(15),
-                                                     //     height: hp(6),
-                                                     //     flexDirection: 'column'
-                                                     // }}>
-                                                     //     <Icon
-                                                     //         type={"ionicon"}
-                                                     //         name={!focused ? 'card-outline' : 'card'}
-                                                     //         size={hp(3.35)}
-                                                     //         color={!focused ? 'white' : '#F2FF5D'}
-                                                     //     />
-                                                     //     <Text style={{
-                                                     //         top: hp(0.5),
-                                                     //         fontFamily: 'Raleway-Bold',
-                                                     //         fontSize: hp(1.6),
-                                                     //         color: !focused ? 'white' : '#F2FF5D',
-                                                     //         textAlign: 'center'
-                                                     //     }}>
-                                                     //         {'Wallet'}
-                                                     //     </Text>
-                                                     // </View>
                                                  )
                                              }}
                         />
@@ -264,77 +213,21 @@ export const Home = ({navigation}: HomeProps) => {
                                              component={Services}
                                              initialParams={{}}
                                              options={({}) => ({
+                                                 tabBarLabel: 'Services',
+                                                 tabBarLabelStyle: {
+                                                     fontSize: hp(1.5),
+                                                     fontFamily: 'Raleway-Bold',
+                                                     color: 'white',
+                                                     textAlign: 'center'
+                                                 },
                                                  tabBarIcon: ({focused}) => (
-                                                     <Icon
-                                                         type={!focused ? "font-awesome" : "font-awesome-5"}
-                                                         name={!focused ? 'handshake-o' : 'handshake'}
-                                                         size={hp(3.5)}
-                                                         color={!focused ? 'white' : '#F2FF5D'}
+                                                     <Image
+                                                         style={{alignSelf: 'center', height: hp(12), width: wp(12)}}
+                                                         source={focused ? ServicesActive : ServicesInActive}
+                                                         resizeMethod={"scale"}
+                                                         resizeMode={"contain"}
                                                      />
-                                                     // <View style={{
-                                                     //     left: wp(1),
-                                                     //     right: wp(1),
-                                                     //     alignItems: 'center',
-                                                     //     justifyContent: 'center',
-                                                     //     top: hp(0.55),
-                                                     //     width: wp(15),
-                                                     //     height: hp(6)
-                                                     // }}>
-                                                     //     <Icon
-                                                     //         type={"ionicon"}
-                                                     //         name={!focused ? 'pricetags-outline' : 'pricetags'}
-                                                     //         size={hp(3)}
-                                                     //         color={!focused ? 'white' : '#F2FF5D'}
-                                                     //     />
-                                                     //     <Text style={{
-                                                     //         top: hp(0.5),
-                                                     //         fontFamily: 'Raleway-Bold',
-                                                     //         fontSize: hp(1.6),
-                                                     //         color: !focused ? 'white' : '#F2FF5D',
-                                                     //         textAlign: 'center'
-                                                     //     }}>
-                                                     //         {'Services'}
-                                                     //     </Text>
-                                                     // </View>
                                                  )
-                                                 // tabBarButton: ({}) => (
-                                                 //     <TouchableOpacity
-                                                 //         activeOpacity={0.90}
-                                                 //         onPress={() => {
-                                                 //             // navigate to the Marketplace
-                                                 //             navigation.navigate('Marketplace', {});
-                                                 //         }}
-                                                 //         style={{
-                                                 //             zIndex: 10000,
-                                                 //             justifyContent: 'center',
-                                                 //             alignContent: 'center',
-                                                 //             shadowColor: 'black',
-                                                 //             shadowOffset: {width: -2, height: 10},
-                                                 //             shadowOpacity: 0.65,
-                                                 //             shadowRadius: 15,
-                                                 //             elevation: 20,
-                                                 //             borderRadius: 10,
-                                                 //             bottom: hp(2.5)
-                                                 //         }}>
-                                                 //         <View style={{
-                                                 //             right: wp(5),
-                                                 //             width: hp(8),
-                                                 //             height: hp(8),
-                                                 //             borderRadius: 50,
-                                                 //             backgroundColor: '#F2FF5D',
-                                                 //             justifyContent: 'center',
-                                                 //             alignItems: 'center',
-                                                 //             alignContent: 'center'
-                                                 //         }}>
-                                                 //             <Icon
-                                                 //                 type={"ionicon"}
-                                                 //                 name={navigation.getState().index === 1 ? 'storefront' : 'storefront'}
-                                                 //                 size={hp(5)}
-                                                 //                 color={'#3b3b3b'}
-                                                 //             />
-                                                 //         </View>
-                                                 //     </TouchableOpacity>
-                                                 // )
                                              })}
                         />
                     </HomeTabStack.Navigator>

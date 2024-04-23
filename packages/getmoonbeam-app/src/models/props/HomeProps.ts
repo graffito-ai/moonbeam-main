@@ -5,6 +5,7 @@ import type {NativeStackScreenProps} from '@react-navigation/native-stack';
  */
 export type HomeStackParamList = {
     DashboardController: {},
+    Roundups: {},
     Services: {},
     Marketplace: {},
     Cards: {}
@@ -12,6 +13,8 @@ export type HomeStackParamList = {
 
 // the Dashboard component props, within the Home stack
 export type DashboardHomeProps = NativeStackScreenProps<HomeStackParamList, 'DashboardController'>;
+// the Roundups component props, within the Home stack
+export type RoundupsProps = NativeStackScreenProps<HomeStackParamList, 'Roundups'>;
 // the Services component props, within the Home stack
 export type ServicesProps = NativeStackScreenProps<HomeStackParamList, 'Services'>;
 // the Marketplace component props, within the Home stack

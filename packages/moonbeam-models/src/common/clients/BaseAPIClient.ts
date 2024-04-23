@@ -1,6 +1,8 @@
 import {GetSecretValueCommand, SecretsManagerClient} from "@aws-sdk/client-secrets-manager";
 import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
-import {Constants} from "../Constants";
+import {
+    Constants
+} from "../Constants";
 import {
     AppUpgradeResponse,
     Card, CardDetailsResponse,
@@ -320,6 +322,10 @@ export abstract class BaseAPIClient {
                                             clientPairAsJson[Constants.AWSPairConstants.EMAIL_SAN_ANTONIO_REFERRAL_TEMPLATE_1_REMINDER_AUTH_TOKEN],
                                             clientPairAsJson[Constants.AWSPairConstants.EMAIL_SAN_ANTONIO_REFERRAL_TEMPLATE_1_REMINDER_TEMPLATE_ID]];
                                     }
+                                case NotificationType.RoundupsWaitlistTemplate_1Reminder:
+                                        return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                                clientPairAsJson[Constants.AWSPairConstants.EMAIL_ROUNDUPS_WAITLIST_TEMPLATE_1_REMINDER_AUTH_TOKEN],
+                                                clientPairAsJson[Constants.AWSPairConstants.EMAIL_ROUNDUPS_WAITLIST_TEMPLATE_1_REMINDER_TEMPLATE_ID]];
                                 case NotificationType.ReimbursementsReminder:
                                     if (channelType !== undefined) {
                                         return channelType === NotificationChannelType.Email

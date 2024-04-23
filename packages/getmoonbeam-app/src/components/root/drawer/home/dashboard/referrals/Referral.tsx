@@ -305,9 +305,6 @@ export const Referral = ({navigation}: ReferralProps) => {
                             <Text style={styles.shareButtonText}>Share Code</Text>
                         </TouchableOpacity>
                     }
-                    {/*<Text style={styles.referralContentMessageSubtitleHighlighted}>*/}
-                    {/*    Increase your chances of winning with unlimited referrals*/}
-                    {/*</Text>*/}
                 </View>
             </View>
         </>
