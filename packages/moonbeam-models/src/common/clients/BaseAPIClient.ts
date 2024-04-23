@@ -323,19 +323,9 @@ export abstract class BaseAPIClient {
                                             clientPairAsJson[Constants.AWSPairConstants.EMAIL_SAN_ANTONIO_REFERRAL_TEMPLATE_1_REMINDER_TEMPLATE_ID]];
                                     }
                                 case NotificationType.RoundupsWaitlistTemplate_1Reminder:
-                                    if (channelType !== undefined) {
-                                        return channelType === NotificationChannelType.Email
-                                            ? [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
-                                                clientPairAsJson[Constants.AWSPairConstants.EMAIL_ROUNDUPS_WAITLIST_TEMPLATE_1_REMINDER_AUTH_TOKEN],
-                                                clientPairAsJson[Constants.AWSPairConstants.EMAIL_ROUNDUPS_WAITLIST_TEMPLATE_1_REMINDER_TEMPLATE_ID]]
-                                            : [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
-                                                clientPairAsJson[Constants.AWSPairConstants.PUSH_ROUNDUPS_WAITLIST_TEMPLATE_1_REMINDER_AUTH_TOKEN],
-                                                clientPairAsJson[Constants.AWSPairConstants.PUSH_ROUNDUPS_WAITLIST_TEMPLATE_1_REMINDER_TEMPLATE_ID]];
-                                    } else {
                                         return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
-                                            clientPairAsJson[Constants.AWSPairConstants.EMAIL_ROUNDUPS_WAITLIST_TEMPLATE_1_REMINDER_AUTH_TOKEN],
-                                            clientPairAsJson[Constants.AWSPairConstants.EMAIL_ROUNDUPS_WAITLIST_TEMPLATE_1_REMINDER_TEMPLATE_ID]];
-                                    }
+                                                clientPairAsJson[Constants.AWSPairConstants.EMAIL_ROUNDUPS_WAITLIST_TEMPLATE_1_REMINDER_AUTH_TOKEN],
+                                                clientPairAsJson[Constants.AWSPairConstants.EMAIL_ROUNDUPS_WAITLIST_TEMPLATE_1_REMINDER_TEMPLATE_ID]];
                                 case NotificationType.ReimbursementsReminder:
                                     if (channelType !== undefined) {
                                         return channelType === NotificationChannelType.Email
