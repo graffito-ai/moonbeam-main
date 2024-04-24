@@ -7,7 +7,7 @@ import {appDrawerHeaderShownState, customBannerShown, drawerSwipeState} from "..
 import {RoundupsStackParamList} from "../../../../../models/props/RoundupsProps";
 import {RoundupsSplash} from "./roundupsSplash/RoundupsSplash";
 import {roundupsActiveState} from "../../../../../recoil/RoundupsAtom";
-import {bottomTabShownState} from "../../../../../recoil/HomeAtom";
+import {bottomTabShownState, drawerNavigationState} from "../../../../../recoil/HomeAtom";
 import {RoundupsHome} from "./roundupsHome/RoundupsHome";
 
 /**
@@ -20,6 +20,7 @@ export const Roundups = ({navigation}: RoundupsProps) => {
     // constants used to keep track of local component state
 
     // constants used to keep track of shared states
+    const [drawerNavigation, ] = useRecoilState(drawerNavigationState);
     const [appDrawerHeaderShown, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
     const [drawerSwipeEnabled, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
     const [bannerShown, setBannerShown] = useRecoilState(customBannerShown);
@@ -38,20 +39,22 @@ export const Roundups = ({navigation}: RoundupsProps) => {
      */
     useEffect(() => {
         // set the app drawer status accordingly, custom banner visibility and drawer swipe actions accordingly
-        if (navigation.getState().index === 1) {
+        if (navigation.getState().index === 1 && drawerNavigation!.getState().index === 0) {
             if (!areRoundupsActive) {
-                appDrawerHeaderShown && setAppDrawerHeaderShown(false);
-                bannerShown && setBannerShown(false);
-                drawerSwipeEnabled && setDrawerSwipeEnabled(false);
-                bottomTabShown && setBottomTabShown(false);
+                setAppDrawerHeaderShown(false);
+                setBannerShown(false);
+                setDrawerSwipeEnabled(false);
+                setBottomTabShown(false);
             } else {
-                appDrawerHeaderShown && setAppDrawerHeaderShown(false);
-                bannerShown && setBannerShown(false);
-                !drawerSwipeEnabled && setDrawerSwipeEnabled(true);
-                !bottomTabShown && setBottomTabShown(true);
+                setAppDrawerHeaderShown(true);
+                setBannerShown(false);
+                setDrawerSwipeEnabled(true);
+                setBottomTabShown(true);
             }
         }
-    }, [navigation.getState(), areRoundupsActive, bottomTabShown]);
+    }, [navigation.getState(), drawerNavigation?.getState(),
+        areRoundupsActive, bottomTabShown, appDrawerHeaderShown,
+        bannerShown, drawerSwipeEnabled]);
 
     // return the component for the Roundups page
     return (

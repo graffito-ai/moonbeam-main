@@ -5,7 +5,7 @@ import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-nativ
 export const styles = StyleSheet.create({
     dashboardView: {
         flex: 1,
-        backgroundColor: '#1c1a1f',
+        backgroundColor: '#313030',
         width: wp(100),
         alignContent: 'center',
         alignItems: 'center',
@@ -70,11 +70,11 @@ export const styles = StyleSheet.create({
         alignSelf: 'flex-start'
     },
     referralButton: {
-        marginLeft: wp(25),
+        marginLeft: wp(14),
         height: hp(5),
         width: wp(22),
         borderRadius: 50,
-        backgroundColor: '#313030',
+        backgroundColor: '#444444',
         alignSelf: 'center'
     },
     referralButtonText: {
@@ -94,7 +94,7 @@ export const styles = StyleSheet.create({
     },
     roundupAccountsIcon: {
         top: hp(2.25),
-        marginRight: wp(4)
+        marginRight: wp(6)
     },
     roundupsTopLeftButton: {
         alignSelf: 'center',
@@ -121,12 +121,13 @@ export const styles = StyleSheet.create({
         width: wp(25)
     },
     roundupsTopButtonText: {
+        top: hp(2.5),
+        fontFamily: 'Changa-Regular',
         fontSize: hp(2.35),
+        width: wp(25),
         textAlign: 'center',
-        fontFamily: 'Changa-SemiBold',
         color: '#FFFFFF',
-        alignSelf: 'center',
-        top: hp(2)
+        alignSelf: 'center'
     },
     roundupsNoObjectivesImage: {
         alignSelf: 'flex-start',
@@ -137,11 +138,12 @@ export const styles = StyleSheet.create({
     },
     noRoundupObjectivesText: {
         left: wp(12),
-        bottom: hp(2),
+        bottom: hp(1),
         fontSize: hp(2.15),
+        lineHeight: hp(2.75),
         width: wp(50),
         textAlign: 'left',
-        fontFamily: 'Ralewy-Regular',
+        fontFamily: 'Changa-Regular',
         color: '#FFFFFF',
         alignSelf: 'center',
     },
@@ -164,4 +166,42 @@ export const styles = StyleSheet.create({
         alignSelf: 'center',
         textAlign: 'center'
     },
+    roundupsSavingsStatusView: {
+        top: hp(0.25),
+        alignSelf: 'center',
+        width: wp(97),
+        height: hp(20),
+        backgroundColor: '#313030',
+        flexDirection: 'row',
+        borderTopLeftRadius: 18,
+        borderTopRightRadius: 18
+    },
+    roundupsSavingsStatusText: {
+        top: hp(4.25),
+        left: wp(6)
+    },
+    titleStyle: {
+        fontFamily: 'Raleway-Regular',
+        color: 'grey',
+        fontSize: hp(2)
+    },
+    avatarStyle: {
+        top: hp(1.55),
+        right: wp(5),
+        alignSelf: 'flex-end',
+        backgroundColor: 'white'
+    },
+    profileImage: {
+        right: wp(5),
+        alignSelf: 'flex-start',
+        height: wp(9),
+        width: wp(9),
+        borderRadius: wp(35) / 2,
+        borderWidth: hp(0.20),
+        borderColor: '#F2FF5D'
+    },
+    avatarView: {
+        top: hp(1.90),
+        right: wp(0.25)
+    }
 });

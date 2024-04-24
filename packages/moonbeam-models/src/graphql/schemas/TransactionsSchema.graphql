@@ -21,6 +21,23 @@ enum TransactionsStatus {
     REJECTED ## rejected = transaction is a qualifying offer, and it has been rejected for some particular reason
 }
 
+## Defines the types of statuses for a round-up driven transaction, during its lifecycle. Although these
+## statuses might not match Plaid's statuses 1:1, they represent what our customers see in their dashboard
+### and how we translate incoming Plaid information, and communicate it to our end users.
+enum RoundupTransactionsStatus {
+    PENDING ### pending = transaction has roundup available to it, and it is pending change pull from customer (money has not left their account yet)
+    PROCESSED ### saved = transaction has roundup available to it, and it is available for customer to reimburse/credit back (money has left their account and it is in Moonbeam's account for savings purposes)
+    CREDITED ### credited = transaction has roundup available to it, and it has been credited back to the end user, in form of a saving over time (money has left Moonbeam's account and is back in customer's account)
+}
+
+## Defines the types of statuses for a Plaid transaction, specifying whether it was ADDED, MODIFIED or REMOVED
+## since the last updates that we got.
+enum PlaidTransactionsStatus {
+    ADDED
+    MODIFIED
+    REMOVED
+}
+
 ## Defines the type of transactions that are available, depending on incoming information received
 ## through the Olive webhooks. The transactions processor, will handle these transaction types and
 ## determine whether they are offers to be redeemed, round-ups, contributions/matching, etc.
@@ -174,6 +191,7 @@ type MemberDetailsResponse @aws_cognito_user_pools @aws_api_key {
     errorMessage: String
 }
 
+# this type is used to work with an offer-based transaction after it is stored
 type MoonbeamTransaction @aws_cognito_user_pools @aws_api_key {
     id: ID! ## this represents the userID which the transaction belongs to/was made by
     timestamp: AWSTimestamp! ## this represents the timestamp, in a Number epoch based format (for sorting purposes)
@@ -197,6 +215,47 @@ type MoonbeamTransaction @aws_cognito_user_pools @aws_api_key {
     transactionBrandLogoUrl: String!,
     transactionBrandURLAddress: String!,
     transactionIsOnline: Boolean!
+}
+
+# this type is used to work with an roundup-based transaction after it is stored
+type MoonbeamRoundupTransaction @aws_cognito_user_pools @aws_api_key {
+    id: ID! ## this represents the userID which the transaction belongs to/was made by
+    timestamp: AWSTimestamp! ## this represents the timestamp, in a Number epoch based format (for sorting purposes)
+    transactionId: ID!
+    transactionStatus: RoundupTransactionsStatus!
+    plaidTransactionStatus: PlaidTransactionsStatus!
+    transactionType: TransactionType!
+    createdAt: AWSDateTime! ## this will be the same as the "timestamp" value above, only represented in a date time format - associated with datetime in Plaid
+    updatedAt: AWSDateTime! ## associated with authorized_datetime in Plaid
+    memberId: ID! ## this will be obtained from Plaid
+    accountId: ID! ## in the context of Plaid this will be the account_id, in the context of Olive this will be the cardId
+    brandId: ID! ## this will be the id of the brand as it is stored in Plaid (aka the merchant_entity_id)
+    storeId: ID! ## this will be the id of the store associated with the brand in Plaid (aka the entity_id)
+    storeLocation: MoonbeamBrandStoreLocation!
+    category: String!
+    categoryLogoURL: String!
+    currencyCode: CurrencyCodeType!,
+    totalAmount: Float!,
+    pendingRoundupAmount: Float! ## this amount should be the total roundup amount that's pending money pull from customer
+    availableRoundupAmount: Float! ## this amount should be the total roundup amount that's pulled from the customer and available to be credited
+    creditedRoundupAmount: Float! ## this amount should be the total roundup amount that's reimbursed/credited to the customer
+    transactionBrandName: String!,
+    transactionBrandAddress: String!,
+    transactionBrandLogoUrl: String!,
+    transactionBrandURLAddress: String!,
+    transactionIsOnline: Boolean!
+}
+
+type MoonbeamBrandStoreLocation @aws_cognito_user_pools @aws_api_key {
+    onlineStore: Boolean!
+    addressLine: String
+    city: String
+    region: String
+    zipCode: String
+    countryCode: String
+    latitude: String
+    longitude: String
+    storeNumber: String
 }
 
 type MoonbeamUpdatedTransaction @aws_cognito_user_pools @aws_api_key {
