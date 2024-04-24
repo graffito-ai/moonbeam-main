@@ -9,6 +9,7 @@ import {RoundupsSplash} from "./roundupsSplash/RoundupsSplash";
 import {roundupsActiveState} from "../../../../../recoil/RoundupsAtom";
 import {bottomTabShownState, drawerNavigationState} from "../../../../../recoil/HomeAtom";
 import {RoundupsHome} from "./roundupsHome/RoundupsHome";
+import {showRoundupTransactionBottomSheetState} from "../../../../../recoil/DashboardAtom";
 
 /**
  * Roundups component.
@@ -26,6 +27,7 @@ export const Roundups = ({navigation}: RoundupsProps) => {
     const [bannerShown, setBannerShown] = useRecoilState(customBannerShown);
     const [areRoundupsActive,] = useRecoilState(roundupsActiveState);
     const [bottomTabShown, setBottomTabShown] = useRecoilState(bottomTabShownState);
+    const [showRoundupTransactionsBottomSheet, ] = useRecoilState(showRoundupTransactionBottomSheetState);
 
     // create a native stack navigator, to be used for our Roundups navigation
     const Stack = createNativeStackNavigator<RoundupsStackParamList>();
@@ -48,8 +50,9 @@ export const Roundups = ({navigation}: RoundupsProps) => {
             } else {
                 setAppDrawerHeaderShown(true);
                 setBannerShown(false);
-                setDrawerSwipeEnabled(true);
-                setBottomTabShown(true);
+                !showRoundupTransactionsBottomSheet && setDrawerSwipeEnabled(true);
+                showRoundupTransactionsBottomSheet && setDrawerSwipeEnabled(false);
+                !showRoundupTransactionsBottomSheet && setBottomTabShown(true);
             }
         }
     }, [navigation.getState(), drawerNavigation?.getState(),

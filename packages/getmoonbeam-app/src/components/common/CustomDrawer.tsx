@@ -118,7 +118,8 @@ import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-nativ
 import {codeVerificationSheetShown, codeVerifiedState} from "../../recoil/CodeVerificationAtom";
 import {customBannerState} from "../../recoil/CustomBannerAtom";
 import {
-    showDailySummaryConfettiState,
+    roundupsTransactionDataState,
+    showDailySummaryConfettiState, showRoundupTransactionBottomSheetState,
     showTransactionBottomSheetState,
     showWalletBottomSheetState,
     transactionDataState
@@ -397,6 +398,8 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const codeVerifiedStateReset = useResetRecoilState(codeVerifiedState);
     const customBannerStateReset = useResetRecoilState(customBannerState);
     const showWalletBottomSheetStateReset = useResetRecoilState(showWalletBottomSheetState);
+    const showRoundupTransactionBottomSheetStateReset = useResetRecoilState(showRoundupTransactionBottomSheetState);
+    const roundupsTransactionDataStateReset = useResetRecoilState(roundupsTransactionDataState);
     const transactionDataStateReset = useResetRecoilState(transactionDataState);
     const showTransactionBottomSheetStateReset = useResetRecoilState(showTransactionBottomSheetState);
     const faqListStateReset = useResetRecoilState(faqListState);
@@ -870,6 +873,8 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
             verticalOnlineSectionReloadStateReset();
             showDailySummaryConfettiStateReset();
             roundupsActiveStateReset();
+            showRoundupTransactionBottomSheetStateReset();
+            roundupsTransactionDataStateReset();
 
             // if this is not running in Expo Go
             if (!isRunningInExpoGo) {

@@ -4,10 +4,10 @@ import {
     MoonbeamClient,
     OliveClient,
     Reimbursement,
-    ReimbursementProcessingStatus,
     ReimbursementResponse,
     ReimbursementsErrorType,
-    TransactionsStatus
+    TransactionsStatus,
+    TransactionType
 } from "@moonbeam/moonbeam-models";
 import {v4 as uuidv4} from "uuid";
 
@@ -41,7 +41,7 @@ export const createReimbursement = async (fieldName: string, createReimbursement
          *
          * 2) Call the PUT/updateRewardStatus (/transactions/{id}/reward) Olive API, in order to specify the amount that
          * got distributed to the end user's card, in step 1). For now we will not allow for partial cash-outs, only for full
-         * amounts.
+         * amounts (this is only for non 1 cent related transactions).
          *
          * 3) Call the /updateTransaction internal Moonbeam AWS AppSync API, in order to update each one of the incoming transactions
          * mapped to the reimbursement internally as well. This call updates 3 things:
@@ -57,7 +57,7 @@ export const createReimbursement = async (fieldName: string, createReimbursement
          *   this will have to be equal to the 'rewardAmount', specifying the amount that has been credited to the end-user
          *
          * 4) Store the reimbursement in the table, with the appropriate transaction statuses updated in it, both from an external (Olive) perspective,
-         * as well as an internal (Moonbeam) perspective.
+         * and an internal (Moonbeam) perspective.
          *
          * first update the timestamps accordingly
          */
@@ -73,12 +73,10 @@ export const createReimbursement = async (fieldName: string, createReimbursement
         let transactionUpdatesSucceeded = true;
         for (const transaction of createReimbursementInput.transactions) {
             if (transaction !== null) {
-                // 2) Call the PUT/updateRewardStatus (/transactions/{id}/reward) Olive API
-                const oliveUpdatedTransactionResponse = await oliveClient.updateTransactionStatus(transaction.transactionId, transaction.rewardAmount);
+                if ((transaction.transactionType !== TransactionType.OliveIneligibleMatched) && (transaction.transactionType !== TransactionType.OliveIneligibleUnmatched)) {
+                    // 2) Call the PUT/updateRewardStatus (/transactions/{id}/reward) Olive API (this is only for the non 1 cent related transactions).
+                    await oliveClient.updateTransactionStatus(transaction.transactionId, transaction.rewardAmount);
 
-                // check to make sure that we can continue with the reimbursement process
-                if (oliveUpdatedTransactionResponse.data !== undefined && oliveUpdatedTransactionResponse.data !== null &&
-                    oliveUpdatedTransactionResponse.data === ReimbursementProcessingStatus.Success) {
                     // 3) Call the /updateTransaction internal Moonbeam AWS AppSync API
                     const moonbeamUpdatedTransactionResponse = await moonbeamClient.updateTransaction({
                         id: transaction.id,
@@ -102,11 +100,45 @@ export const createReimbursement = async (fieldName: string, createReimbursement
                         transactionUpdatesSucceeded = false;
                         break;
                     }
+
+                    // check to make sure that we can continue with the reimbursement process
+                    // if (oliveUpdatedTransactionResponse.data !== undefined && oliveUpdatedTransactionResponse.data !== null &&
+                    //     oliveUpdatedTransactionResponse.data === ReimbursementProcessingStatus.Success) {
+                    //
+                    // } else {
+                    //     // set the failure flag accordingly
+                    //     transactionUpdatesSucceeded = false;
+                    //     break;
+                    // }
                 } else {
-                    // set the failure flag accordingly
-                    transactionUpdatesSucceeded = false;
-                    break;
+                    // 3) Call the /updateTransaction internal Moonbeam AWS AppSync API
+                    const moonbeamUpdatedTransactionResponse = await moonbeamClient.updateTransaction({
+                        id: transaction.id,
+                        timestamp: transaction.timestamp,
+                        transactionId: transaction.transactionId,
+                        /**
+                         * for incoming PROCESSED -> update to FRONTED (specifying that we cashed out a transaction before receiving the money from Olive for it)
+                         * for incoming FUNDED -> update to CREDITED (specifying that we cashed out a transaction, and we received the money from Olive for it)
+                         */
+                        transactionStatus: transaction.transactionStatus === TransactionsStatus.Processed
+                            ? TransactionsStatus.Fronted
+                            : (transaction.transactionStatus === TransactionsStatus.Funded
+                                    ? TransactionsStatus.Credited
+                                    : transaction.transactionStatus
+                            )
+                    });
+                    // check to make sure that we can continue with the reimbursement process
+                    if (!moonbeamUpdatedTransactionResponse || moonbeamUpdatedTransactionResponse.errorType ||
+                        moonbeamUpdatedTransactionResponse.errorMessage || !moonbeamUpdatedTransactionResponse.data) {
+                        // set the failure flag accordingly
+                        transactionUpdatesSucceeded = false;
+                        break;
+                    }
                 }
+            } else {
+                // set the failure flag accordingly
+                transactionUpdatesSucceeded = false;
+                break;
             }
         }
         // make sure that we only proceed if all transactions have been updated accordingly
@@ -119,7 +151,8 @@ export const createReimbursement = async (fieldName: string, createReimbursement
             }
         } else {
             /**
-             * 4) Call the PUT/updateRewardStatus (/transactions/{id}/reward) Olive API.
+             * 4) Store the reimbursement in the table, with the appropriate transaction statuses updated in it, both from an external (Olive) perspective,
+             * and an internal (Moonbeam) perspective.
              *
              * check to see if the reimbursement already exists in the DB. Although this is a very rare situation, since we have so many resilient
              * methods, we want to put a safeguard around duplicates even here.

@@ -1003,6 +1003,48 @@ export enum ModelQuery {
   List = 'list'
 }
 
+export type MoonbeamBrandStoreLocation = {
+  __typename?: 'MoonbeamBrandStoreLocation';
+  addressLine?: Maybe<Scalars['String']>;
+  city?: Maybe<Scalars['String']>;
+  countryCode?: Maybe<Scalars['String']>;
+  latitude?: Maybe<Scalars['String']>;
+  longitude?: Maybe<Scalars['String']>;
+  onlineStore: Scalars['Boolean'];
+  region?: Maybe<Scalars['String']>;
+  storeNumber?: Maybe<Scalars['String']>;
+  zipCode?: Maybe<Scalars['String']>;
+};
+
+export type MoonbeamRoundupTransaction = {
+  __typename?: 'MoonbeamRoundupTransaction';
+  accountId: Scalars['ID'];
+  availableRoundupAmount: Scalars['Float'];
+  brandId: Scalars['ID'];
+  category: Scalars['String'];
+  categoryLogoURL: Scalars['String'];
+  createdAt: Scalars['AWSDateTime'];
+  creditedRoundupAmount: Scalars['Float'];
+  currencyCode: CurrencyCodeType;
+  id: Scalars['ID'];
+  memberId: Scalars['ID'];
+  pendingRoundupAmount: Scalars['Float'];
+  plaidTransactionStatus: PlaidTransactionsStatus;
+  storeId: Scalars['ID'];
+  storeLocation: MoonbeamBrandStoreLocation;
+  timestamp: Scalars['AWSTimestamp'];
+  totalAmount: Scalars['Float'];
+  transactionBrandAddress: Scalars['String'];
+  transactionBrandLogoUrl: Scalars['String'];
+  transactionBrandName: Scalars['String'];
+  transactionBrandURLAddress: Scalars['String'];
+  transactionId: Scalars['ID'];
+  transactionIsOnline: Scalars['Boolean'];
+  transactionStatus: RoundupTransactionsStatus;
+  transactionType: TransactionType;
+  updatedAt: Scalars['AWSDateTime'];
+};
+
 export type MoonbeamTransaction = {
   __typename?: 'MoonbeamTransaction';
   brandId: Scalars['ID'];
@@ -1588,6 +1630,12 @@ export type PartnerResponse = {
   errorType?: Maybe<ServicesErrorType>;
 };
 
+export enum PlaidTransactionsStatus {
+  Added = 'ADDED',
+  Modified = 'MODIFIED',
+  Removed = 'REMOVED'
+}
+
 export type PushDevice = {
   __typename?: 'PushDevice';
   deviceState: UserDeviceState;
@@ -1904,6 +1952,12 @@ export enum RewardType {
   Percentage = 'percentage',
   RewardAmount = 'reward_amount',
   RewardPercent = 'reward_percent'
+}
+
+export enum RoundupTransactionsStatus {
+  Credited = 'CREDITED',
+  Pending = 'PENDING',
+  Processed = 'PROCESSED'
 }
 
 export type SearchOffersInput = {

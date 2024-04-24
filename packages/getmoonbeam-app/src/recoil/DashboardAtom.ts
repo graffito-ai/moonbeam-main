@@ -1,5 +1,10 @@
 import {atom, selector} from "recoil";
-import {MoonbeamTransaction, TransactionsStatus} from "@moonbeam/moonbeam-models";
+import {
+    MoonbeamRoundupTransaction,
+    MoonbeamTransaction,
+    RoundupTransactionsStatus,
+    TransactionsStatus
+} from "@moonbeam/moonbeam-models";
 
 /**
  * Atom used to keep track of the state of the daily earnings summary confetti.
@@ -32,6 +37,83 @@ const showTransactionBottomSheetState = atom<boolean>({
 const showWalletBottomSheetState = atom<boolean>({
     key: 'showWalletBottomSheetState',
     default: false
+});
+
+/**
+ * Atom used to keep track of the state of the roundup transactions bottom sheet.
+ */
+const showRoundupTransactionBottomSheetState = atom<boolean>({
+    key: 'showRoundupTransactionBottomSheetState',
+    default: false
+});
+
+/**
+ * Atom used to keep track of the state of the roundup transactional data for
+ * a particular user.
+ */
+const roundupsTransactionDataState = atom<MoonbeamRoundupTransaction[]>({
+    key: 'roundupsTransactionDataState',
+    default: []
+});
+
+/**
+ * A selector used to keep track of any updated to the roundupsTransactionDataState, and sort that
+ * list according to the timestamp, in descending order.
+ *
+ * This will also round down the roundup amount, to two digits only.
+ */
+const sortedRoundupTransactionDataState = selector<MoonbeamRoundupTransaction[]>({
+    key: 'sortedRoundupTransactionDataState',
+    get: ({get}) => {
+        const roundupTransactionDataList = get(roundupsTransactionDataState);
+        // only consider each transaction's roundup amount up to two digits, and do not include duplicates (it happens on re-renders not due to the backend)
+        roundupTransactionDataList.forEach(transaction => {
+            transaction.pendingRoundupAmount = Number(transaction.pendingRoundupAmount.toFixed(2));
+            transaction.availableRoundupAmount = Number(transaction.availableRoundupAmount.toFixed(2));
+            transaction.creditedRoundupAmount = Number(transaction.creditedRoundupAmount.toFixed(2));
+        });
+        // sort transactions by timestamp and ensure that there are no duplicates
+        return roundupTransactionDataList
+            .filter((v, i, a) => a.findIndex(v2 => (v2.transactionId === v.transactionId)) === i)
+            .slice().sort((a, b) => b.timestamp - a.timestamp);
+    }
+});
+
+/**
+ * A selector used to keep track of the current balance, made up of the total Pending/Available or Credited amount
+ * in each roundup transaction obtained for the user.
+ */
+const lifetimeRoundupSavingsState = selector<number>({
+    key: 'lifetimeRoundupSavingsState',
+    get: ({get}) => {
+        const roundupTransactionDataList = get(roundupsTransactionDataState);
+        // the lifetime roundups savings balance
+        let lifetimeRoundupsSavingsBalance = 0;
+
+        /**
+         * consider the pending, available or credited amounts for roundups transactions, that will
+         * be included in the lifetime  roundup savings total.
+         */
+        roundupTransactionDataList
+            .filter((v, i, a) => a.findIndex(v2 => (v2.transactionId === v.transactionId)) === i)
+            .forEach(transaction => {
+                if (transaction.transactionStatus === RoundupTransactionsStatus.Pending) {
+                    lifetimeRoundupsSavingsBalance += transaction.pendingRoundupAmount !== 0
+                        ? Number(transaction.pendingRoundupAmount.toFixed(2))
+                        : 0;
+                } else if (transaction.transactionStatus === RoundupTransactionsStatus.Processed) {
+                    lifetimeRoundupsSavingsBalance += transaction.availableRoundupAmount !== 0
+                        ? Number(transaction.availableRoundupAmount.toFixed(2))
+                        : 0;
+                } else if (transaction.transactionStatus === RoundupTransactionsStatus.Credited) {
+                    lifetimeRoundupsSavingsBalance += transaction.creditedRoundupAmount !== 0
+                        ? Number(transaction.creditedRoundupAmount.toFixed(2))
+                        : 0;
+                }
+            });
+        // return the lifetime savings amount
+        return Number(lifetimeRoundupsSavingsBalance.toFixed(2));
+    },
 });
 
 /**
@@ -123,6 +205,10 @@ const lifetimeSavingsState = selector<number>({
  * Export all atoms and/or selectors
  */
 export {
+    roundupsTransactionDataState,
+    sortedRoundupTransactionDataState,
+    lifetimeRoundupSavingsState,
+    showRoundupTransactionBottomSheetState,
     currentBalanceState,
     lifetimeSavingsState,
     showWalletBottomSheetState,

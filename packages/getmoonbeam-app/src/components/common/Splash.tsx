@@ -225,7 +225,8 @@ import {
 import {codeVerificationSheetShown, codeVerifiedState} from "../../recoil/CodeVerificationAtom";
 import {customBannerState} from "../../recoil/CustomBannerAtom";
 import {
-    showDailySummaryConfettiState,
+    roundupsTransactionDataState,
+    showDailySummaryConfettiState, showRoundupTransactionBottomSheetState,
     showTransactionBottomSheetState,
     showWalletBottomSheetState,
     transactionDataState
@@ -386,6 +387,8 @@ export const SplashScreen = (props: {
     const codeVerifiedStateReset = useResetRecoilState(codeVerifiedState);
     const customBannerStateReset = useResetRecoilState(customBannerState);
     const showWalletBottomSheetStateReset = useResetRecoilState(showWalletBottomSheetState);
+    const showRoundupTransactionBottomSheetStateReset = useResetRecoilState(showRoundupTransactionBottomSheetState);
+    const roundupsTransactionDataStateReset = useResetRecoilState(roundupsTransactionDataState);
     const transactionDataStateReset = useResetRecoilState(transactionDataState);
     const showTransactionBottomSheetStateReset = useResetRecoilState(showTransactionBottomSheetState);
     const faqListStateReset = useResetRecoilState(faqListState);
@@ -842,6 +845,8 @@ export const SplashScreen = (props: {
             verticalOnlineSectionReloadStateReset();
             showDailySummaryConfettiStateReset();
             roundupsActiveStateReset();
+            showRoundupTransactionBottomSheetStateReset();
+            roundupsTransactionDataStateReset();
             // if this is not running in Expo Go
             if (!isRunningInExpoGo) {
                 // import branch

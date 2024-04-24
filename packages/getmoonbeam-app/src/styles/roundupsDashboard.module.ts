@@ -203,5 +203,70 @@ export const styles = StyleSheet.create({
     avatarView: {
         top: hp(1.90),
         right: wp(0.25)
+    },
+    listItemTitle: {
+        lineHeight: hp(2.55),
+        left: wp(5),
+        fontSize: hp(2),
+        color: '#FFFFFF',
+        fontFamily: 'Saira-ExtraBold',
+        width: wp(50)
+    },
+    listItemDescription: {
+        left: wp(5),
+        fontSize: hp(1.8),
+        color: '#FFFFFF',
+        fontFamily: 'Raleway-Regular',
+        width: wp(50)
+    },
+    leftItemIconBackground: {
+        left: wp(3),
+        backgroundColor: '#FFFFFF',
+        height: hp(6.5),
+        width: hp(6.5),
+        alignSelf: 'center',
+        borderColor: 'transparent'
+    },
+    leftItemIcon: {
+        alignSelf: 'center',
+        height: hp(5.5),
+        width: hp(5.5),
+        top: hp(0.5)
+    },
+    itemRightView: {
+        left: wp(2),
+        flexDirection: 'row'
+    },
+    itemRightDetailsView: {
+        alignItems: 'flex-end',
+        justifyContent: 'center',
+        flexDirection: 'column'
+    },
+    itemRightDetailTop: {
+        fontSize: hp(1.8),
+        fontFamily: 'Changa-Bold',
+        color: '#F2FF5D',
+    },
+    itemRightDetailBottom: {
+        fontSize: hp(1.6),
+        fontFamily: 'Raleway-Medium',
+        color: '#FFFFFF'
+    },
+    rightItemIcon: {
+        left: wp(2.2),
+        alignItems: 'flex-end',
+        justifyContent: 'center'
+    },
+    emptyTransactionsListItemTitle: {
+        top: hp(1.5),
+        alignSelf: 'center',
+        fontSize: hp(2.15),
+        color: '#F2FF5D',
+        fontFamily: 'Saira-Medium',
+        textAlign: 'center',
+        width: wp(80)
+    },
+    bottomSheet: {
+        backgroundColor: '#313030'
     }
 });
