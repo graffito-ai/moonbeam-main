@@ -87,7 +87,7 @@ export const RoundupsTopDashboard = () => {
                     }}>
                         Status
                     </Text>
-                    <TouchableOpacity style={[styles.roundupsSavingsStatusView, showRoundupTransactionsBottomSheet && {height: hp(26.3)}]}>
+                    <TouchableOpacity style={[styles.roundupsSavingsStatusView, showRoundupTransactionsBottomSheet && {borderRadius: 18}]}>
                         <Image
                             style={styles.roundupsNoObjectivesImage}
                             source={MoonbeamRoundupsNoObjectives}/>

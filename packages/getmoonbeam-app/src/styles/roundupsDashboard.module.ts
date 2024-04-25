@@ -268,5 +268,195 @@ export const styles = StyleSheet.create({
     },
     bottomSheet: {
         backgroundColor: '#313030'
+    },
+    transactionBrandDetailsView: {
+        flexDirection: 'column',
+        alignSelf: 'center',
+        alignItems: 'center',
+        alignContent: 'center',
+        justifyContent: 'center',
+        width: wp(100)
+    },
+    transactionBrandName: {
+        alignSelf: 'flex-start',
+        left: wp(5.5),
+        fontFamily: 'Saira-Bold',
+        fontSize: hp(2.5),
+        color: '#FFFFFF'
+    },
+    transactionDetailsView: {
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        width: wp(100),
+        left: wp(5),
+        top: hp(1)
+    },
+    transactionBrandImageBackground: {
+        backgroundColor: '#FFFFFF',
+        height: hp(8),
+        width: hp(8),
+        alignSelf: 'center',
+        borderColor: 'transparent'
+    },
+    transactionBrandImage: {
+        alignSelf: 'center',
+        height: hp(7),
+        width: hp(7),
+        top: hp(0.5)
+    },
+    brandDetailsView: {
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        width: wp(70),
+        top: hp(0.8),
+        left: wp(4),
+    },
+    transactionDiscountAmount: {
+        alignSelf: 'flex-start',
+        fontSize: hp(2.3),
+        fontFamily: 'Changa-Bold',
+        color: '#F2FF5D'
+    },
+    transactionAmountLabel: {
+        fontSize: hp(2),
+        fontFamily: 'Changa-Medium',
+        color: '#FFFFFF'
+    },
+    transactionAddress: {
+        alignSelf: 'flex-start',
+        fontSize: hp(1.8),
+        fontFamily: 'Changa-Light',
+        color: '#FFFFFF',
+        bottom: hp(1)
+    },
+    transactionAmountsView: {
+        flexDirection: 'column',
+        justifyContent: 'flex-end',
+        right: wp(17),
+    },
+    transactionStatusLabel: {
+        fontSize: hp(1.8),
+        fontFamily: 'Changa-Medium',
+        color: '#F2FF5D',
+    },
+    transactionTimestamp: {
+        alignSelf: 'flex-start',
+        fontSize: hp(1.7),
+        fontFamily: 'Changa-Light',
+        textAlign: 'justify',
+        color: '#FFFFFF',
+        bottom: hp(1)
+    },
+    locationServicesEnableView: {
+        height: hp(30),
+        width: wp(95),
+        top: hp(5),
+        backgroundColor: '#262626',
+        flexDirection: 'column',
+        alignItems: 'center',
+        alignContent: 'center'
+    },
+    locationServicesImage: {
+        width: wp(30),
+        height: hp(15),
+    },
+    locationServicesButton: {
+        backgroundColor: '#F2FF5D',
+        width: wp(50),
+        height: hp(5),
+        top: hp(1),
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    locationServicesButtonText: {
+        color: '#313030',
+        fontFamily: 'Saira-Medium',
+        fontSize: hp(2.3),
+        marginTop: hp(1)
+    },
+    locationServicesEnableWarningMessage: {
+        top: hp(2),
+        width: wp(85),
+        fontSize: hp(2),
+        fontFamily: 'Saira-Medium',
+        textAlign: 'center',
+        color: '#FFFFFF'
+    },
+    transactionMapView: {
+        height: hp(30),
+        width: wp(95),
+        top: hp(5),
+        alignSelf: 'center'
+    },
+    toolTipTouchableView: {
+        height: hp(10),
+        width: wp(25),
+        flexDirection: 'column',
+        alignContent: 'center',
+        alignItems: 'center',
+        alignSelf: 'center'
+    },
+    toolTipView: {
+        top: hp(2),
+        flexDirection: 'row',
+        height: '49%',
+        width: '100%',
+        alignSelf: 'center',
+        backgroundColor: '#F2FF5D',
+        borderColor: '#313030',
+        borderRadius: 10,
+        borderWidth: hp(0.6),
+        alignContent: 'space-between'
+    },
+    toolTipImageDetail: {
+        height: '90%',
+        width: '50%',
+        alignSelf: 'center'
+    },
+    triangleContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    toolTipTriangleOutside: {
+        zIndex: 100,
+        width: 0,
+        height: 0,
+        backgroundColor: "transparent",
+        borderStyle: 'solid',
+        overflow: 'hidden',
+        borderLeftWidth: 16,
+        borderRightWidth: 16,
+        borderTopWidth: 17,
+        borderRightColor: 'transparent',
+        borderBottomColor: 'transparent',
+        borderLeftColor: 'transparent',
+        borderTopColor: '#313030',
+    },
+    toolTipTriangle: {
+        zIndex: 200,
+        top: hp(1.41),
+        width: 0,
+        height: 0,
+        backgroundColor: "transparent",
+        borderStyle: 'solid',
+        overflow: 'hidden',
+        borderLeftWidth: 13,
+        borderRightWidth: 13,
+        borderTopWidth: 15,
+        borderRightColor: 'transparent',
+        borderBottomColor: 'transparent',
+        borderLeftColor: 'transparent',
+        borderTopColor: '#F2FF5D',
+    },
+    toolTipImagePrice: {
+        alignSelf: 'center',
+        fontFamily: 'Raleway-ExtraBold',
+        fontSize: wp(3.5),
+        textAlign: 'center',
+        bottom: hp(0.25),
+        color: '#313030',
+        width: wp(10.5)
     }
 });

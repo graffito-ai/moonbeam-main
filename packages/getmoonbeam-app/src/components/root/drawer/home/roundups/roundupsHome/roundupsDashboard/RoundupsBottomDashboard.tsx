@@ -80,7 +80,7 @@ export const RoundupsBottomDashboard = (props: {
             currencyCode: CurrencyCodeType.Usd,
             id: "moonbeam_user_id",
             memberId: "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp", // member id = account id ?
-            pendingRoundupAmount: 0.77,
+            pendingRoundupAmount: 0.93,
             plaidTransactionStatus: PlaidTransactionsStatus.Added,
             storeId: "O5W5j4dN9OR3E6ypQmjdkWZZRoXEzVMz2ByWM",
             storeLocation: {
@@ -95,7 +95,7 @@ export const RoundupsBottomDashboard = (props: {
                 zipCode: "92064"
             },
             timestamp: 1695378890000,
-            totalAmount: 19.23,
+            totalAmount: 23.07,
             transactionBrandAddress: "", // get rid of brand address since we got store location
             transactionBrandLogoUrl: "https://plaid-merchant-logos.plaid.com/walmart_1100.png",
             transactionBrandName: "Walmart",

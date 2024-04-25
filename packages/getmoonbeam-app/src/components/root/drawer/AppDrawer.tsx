@@ -55,6 +55,7 @@ import CardLinkingImage from '../../../../assets/art/moonbeam-card-linking.png';
 import MoonbeamNavigationLogo from '../../../../assets/moonbeam-navigation-logo.png';
 import {Settings} from "./settings/Settings";
 import {
+    showRoundupTransactionBottomSheetState,
     showTransactionBottomSheetState,
     showWalletBottomSheetState,
     transactionDataState
@@ -112,6 +113,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
         const [, setBannerShown] = useRecoilState(customBannerShown);
         const [drawerInDashboard,] = useRecoilState(drawerDashboardState);
         const [showTransactionsBottomSheet, setShowTransactionsBottomSheet] = useRecoilState(showTransactionBottomSheetState);
+        const [showRoundupTransactionBottomSheet, setShowRoundupTransactionBottomSheet] = useRecoilState(showRoundupTransactionBottomSheetState);
         const [, setShowWalletBottomSheet] = useRecoilState(showWalletBottomSheetState);
         const [, setShowClickOnlyBottomSheet] = useRecoilState(showClickOnlyBottomSheetState);
         const [, setProfilePictureURI] = useRecoilState(profilePictureURIState);
@@ -1000,31 +1002,56 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                     }}
                                     initialRouteName={!userVerified ? "AppWall" : "Home"}
                                     screenOptions={({}) => ({
-                                        ...((showTransactionsBottomSheet || drawerInDashboard) && {
+                                        ...((showTransactionsBottomSheet || drawerInDashboard || showRoundupTransactionBottomSheet) && {
                                             header: () =>
                                                 <>
                                                     {
                                                         <TouchableOpacity
                                                             activeOpacity={1}
-                                                            disabled={!showTransactionsBottomSheet}
-                                                            onPress={() => setShowTransactionsBottomSheet(false)}
+                                                            disabled={!showTransactionsBottomSheet && !showRoundupTransactionBottomSheet}
+                                                            onPress={() => {
+                                                                setShowTransactionsBottomSheet(false);
+                                                                setShowRoundupTransactionBottomSheet(false);
+                                                            }}
                                                         >
                                                             <View
-                                                                {...showTransactionsBottomSheet && {pointerEvents: "none"}}
+                                                                {...(showTransactionsBottomSheet || showRoundupTransactionBottomSheet) && {pointerEvents: "none"}}
                                                                 {...showTransactionsBottomSheet && {
                                                                     style: {backgroundColor: 'transparent', opacity: 0.3}
                                                                 }}
-                                                                style={drawerInDashboard ? {
-                                                                    height: hp(6.5),
-                                                                    width: wp(100),
-                                                                    backgroundColor: !showTransactionsBottomSheet ? '#5B5A5A' : 'black',
-                                                                    shadowColor: 'transparent', // this covers iOS
-                                                                    elevation: 0, // this covers Android
-                                                                    opacity: !showTransactionsBottomSheet ? 1 : 0.75,
-                                                                    flexDirection: 'column'
-                                                                } : {
-                                                                    backgroundColor: '#313030'
+                                                                {...showRoundupTransactionBottomSheet && {
+                                                                    style: {backgroundColor: 'black', opacity: 0.95}
                                                                 }}
+                                                                style={[
+                                                                    drawerInDashboard && showTransactionBottomSheetState && {
+                                                                        height: hp(6.5),
+                                                                        width: wp(100),
+                                                                        backgroundColor: 'black',
+                                                                        shadowColor: 'transparent', // this covers iOS
+                                                                        elevation: 0, // this covers Android
+                                                                        opacity: 0.75,
+                                                                        flexDirection: 'column'
+                                                                    },
+                                                                    drawerInDashboard && showRoundupTransactionBottomSheet && {
+                                                                        height: hp(6.5),
+                                                                        width: wp(100),
+                                                                        backgroundColor: '#313030',
+                                                                        shadowColor: 'transparent', // this covers iOS
+                                                                        elevation: 0, // this covers Android
+                                                                        opacity: 0.80,
+                                                                        flexDirection: 'column'
+                                                                    },
+                                                                    drawerInDashboard && !showRoundupTransactionBottomSheet && !showTransactionsBottomSheet && {
+                                                                        height: hp(6.5),
+                                                                        width: wp(100),
+                                                                        backgroundColor: '#5B5A5A',
+                                                                        shadowColor: 'transparent', // this covers iOS
+                                                                        elevation: 0, // this covers Android
+                                                                        opacity: 1,
+                                                                        flexDirection: 'column'
+                                                                    },
+                                                                    !drawerInDashboard && {backgroundColor: '#313030'}
+                                                                ]}
                                                             />
                                                         </TouchableOpacity>
                                                     }

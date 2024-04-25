@@ -3,10 +3,11 @@ import BottomSheet from "@gorhom/bottom-sheet";
 import {heightPercentageToDP as hp} from "react-native-responsive-screen";
 import {useRecoilState} from "recoil";
 import {showRoundupTransactionBottomSheetState} from "../../../../../../../recoil/DashboardAtom";
-import {MoonbeamRoundupTransaction} from "@moonbeam/moonbeam-models";
+import {MoonbeamRoundupTransaction, RoundupTransactionsStatus} from "@moonbeam/moonbeam-models";
 import {drawerSwipeState} from "../../../../../../../recoil/AppDrawerAtom";
 import {styles} from "../../../../../../../styles/roundupsDashboard.module";
 import {bottomTabShownState} from "../../../../../../../recoil/HomeAtom";
+import {RoundupTransactionsBottomSheet} from "../../transactions/RoundupTransactionsBottomSheet";
 
 /**
  * RoundupsDashboardBottomSheet component.
@@ -70,35 +71,49 @@ export const RoundupsDashboardBottomSheet = (props: {
                     backgroundStyle={[styles.bottomSheet, props.selectedRoundupTransaction && props.selectedRoundupTransaction.transactionIsOnline && {backgroundColor: '#313030'}]}
                     enablePanDownToClose={true}
                     index={showRoundupTransactionsBottomSheet ? 0 : -1}
-                    snapPoints={props.selectedRoundupTransaction && !props.selectedRoundupTransaction.transactionIsOnline ? [hp(55), hp(55)] : [hp(40), hp(40)]}
+                    snapPoints={
+                        props.selectedRoundupTransaction &&
+                        props.selectedRoundupTransaction.transactionIsOnline
+                            ? [hp(22), hp(22)]
+                            : (props.selectedRoundupTransaction && props.selectedRoundupTransaction.storeLocation.addressLine && props.selectedRoundupTransaction.storeLocation.addressLine.length !== 0 &&
+                            props.selectedRoundupTransaction.storeLocation.city && props.selectedRoundupTransaction.storeLocation.city.length !== 0 &&
+                            props.selectedRoundupTransaction.storeLocation.region && props.selectedRoundupTransaction.storeLocation.region.length !== 0 &&
+                            props.selectedRoundupTransaction.storeLocation.zipCode && props.selectedRoundupTransaction.storeLocation.zipCode.length !== 0)
+                                ? [hp(55), hp(55)]
+                                : [hp(22), hp(22)]
+                    }
                     onChange={(index) => {
                         setShowRoundupTransactionsBottomSheet(index !== -1);
                     }}
                 >
-                    {/*{*/}
-                    {/*    props.selectedTransaction &&*/}
-                    {/*    <TransactionsBottomSheet*/}
-                    {/*        brandName={props.selectedTransaction.transactionBrandName}*/}
-                    {/*        brandImage={props.selectedTransaction.transactionBrandLogoUrl}*/}
-                    {/*        {...props.selectedTransaction.transactionIsOnline && {*/}
-                    {/*            transactionOnlineAddress: props.selectedTransaction.transactionBrandURLAddress*/}
-                    {/*        }}*/}
-                    {/*        {...!props.selectedTransaction.transactionIsOnline && {*/}
-                    {/*            transactionStoreAddress: props.selectedTransaction.transactionBrandAddress*/}
-                    {/*        }}*/}
-                    {/*        transactionAmount={props.selectedTransaction.totalAmount.toFixed(2).toString()}*/}
-                    {/*        transactionDiscountAmount={props.selectedTransaction.rewardAmount.toFixed(2).toString()}*/}
-                    {/*        transactionTimestamp={props.selectedTransaction.timestamp.toString()}*/}
-                    {/*        transactionStatus={*/}
-                    {/*            props.selectedTransaction.transactionStatus === TransactionsStatus.Funded*/}
-                    {/*                ? TransactionsStatus.Processed.toString()*/}
-                    {/*                : (props.selectedTransaction.transactionStatus === TransactionsStatus.Fronted*/}
-                    {/*                    ? TransactionsStatus.Credited.toString()*/}
-                    {/*                    : props.selectedTransaction.transactionStatus.toString())*/}
-                    {/*        }*/}
-                    {/*        transactionType={props.selectedTransaction.transactionType}*/}
-                    {/*    />*/}
-                    {/*}*/}
+                    {
+                        props.selectedRoundupTransaction &&
+                        <RoundupTransactionsBottomSheet
+                            brandName={props.selectedRoundupTransaction.transactionBrandName}
+                            brandImage={props.selectedRoundupTransaction.transactionBrandLogoUrl}
+                            {...props.selectedRoundupTransaction.transactionIsOnline && {
+                                transactionOnlineAddress: props.selectedRoundupTransaction.transactionBrandURLAddress
+                            }}
+                            {...!props.selectedRoundupTransaction.transactionIsOnline &&
+                            props.selectedRoundupTransaction.storeLocation.addressLine && props.selectedRoundupTransaction.storeLocation.addressLine.length !== 0 &&
+                            props.selectedRoundupTransaction.storeLocation.city && props.selectedRoundupTransaction.storeLocation.city.length !== 0 &&
+                            props.selectedRoundupTransaction.storeLocation.region && props.selectedRoundupTransaction.storeLocation.region.length !== 0 &&
+                            props.selectedRoundupTransaction.storeLocation.zipCode && props.selectedRoundupTransaction.storeLocation.zipCode.length !== 0 && {
+                                transactionStoreAddress: `${props.selectedRoundupTransaction.storeLocation.addressLine}, ${props.selectedRoundupTransaction.storeLocation.city}, ${props.selectedRoundupTransaction.storeLocation.region}, ${props.selectedRoundupTransaction.storeLocation.zipCode}`
+                            }}
+                            transactionAmount={props.selectedRoundupTransaction.totalAmount.toFixed(2).toString()}
+                            transactionRoundupAmount={
+                                props.selectedRoundupTransaction.transactionStatus === RoundupTransactionsStatus.Pending
+                                    ? props.selectedRoundupTransaction.pendingRoundupAmount.toFixed(2).toString()
+                                    : props.selectedRoundupTransaction.transactionStatus === RoundupTransactionsStatus.Processed
+                                      ? props.selectedRoundupTransaction.availableRoundupAmount.toFixed(2).toString()
+                                      : props.selectedRoundupTransaction.creditedRoundupAmount.toFixed(2).toString()
+                            }
+                            transactionTimestamp={props.selectedRoundupTransaction.timestamp.toString()}
+                            transactionStatus={props.selectedRoundupTransaction.transactionStatus}
+                            transactionType={props.selectedRoundupTransaction.transactionType}
+                        />
+                    }
                 </BottomSheet>
             }
         </>

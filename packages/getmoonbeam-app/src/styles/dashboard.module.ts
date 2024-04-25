@@ -262,7 +262,8 @@ export const styles = StyleSheet.create({
     transactionMapView: {
         height: hp(30),
         width: wp(95),
-        top: hp(5)
+        top: hp(5),
+        alignSelf: 'center'
     },
     toolTipMain: {
         height: '100%',
