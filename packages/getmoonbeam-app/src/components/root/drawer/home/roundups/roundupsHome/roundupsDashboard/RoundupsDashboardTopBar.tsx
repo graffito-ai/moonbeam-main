@@ -54,7 +54,7 @@ export const RoundupsDashboardTopBar = () => {
             ]}>
             <Text
                 style={styles.savingsText}>{"Total Savings\n"}
-                <Text style={styles.savingsAmountText}> {"$ 0.00"}</Text>
+                <Text style={styles.savingsAmountText}> {"$ 250.57"}</Text>
             </Text>
             <TouchableOpacity
                 onPress={() => {

@@ -25,11 +25,13 @@ import {
     clickOnlySectionReloadState,
     fidelisSectionReloadState,
     kitSectionReloadState,
-    nearbySectionReloadState, onlineSectionReloadState,
+    nearbySectionReloadState,
+    onlineSectionReloadState,
     selectedCardIndexState,
     verticalClickOnlySectionReloadState,
     verticalFidelisSectionReloadState,
-    verticalNearbySectionReloadState, verticalOnlineSectionReloadState
+    verticalNearbySectionReloadState,
+    verticalOnlineSectionReloadState
 } from "../../../../../recoil/WalletAtom";
 // @ts-ignore
 import MoonbeamCardChip from '../../../../../../assets/art/moonbeam-card-chip.png';
@@ -50,7 +52,7 @@ import MoonbeamMasterCardImage from '../../../../../../assets/moonbeam-mastercar
 // @ts-ignore
 import MoonbeamMembership from '../../../../../../assets/art/moonbeam-membership.png';
 // @ts-ignore
-import MoonbeamBasicMembership from '../../../../../../assets/art/moonbeam-e1-membership.png';
+import MoonbeamBasicMembership from "../../../../../../assets/moonbeam-first-class-membership.png";
 // @ts-ignore
 import RegistrationBackgroundImage from '../../../../../../assets/backgrounds/registration-background.png';
 import {showWalletBottomSheetState} from "../../../../../recoil/DashboardAtom";
@@ -61,6 +63,7 @@ import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-nativ
 import {logEvent} from "../../../../../utils/AppSync";
 import CardsWallet from 'react-native-wallet-cards';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
+
 
 // interface to keep track of the type of card to be selected
 export interface SelectedCard {
@@ -302,109 +305,73 @@ export const Wallet = ({navigation}: CardsProps) => {
             results.push(
                 <>
                     <Image
-                        style={[styles.membershipImage,
-                            showBottomSheet && {
-                                backgroundColor: 'transparent', opacity: 0.3
-                            }
-                        ]}
-                        resizeMethod={'scale'}
-                        resizeMode={'contain'}
-                        source={MoonbeamMembership}
+                        style={styles.firstClassImage}
+                        source={MoonbeamBasicMembership}
+                        resizeMode={"contain"}
                     />
-                    <Text style={[styles.membershipTitle, showBottomSheet && {
-                        backgroundColor: 'transparent', opacity: 0.3
-                    }]}>
-                        Membership
+                    <Text
+                        numberOfLines={1}
+                        style={styles.firstClassTitle}>
+                        First Class
                     </Text>
-                    <View style={[styles.membershipCard, showBottomSheet && {
-                        backgroundColor: 'transparent', opacity: 0.3
-                    }]}>
-                        <View style={styles.membershipCardTitleView}>
-                            <Image
-                                style={[styles.basicMembershipImage,
-                                    showBottomSheet && {
-                                        backgroundColor: 'transparent', opacity: 0.3
-                                    }
-                                ]}
-                                resizeMethod={'scale'}
-                                resizeMode={'contain'}
-                                source={MoonbeamBasicMembership}
-                            />
-                            <Text
-                                numberOfLines={2}
-                                style={styles.basicMembershipTitle}>
-                                {"First Class\nMembership"}
-                            </Text>
-                        </View>
-                        <View style={{bottom: hp(2), alignSelf: 'flex-start'}}>
-                            <View style={{top: hp(2), width: wp(80)}}>
-                                <Text
-                                    numberOfLines={1}
-                                    style={styles.membershipPerkNumberText}>
-                                    🎲
-                                </Text>
-                                <Text
-                                    numberOfLines={2}
-                                    style={styles.membershipPerkText}>
-                                    {"Automatic military discounts\nMarketplace access"}
-                                </Text>
-                            </View>
-                            <View style={{bottom: hp(1), width: wp(80)}}>
-                                <Text
-                                    numberOfLines={1}
-                                    style={styles.membershipPerkNumberText}>
-                                    🛍️
-                                </Text>
-                                <Text
-                                    numberOfLines={2}
-                                    style={styles.membershipPerkText}>
-                                    {"1 cent cashback on every\npurchase"}
-                                </Text>
-                            </View>
-                            <View style={{bottom: hp(3.5), width: wp(80)}}>
-                                <Text
-                                    numberOfLines={1}
-                                    style={styles.membershipPerkNumberText}>
-                                    💰
-                                </Text>
-                                <Text
-                                    numberOfLines={2}
-                                    style={styles.membershipPerkText}>
-                                    {"5-50% off purchases at\nqualifying merchants"}
-                                </Text>
-                            </View>
-                            <View style={{bottom: hp(6), width: wp(80)}}>
-                                <Text
-                                    numberOfLines={1}
-                                    style={styles.membershipPerkNumberText}>
-                                    💳
-                                </Text>
-                                <Text
-                                    numberOfLines={2}
-                                    style={styles.membershipPerkText}>
-                                    {"Up to 3 Visa and Mastercard,\ndebit or credit cards"}
-                                </Text>
-                            </View>
-                        </View>
-                        <View style={styles.membershipCardActions}>
+                    <Text
+                        numberOfLines={1}
+                        style={styles.firstClassPrice}>
+                        FREE
+                    </Text>
+                    <Text
+                        numberOfLines={1}
+                        style={styles.firstClassPerksTitle}>
+                        Free, included in your account!
+                    </Text>
+                    <View style={styles.firstClassPerksView}>
+                        <View style={styles.firstClassIndividualPerk}>
                             <Text
                                 numberOfLines={1}
-                                style={styles.priceTitle}>
-                                {"FREE"}
+                                style={styles.firstClassPerk}>
+                                ✅ Automatic Military Discounts.
                             </Text>
-                            <TouchableOpacity
-                                style={styles.startMembershipButton}
-                                onPress={
-                                    async () => {
-                                        // set the type of bottom sheet to show
-                                        setBottomSheetType("link-info");
-                                        setShowBottomSheet(true);
-                                    }}
-                            >
-                                <Text style={styles.startMembershipButtonContentStyle}>Activate</Text>
-                            </TouchableOpacity>
+                        </View>
+                        <View style={[styles.firstClassIndividualPerk, {bottom: hp(5)}]}>
+                            <Text
+                                numberOfLines={1}
+                                style={styles.firstClassPerk}>
+                                ✅ Marketplace Access.
+                            </Text>
+                        </View>
+                        <View style={[styles.firstClassIndividualPerk, {bottom: hp(9.5)}]}>
+                            <Text
+                                numberOfLines={1}
+                                style={styles.firstClassPerk}>
+                                ✅ 1 Cent Cashback on Every Purchase.
+                            </Text>
+                        </View>
+                        <View style={[styles.firstClassIndividualPerk, {bottom: hp(13.5)}]}>
+                            <Text
+                                numberOfLines={1}
+                                style={styles.firstClassPerk}>
+                                ✅ 5-50% off qualified purchases.
+                            </Text>
+                        </View>
+                        <View style={[styles.firstClassIndividualPerk, {bottom: hp(17.5)}]}>
+                            <Text
+                                numberOfLines={1}
+                                style={styles.firstClassPerk}>
+                                ✅ Up to 3 Linked Cards.
+                            </Text>
                         </View>
                     </View>
+                    <TouchableOpacity
+                        style={styles.startMembershipButton}
+                        onPress={
+                            async () => {
+                                // set the type of bottom sheet to show
+                                setBottomSheetType("link-info");
+                                setShowBottomSheet(true);
+                            }}
+                    >
+                        <Text style={styles.startMembershipButtonContentStyle}>Activate</Text>
+                    </TouchableOpacity>
                 </>
             );
         } else {

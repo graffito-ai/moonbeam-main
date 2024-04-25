@@ -31,6 +31,8 @@ import MoonbeamRoundupsStep2 from "../../../../../../../assets/moonbeam-roundups
 import MoonbeamRoundupsStep3 from "../../../../../../../assets/moonbeam-roundups-step3.png";
 // @ts-ignore
 import MoonbeamRoundupsStep4 from "../../../../../../../assets/moonbeam-roundups-step4.png";
+// @ts-ignore
+import MoonbeamDeltaOneMembership from "../../../../../../../assets/moonbeam-delta-one-membership.png"
 
 /**
  * RoundupsSplash component.
@@ -92,18 +94,23 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                         }}
                     />
                 </TouchableOpacity>
-                <View style={styles.roundupsSplashStepView}>
-                    <View
-                        style={roundupsSplashStepNumber === 0 ? styles.roundupsSplashStepActive : styles.roundupsSplashStepInactive}/>
-                    <View
-                        style={roundupsSplashStepNumber === 1 ? styles.roundupsSplashStepActive : styles.roundupsSplashStepInactive}/>
-                    <View
-                        style={roundupsSplashStepNumber === 2 ? styles.roundupsSplashStepActive : styles.roundupsSplashStepInactive}/>
-                    <View
-                        style={roundupsSplashStepNumber === 3 ? styles.roundupsSplashStepActive : styles.roundupsSplashStepInactive}/>
-                    <View
-                        style={roundupsSplashStepNumber === 4 ? styles.roundupsSplashStepActive : styles.roundupsSplashStepInactive}/>
-                </View>
+                {
+                    roundupsSplashStepNumber < 5 &&
+                    <View style={styles.roundupsSplashStepView}>
+                        <View
+                            style={roundupsSplashStepNumber === 0 ? styles.roundupsSplashStepActive : styles.roundupsSplashStepInactive}/>
+                        <View
+                            style={roundupsSplashStepNumber === 1 ? styles.roundupsSplashStepActive : styles.roundupsSplashStepInactive}/>
+                        <View
+                            style={roundupsSplashStepNumber === 2 ? styles.roundupsSplashStepActive : styles.roundupsSplashStepInactive}/>
+                        <View
+                            style={roundupsSplashStepNumber === 3 ? styles.roundupsSplashStepActive : styles.roundupsSplashStepInactive}/>
+                        <View
+                            style={roundupsSplashStepNumber === 4 ? styles.roundupsSplashStepActive : styles.roundupsSplashStepInactive}/>
+                        <View
+                            style={roundupsSplashStepNumber === 5 ? styles.roundupsSplashStepActive : styles.roundupsSplashStepInactive}/>
+                    </View>
+                }
                 <View style={styles.roundupsContentView}>
                     {
                         roundupsSplashStepNumber === 0 &&
@@ -113,6 +120,11 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                                 style={styles.roundupsSplashMainTitle}>
                                 Savings Objectives
                             </Text>
+                            <Image
+                                style={styles.roundupsSplash1}
+                                source={RoundupsSplash1}
+                                resizeMode={"contain"}
+                            />
                             <Text
                                 numberOfLines={1}
                                 style={styles.roundupsOverviewBoxTitle}>
@@ -172,9 +184,6 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                                     </Text>
                                 </View>
                             </View>
-                            <Image
-                                style={styles.roundupsSplash1}
-                                source={RoundupsSplash1}/>
                         </>
                     }
                     {
@@ -196,7 +205,9 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                             </Text>
                             <Image
                                 style={styles.roundupsStepImage}
-                                source={MoonbeamRoundupsStep1}/>
+                                source={MoonbeamRoundupsStep1}
+                                resizeMode={"contain"}
+                            />
                         </>
                     }
                     {
@@ -213,7 +224,9 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                             </Text>
                             <Image
                                 style={styles.roundupsStepImage}
-                                source={MoonbeamRoundupsStep2}/>
+                                source={MoonbeamRoundupsStep2}
+                                resizeMode={"contain"}
+                            />
                         </>
                     }
                     {
@@ -230,7 +243,9 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                             </Text>
                             <Image
                                 style={styles.roundupsStepImage}
-                                source={MoonbeamRoundupsStep3}/>
+                                source={MoonbeamRoundupsStep3}
+                                resizeMode={"contain"}
+                            />
                         </>
                     }
                     {
@@ -247,34 +262,109 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                             </Text>
                             <Image
                                 style={styles.roundupsStepImage4}
-                                source={MoonbeamRoundupsStep4}/>
+                                source={MoonbeamRoundupsStep4}
+                                resizeMode={"contain"}
+                            />
+                        </>
+                    }
+                    {
+                        roundupsSplashStepNumber === 5 &&
+                        <>
+                            <Image
+                                style={styles.deltaOneImage}
+                                source={MoonbeamDeltaOneMembership}
+                                resizeMode={"contain"}
+                            />
+                            <Text
+                                numberOfLines={1}
+                                style={styles.deltaOneTitle}>
+                                Delta One
+                            </Text>
+                            <Text
+                                numberOfLines={1}
+                                style={styles.deltaOnePrice}>
+                                $2.99/month
+                            </Text>
+                            <Text
+                                numberOfLines={1}
+                                style={styles.deltaOnePerksTitle}>
+                                First 30 days free!
+                            </Text>
+                            <View style={styles.deltaOnePerksView}>
+                                <View style={styles.deltaOneIndividualPerk}>
+                                    <Text
+                                        numberOfLines={1}
+                                        style={styles.firstClassPerk}>
+                                        ✅   Seamless savings through Auto-Renewal.
+                                    </Text>
+                                </View>
+                                <View style={[styles.deltaOneIndividualPerk, {bottom: hp(5)}]}>
+                                    <Text
+                                        numberOfLines={1}
+                                        style={styles.firstClassPerk}>
+                                        ✅   Get notified when your trial ends.
+                                    </Text>
+                                </View>
+                                <View style={[styles.deltaOneIndividualPerk, {bottom: hp(9.5)}]}>
+                                    <Text
+                                        numberOfLines={1}
+                                        style={styles.firstClassPerk}>
+                                        ✅   No upfront charges. Cancel anytime.
+                                    </Text>
+                                </View>
+                            </View>
                         </>
                     }
                 </View>
+                {
+                    roundupsSplashStepNumber === 5 &&
+                    <View style={styles.roundupsSplashDisclaimerView}>
+                        <Text
+                            numberOfLines={2}
+                            style={styles.roundupsSplashDisclaimerText}>
+                            Moonbeam will deduct a $2.99 monthly membership fee after your free trial ends from your connected account.
+                        </Text>
+                    </View>
+                }
                 <View style={[{
                     flexDirection: 'row',
                     justifyContent: 'space-between',
                     position: 'absolute',
                     bottom: hp(5),
-                }, (roundupsSplashStepNumber === 0) ? {alignSelf: 'center'} : {alignSelf: 'center', left: wp(12)}]}>
+                }, (roundupsSplashStepNumber === 0 || roundupsSplashStepNumber === 5) ? {alignSelf: 'center'} : {
+                    alignSelf: 'center',
+                    left: wp(12)
+                }]}>
                     {
-                        (roundupsSplashStepNumber === 0) &&
+                        (roundupsSplashStepNumber === 0 || roundupsSplashStepNumber === 5) &&
                         <TouchableOpacity
                             style={styles.nextButton}
                             onPress={() => {
-                                // increase the step number all the way to Step 4
-                                if (roundupsSplashStepNumber < 4) {
+                                // increase the step number all the way to Step 6
+                                if (roundupsSplashStepNumber < 5) {
                                     setRoundupsSplashStepNumber(roundupsSplashStepNumber + 1);
+                                }
+                                // for the last step, once we click Get Started
+                                if (roundupsSplashStepNumber === 5) {
+                                    // navigate to the RoundupsHome screen
+                                    navigation.navigate('RoundupsHome', {});
+                                    // set the Roundups activation state accordingly
+                                    setAreRoundupsActive(true);
                                 }
                             }}
                         >
                             <Text
-                                style={styles.nextButtonText}>{"Next"}</Text>
+                                style={styles.nextButtonText}>{(roundupsSplashStepNumber === 5) ? "Start free trial" : "Next"}</Text>
                         </TouchableOpacity>
                     }
                     {
                         (roundupsSplashStepNumber === 1 || roundupsSplashStepNumber === 2 || roundupsSplashStepNumber === 3 || roundupsSplashStepNumber === 4) &&
-                        <>
+                        <View style={{
+                            flexDirection: 'row',
+                            alignContent: 'space-between',
+                            backgroundColor: 'red',
+                            right: wp(10)
+                        }}>
                             <TouchableOpacity
                                 style={styles.buttonLeft}
                                 onPress={() => {
@@ -288,25 +378,18 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                                     style={styles.buttonText}>{"Previous"}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
-                                style={styles.buttonLeft}
+                                style={styles.buttonRight}
                                 onPress={() => {
-                                    // increase the step number all the way to Step 5
-                                    if (roundupsSplashStepNumber < 4) {
+                                    // increase the step number all the way to Step 6
+                                    if (roundupsSplashStepNumber < 5) {
                                         setRoundupsSplashStepNumber(roundupsSplashStepNumber + 1);
-                                    }
-                                    // for the last step, once we click Get Started
-                                    if (roundupsSplashStepNumber === 4) {
-                                        // navigate to the RoundupsHome screen
-                                        navigation.navigate('RoundupsHome', {});
-                                        // set the Roundups activation state accordingly
-                                        setAreRoundupsActive(true);
                                     }
                                 }}
                             >
                                 <Text
-                                    style={styles.buttonText}>{(roundupsSplashStepNumber === 4) ? "Get Started" : "Next"}</Text>
+                                    style={styles.buttonText}>{"Next"}</Text>
                             </TouchableOpacity>
-                        </>
+                        </View>
                     }
                 </View>
             </SafeAreaView>

@@ -3,7 +3,7 @@ import {createDrawerNavigator} from "@react-navigation/drawer";
 import {AppDrawerProps} from "../../../models/props/AuthenticationProps";
 import {AppDrawerStackParamList} from "../../../models/props/AppDrawerProps";
 import {CustomDrawer} from "../../common/CustomDrawer";
-import {Animated, Text, TouchableOpacity, View} from "react-native";
+import {Animated, Platform, Text, TouchableOpacity, View} from "react-native";
 import {useRecoilState} from "recoil";
 import {
     appDrawerHeaderShownState,
@@ -1035,10 +1035,10 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                                                     drawerInDashboard && showRoundupTransactionBottomSheet && {
                                                                         height: hp(6.5),
                                                                         width: wp(100),
-                                                                        backgroundColor: '#313030',
+                                                                        backgroundColor: Platform.OS === 'ios' ? '#313030': '#313030',
                                                                         shadowColor: 'transparent', // this covers iOS
                                                                         elevation: 0, // this covers Android
-                                                                        opacity: 0.80,
+                                                                        opacity: Platform.OS === 'ios' ? 0.80 : 1,
                                                                         flexDirection: 'column'
                                                                     },
                                                                     drawerInDashboard && !showRoundupTransactionBottomSheet && !showTransactionsBottomSheet && {

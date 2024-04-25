@@ -53,7 +53,9 @@ export const RoundupsTopDashboard = () => {
                         style={styles.roundupsTopLeftButton}>
                         <Image
                             style={styles.roundupsTopButtonImage}
-                            source={MoonbeamRoundupsCashOut}/>
+                            source={MoonbeamRoundupsCashOut}
+                            resizeMode={"contain"}
+                        />
                         <Text style={styles.roundupsTopButtonText}>
                             Transfer
                         </Text>
@@ -65,7 +67,9 @@ export const RoundupsTopDashboard = () => {
                         style={styles.roundupsTopRightButton}>
                         <Image
                             style={styles.roundupsTopButtonImage}
-                            source={MoonbeamRoundupsObjectives}/>
+                            source={MoonbeamRoundupsObjectives}
+                            resizeMode={"contain"}
+                        />
                         <Text style={styles.roundupsTopButtonText}>
                             Objectives
                         </Text>
@@ -90,12 +94,14 @@ export const RoundupsTopDashboard = () => {
                     <TouchableOpacity style={[styles.roundupsSavingsStatusView, showRoundupTransactionsBottomSheet && {borderRadius: 18}]}>
                         <Image
                             style={styles.roundupsNoObjectivesImage}
-                            source={MoonbeamRoundupsNoObjectives}/>
+                            source={MoonbeamRoundupsNoObjectives}
+                            resizeMode={"contain"}
+                        />
                         <View style={styles.roundupsSavingsStatusText}>
                             <Text
                                 numberOfLines={2}
                                 style={styles.noRoundupObjectivesText}>
-                                You don't have any Objectives set up yet!
+                                {"You don't have any\nObjectives set up yet!"}
                             </Text>
                             <TouchableOpacity
                                 style={styles.objectivesGetStartedButton}

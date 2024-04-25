@@ -63,38 +63,89 @@ export const createDevice = async (fieldName: string, createDeviceInput: CreateD
         // if there is an item retrieved, it does not matter because we want to update that item's status and last login date
         if (preExistingPhysicalDevice && preExistingPhysicalDevice.Item) {
             /**
-             * if there is a pre-existing device with the same composite primary key (userId/id, tokenId) combination,
-             * then we update that device's state and login date accordingly.
+             * we move forward by determining if there are any devices with the same token associated with different users.
+             * If there are, we want to update their states to INACTIVE and store the new device accordingly. Otherwise, we want to just return
+             * the updated device accordingly.
              */
-            await dynamoDbClient.send(new UpdateItemCommand({
-                TableName: process.env.PHYSICAL_DEVICES_TABLE!,
-                Key: {
-                    id: {
-                        S: createDeviceInput.id
+            const matchedDevicesByToken: PushDevice[] = await getDevicesByToken(dynamoDbClient, region, createDeviceInput.tokenId);
+            // check the size of the matched devices returned
+            if (matchedDevicesByToken.length === 0) {
+                /**
+                 * if there is a pre-existing device with the same composite primary key (userId/id, tokenId) combination,
+                 * then we update that device's state and login date accordingly.
+                 */
+                await dynamoDbClient.send(new UpdateItemCommand({
+                    TableName: process.env.PHYSICAL_DEVICES_TABLE!,
+                    Key: {
+                        id: {
+                            S: createDeviceInput.id
+                        },
+                        tokenId: {
+                            S: createDeviceInput.tokenId
+                        }
                     },
-                    tokenId: {
-                        S: createDeviceInput.tokenId
-                    }
-                },
-                ExpressionAttributeNames: {
-                    "#dst": "deviceState",
-                    "#llog": "lastLoginDate"
-                },
-                ExpressionAttributeValues: {
-                    ":dst": {
-                        S: createDeviceInput.deviceState
+                    ExpressionAttributeNames: {
+                        "#dst": "deviceState",
+                        "#llog": "lastLoginDate"
                     },
-                    ":llog": {
-                        S: createDeviceInput.lastLoginDate
-                    }
-                },
-                UpdateExpression: "SET #dst = :dst, #llog = :llog",
-                ReturnValues: "UPDATED_NEW"
-            }));
+                    ExpressionAttributeValues: {
+                        ":dst": {
+                            S: createDeviceInput.deviceState
+                        },
+                        ":llog": {
+                            S: createDeviceInput.lastLoginDate!
+                        }
+                    },
+                    UpdateExpression: "SET #dst = :dst, #llog = :llog",
+                    ReturnValues: "UPDATED_NEW"
+                }));
 
-            // return the updated physical device object
-            return {
-                data: createDeviceInput as PushDevice
+                // if there are no other matched devices, then just return the updated device accordingly
+                return {
+                    data: createDeviceInput as PushDevice
+                }
+            } else {
+                /**
+                 * if there are other matched devices, then ensure that we mark them as INACTIVE before updating and
+                 * returning the new device accordingly.
+                 */
+                return inactivateDevices(dynamoDbClient, matchedDevicesByToken).then(failureFlag => {
+                    // store the new device
+                    return !failureFlag ? dynamoDbClient.send(new UpdateItemCommand({
+                            TableName: process.env.PHYSICAL_DEVICES_TABLE!,
+                            Key: {
+                                id: {
+                                    S: createDeviceInput.id
+                                },
+                                tokenId: {
+                                    S: createDeviceInput.tokenId
+                                }
+                            },
+                            ExpressionAttributeNames: {
+                                "#dst": "deviceState",
+                                "#llog": "lastLoginDate"
+                            },
+                            ExpressionAttributeValues: {
+                                ":dst": {
+                                    S: createDeviceInput.deviceState
+                                },
+                                ":llog": {
+                                    S: createDeviceInput.lastLoginDate!
+                                }
+                            },
+                            UpdateExpression: "SET #dst = :dst, #llog = :llog",
+                            ReturnValues: "UPDATED_NEW"
+                        })).then(_ => {
+                            // return the stored physical device object
+                            return {
+                                data: createDeviceInput as PushDevice
+                            }
+                        }) :
+                        {
+                            errorMessage: `Unexpected error while Inactivating existing devices with same push token!`,
+                            errorType: UserDeviceErrorType.UnexpectedError
+                        }
+                })
             }
         } else {
             /**

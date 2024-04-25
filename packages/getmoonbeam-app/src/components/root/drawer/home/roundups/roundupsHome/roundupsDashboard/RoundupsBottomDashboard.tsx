@@ -32,43 +32,44 @@ export const RoundupsBottomDashboard = (props: {
     // constants used to keep track of shared states
     const [showRoundupTransactionsBottomSheet,] = useRecoilState(showRoundupTransactionBottomSheetState);
     // const sortedRoundupTransactionData = useRecoilValue(sortedRoundupTransactionDataState);
-    const sortedRoundupTransactionData = [{
-        accountId: "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
-        availableRoundupAmount: 0,
-        brandId: "O5W5j4dN9OR3E6ypQmjdkWZZRoXEzVMz2ByWM",
-        category: "19046000",
-        categoryLogoURL: "https://plaid-category-icons.plaid.com/PFC_GENERAL_MERCHANDISE.png",
-        createdAt: "2023-09-24T11:01:01Z",
-        creditedRoundupAmount: 0,
-        currencyCode: CurrencyCodeType.Usd,
-        id: "moonbeam_user_id",
-        memberId: "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp", // member id = account id ?
-        pendingRoundupAmount: 0.77,
-        plaidTransactionStatus: PlaidTransactionsStatus.Added,
-        storeId: "O5W5j4dN9OR3E6ypQmjdkWZZRoXEzVMz2ByWM",
-        storeLocation: {
-            addressLine: "13425 Community Rd",
-            city: "Poway",
-            countryCode: "US",
-            latitude: "32.959068",
-            longitude: "-117.037666",
-            onlineStore: false,
-            region: "CA",
-            storeNumber: "1700",
-            zipCode: "92064"
+    const sortedRoundupTransactionData = [
+        {
+            accountId: "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
+            availableRoundupAmount: 0,
+            brandId: "O5W5j4dN9OR3E6ypQmjdkWZZRoXEzVMz2ByWM",
+            category: "19046000",
+            categoryLogoURL: "https://plaid-category-icons.plaid.com/PFC_GENERAL_MERCHANDISE.png",
+            createdAt: "2023-09-24T11:01:01Z",
+            creditedRoundupAmount: 0,
+            currencyCode: CurrencyCodeType.Usd,
+            id: "moonbeam_user_id",
+            memberId: "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp", // member id = account id ?
+            pendingRoundupAmount: 0.77,
+            plaidTransactionStatus: PlaidTransactionsStatus.Added,
+            storeId: "O5W5j4dN9OR3E6ypQmjdkWZZRoXEzVMz2ByWM",
+            storeLocation: {
+                addressLine: "13425 Community Rd",
+                city: "Poway",
+                countryCode: "US",
+                latitude: "32.959068",
+                longitude: "-117.037666",
+                onlineStore: false,
+                region: "CA",
+                storeNumber: "1700",
+                zipCode: "92064"
+            },
+            timestamp: 1695378890000,
+            totalAmount: 19.23,
+            transactionBrandAddress: "", // get rid of brand address since we got store location
+            transactionBrandLogoUrl: "https://plaid-merchant-logos.plaid.com/walmart_1100.png",
+            transactionBrandName: "Walmart",
+            transactionBrandURLAddress: "https://www.walmart.com",
+            transactionId: "lPNjeW1nR6CDn5okmGQ6hEpMo4lLNoSrzqDje",
+            transactionIsOnline: false,
+            transactionStatus: RoundupTransactionsStatus.Pending,
+            transactionType: TransactionType.Roundup,
+            updatedAt: "2023-09-22T10:34:50Z"
         },
-        timestamp: 1695378890000,
-        totalAmount: 19.23,
-        transactionBrandAddress: "", // get rid of brand address since we got store location
-        transactionBrandLogoUrl: "https://plaid-merchant-logos.plaid.com/walmart_1100.png",
-        transactionBrandName: "Walmart",
-        transactionBrandURLAddress: "https://www.walmart.com",
-        transactionId: "lPNjeW1nR6CDn5okmGQ6hEpMo4lLNoSrzqDje",
-        transactionIsOnline: false,
-        transactionStatus: RoundupTransactionsStatus.Pending,
-        transactionType: TransactionType.Roundup,
-        updatedAt: "2023-09-22T10:34:50Z"
-    },
         {
             accountId: "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
             availableRoundupAmount: 0,
@@ -84,23 +85,44 @@ export const RoundupsBottomDashboard = (props: {
             plaidTransactionStatus: PlaidTransactionsStatus.Added,
             storeId: "O5W5j4dN9OR3E6ypQmjdkWZZRoXEzVMz2ByWM",
             storeLocation: {
-                addressLine: "13425 Community Rd",
-                city: "Poway",
-                countryCode: "US",
-                latitude: "32.959068",
-                longitude: "-117.037666",
-                onlineStore: false,
-                region: "CA",
-                storeNumber: "1700",
-                zipCode: "92064"
+                onlineStore: true
             },
             timestamp: 1695378890000,
             totalAmount: 23.07,
             transactionBrandAddress: "", // get rid of brand address since we got store location
-            transactionBrandLogoUrl: "https://plaid-merchant-logos.plaid.com/walmart_1100.png",
-            transactionBrandName: "Walmart",
-            transactionBrandURLAddress: "https://www.walmart.com",
+            transactionBrandLogoUrl: "https://plaid-merchant-logos.plaid.com/burger_king_155.png",
+            transactionBrandName: "Burger King",
+            transactionBrandURLAddress: "https://www.burgerking.com",
             transactionId: "lPNjeW1nR6CDn5okmGQ6hEpMo4lLNoSrzqDjes",
+            transactionIsOnline: true,
+            transactionStatus: RoundupTransactionsStatus.Pending,
+            transactionType: TransactionType.Roundup,
+            updatedAt: "2023-09-22T10:34:50Z"
+        },
+        {
+            accountId: "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp",
+            availableRoundupAmount: 0,
+            brandId: "O5W5j4dN9OR3E6ypQmjdkWZZRoXEzVMz2ByWM",
+            category: "19046000",
+            categoryLogoURL: "https://plaid-category-icons.plaid.com/PFC_GENERAL_MERCHANDISE.png",
+            createdAt: "2023-09-24T11:01:01Z",
+            creditedRoundupAmount: 0,
+            currencyCode: CurrencyCodeType.Usd,
+            id: "moonbeam_user_id",
+            memberId: "BxBXxLj1m4HMXBm9WZZmCWVbPjX16EHwv99vp", // member id = account id ?
+            pendingRoundupAmount: 0.85,
+            plaidTransactionStatus: PlaidTransactionsStatus.Added,
+            storeId: "O5W5j4dN9OR3E6ypQmjdkWZZRoXEzVMz2ByWM",
+            storeLocation: {
+                onlineStore: true
+            },
+            timestamp: 1695378890000,
+            totalAmount: 15.15,
+            transactionBrandAddress: "", // get rid of brand address since we got store location
+            transactionBrandLogoUrl: "https://plaid-counterparty-logos.plaid.com/doordash_1.png",
+            transactionBrandName: "DoorDash",
+            transactionBrandURLAddress: "https://www.doordash.com",
+            transactionId: "lPNjeW1nR6CDn5okmGQ6hEpMo4lLNoSrzqDjess",
             transactionIsOnline: true,
             transactionStatus: RoundupTransactionsStatus.Pending,
             transactionType: TransactionType.Roundup,

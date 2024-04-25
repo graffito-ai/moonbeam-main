@@ -108,7 +108,7 @@ export const Home = ({navigation}: HomeProps) => {
                     <HomeTabStack.Navigator
                         initialRouteName={bottomBarNavigation === null ? "DashboardController" : (bottomBarNavigation.getState().index === 0 ? "DashboardController" : (bottomBarNavigation.getState().index === 1 ? "Roundups" : (bottomBarNavigation.getState().index === 2) ?  "Marketplace" : (bottomBarNavigation.getState().index === 3 ? "Cards" : "Services")))}
                         screenOptions={() => ({
-                            tabBarShowLabel: true,
+                            tabBarShowLabel: false,
                             header: () => {
                                 return (<></>)
                             },
