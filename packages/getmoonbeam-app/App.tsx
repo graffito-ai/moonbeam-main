@@ -538,6 +538,8 @@ export default function App() {
                     if (foregroundLocationFlag) {
                         triggerBackgroundLocationPermissions().then(() => {
                         });
+                        // tell the application to render
+                        setAppIsReady(true);
                     } else {
                         // tell the application to render
                         setAppIsReady(true);

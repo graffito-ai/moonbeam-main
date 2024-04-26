@@ -73,7 +73,7 @@ export const processLocationUpdates = async (event: SQSEvent): Promise<SQSBatchR
                 offerStates: [OfferState.Active, OfferState.Scheduled],
                 pageNumber: 1,
                 pageSize: 1,
-                radius: 250, // search within 250 meters
+                radius: 1000, // search within 1 km
                 radiusIncludeOnlineStores: false,
                 radiusLatitude: Number(locationBasedOfferReminderInput.latitude),
                 radiusLongitude: Number(locationBasedOfferReminderInput.longitude),
@@ -88,12 +88,13 @@ export const processLocationUpdates = async (event: SQSEvent): Promise<SQSBatchR
                     availableNearbyOffersResponse.data.offers.length !== 0) {
                     /**
                      * 2) Call the getNotificationByType Moonbeam AppSync API endpoint, to retrieve the location-based notifications which were
-                     * sent to all users in the past 4 hours.
+                     * sent to all users in the past 7 days.
                      */
                     const endDate = new Date();
 
-                    // set 4 hours before now, 00 min, 00 seconds, 001 milliseconds as the end date
-                    endDate.setHours(new Date().getHours() - 4);
+                    // set 7 days before now, 00 min, 00 seconds, 001 milliseconds as the end date
+                    endDate.setDate(new Date().getDate() - 7)
+                    endDate.setHours(0);
                     endDate.setMinutes(0);
                     endDate.setSeconds(0);
                     endDate.setMilliseconds(0);
