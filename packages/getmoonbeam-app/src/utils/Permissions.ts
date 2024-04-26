@@ -25,10 +25,9 @@ export const requestAppTrackingTransparencyPermission = async () => {
  */
 export const receiveBackgroundLocationUpdates = async (taskName: string): Promise<void> => {
     const isBackgroundUpdatesTaskRegistered = await TaskManager.isTaskRegisteredAsync(taskName);
-    const isBackgroundLocationEnabled = await Location.isBackgroundLocationAvailableAsync();
 
     // if the task is already registered, unregister it first before registering it again
-    if (isBackgroundUpdatesTaskRegistered && isBackgroundLocationEnabled) {
+    if (isBackgroundUpdatesTaskRegistered) {
         await Location.stopLocationUpdatesAsync(taskName);
 
         // used for registering a task in the App.tsx that will capture the Location updates subscription.
