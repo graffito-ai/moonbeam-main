@@ -80,9 +80,9 @@ export const styles = StyleSheet.create({
     roundupsSplashMainTitle: {
         left: wp(1),
         color: '#F2FF5D',
-        fontFamily: 'Saira-Bold',
+        fontFamily: 'Saira-SemiBold',
         bottom: hp(1.75),
-        fontSize: hp(4),
+        fontSize: hp(3.50),
         alignSelf: 'flex-start',
         width: wp(80),
         textAlign: 'left'
@@ -104,10 +104,10 @@ export const styles = StyleSheet.create({
     },
     roundupsOverviewBoxTitle: {
         left: wp(1),
-        color: '#dedede',
+        color: '#a4a3a3',
         fontFamily: 'Raleway-SemiBold',
         top: hp(2.5),
-        fontSize: hp(2.50),
+        fontSize: hp(2.25),
         alignSelf: 'flex-start',
         width: wp(80),
         textAlign: 'left'
@@ -267,5 +267,15 @@ export const styles = StyleSheet.create({
         alignSelf: 'center',
         width: wp(80),
         textAlign: 'left'
+    },
+    accountChoiceTitle: {
+        color: '#F2FF5D',
+        fontFamily: 'Saira-SemiBold',
+        lineHeight: hp(3.5),
+        fontSize: hp(3.00),
+        alignSelf: 'center',
+        width: wp(90),
+        textAlign: 'center',
+        bottom: hp(5)
     },
 });

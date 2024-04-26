@@ -24,6 +24,14 @@ import MoonbeamRoundupsOverview3 from "../../../../../../../assets/moonbeam-roun
 // @ts-ignore
 import MoonbeamRoundupsOverview4 from "../../../../../../../assets/moonbeam-roundups-overview-4.png";
 // @ts-ignore
+import MoonbeamLinking1 from "../../../../../../../assets/moonbeam-bank-linking-1.png";
+// @ts-ignore
+import MoonbeamLinking2 from "../../../../../../../assets/moonbeam-bank-linking-2.png";
+// @ts-ignore
+import MoonbeamLinking3 from "../../../../../../../assets/moonbeam-bank-linking-3.png";
+// @ts-ignore
+import MoonbeamLinking4 from "../../../../../../../assets/moonbeam-bank-linking-4.png";
+// @ts-ignore
 import MoonbeamRoundupsStep1 from "../../../../../../../assets/moonbeam-roundups-step1.png";
 // @ts-ignore
 import MoonbeamRoundupsStep2 from "../../../../../../../assets/moonbeam-roundups-step2.png";
@@ -363,20 +371,20 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                                     <View style={styles.overviewItemView}>
                                         <Image
                                             style={styles.overviewIcon}
-                                            source={MoonbeamRoundupsOverview1}
+                                            source={MoonbeamLinking1}
                                             resizeMethod={"scale"}
                                             resizeMode={"contain"}
                                         />
                                         <Text
                                             numberOfLines={2}
                                             style={styles.bankLinkingOverviewItemText}>
-                                            {"Make sure your have your bank\ninformation handy."}
+                                            {"Make sure you have your bank\ninformation handy."}
                                         </Text>
                                     </View>
                                     <View style={styles.overviewItemView}>
                                         <Image
                                             style={styles.overviewIcon}
-                                            source={MoonbeamRoundupsOverview2}
+                                            source={MoonbeamLinking2}
                                             resizeMethod={"scale"}
                                             resizeMode={"contain"}
                                         />
@@ -389,7 +397,7 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                                     <View style={styles.overviewItemView}>
                                         <Image
                                             style={styles.overviewIcon}
-                                            source={MoonbeamRoundupsOverview3}
+                                            source={MoonbeamLinking3}
                                             resizeMethod={"scale"}
                                             resizeMode={"contain"}
                                         />
@@ -402,7 +410,81 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                                     <View style={styles.overviewItemView}>
                                         <Image
                                             style={styles.overviewIcon}
-                                            source={MoonbeamRoundupsOverview4}
+                                            source={MoonbeamLinking4}
+                                            resizeMethod={"scale"}
+                                            resizeMode={"contain"}
+                                        />
+                                        <Text
+                                            numberOfLines={2}
+                                            style={styles.bankLinkingOverviewItemText}>
+                                            {"We won't start moving money\nuntil you authorize it."}
+                                        </Text>
+                                    </View>
+                                </View>
+                            </>
+                        }
+                        {
+                            roundupsSplashStepNumber === 7 &&
+                            <>
+                                <Image
+                                    style={styles.deltaOneImage}
+                                    source={MoonbeamBankLinking}
+                                    resizeMode={"contain"}
+                                />
+                                <Text
+                                    numberOfLines={1}
+                                    style={styles.accountChoiceTitle}>
+                                    {"Choose a Checking Account"}
+                                </Text>
+                                <Text
+                                    numberOfLines={3}
+                                    style={styles.bankLinkingSubTitle}>
+                                    {"This account will be used for depositing your savings and withdrawing your roundups."}
+                                </Text>
+                                <View style={styles.roundupsOverviewBox}>
+                                    <View style={styles.overviewItemView}>
+                                        <Image
+                                            style={styles.overviewIcon}
+                                            source={MoonbeamLinking1}
+                                            resizeMethod={"scale"}
+                                            resizeMode={"contain"}
+                                        />
+                                        <Text
+                                            numberOfLines={2}
+                                            style={styles.bankLinkingOverviewItemText}>
+                                            {"Make sure your have your bank\ninformation handy."}
+                                        </Text>
+                                    </View>
+                                    <View style={styles.overviewItemView}>
+                                        <Image
+                                            style={styles.overviewIcon}
+                                            source={MoonbeamLinking2}
+                                            resizeMethod={"scale"}
+                                            resizeMode={"contain"}
+                                        />
+                                        <Text
+                                            numberOfLines={2}
+                                            style={styles.bankLinkingOverviewItemText}>
+                                            {"Connect securely with Plaid.\nYour data is fully encrypted."}
+                                        </Text>
+                                    </View>
+                                    <View style={styles.overviewItemView}>
+                                        <Image
+                                            style={styles.overviewIcon}
+                                            source={MoonbeamLinking3}
+                                            resizeMethod={"scale"}
+                                            resizeMode={"contain"}
+                                        />
+                                        <Text
+                                            numberOfLines={2}
+                                            style={styles.bankLinkingOverviewItemText}>
+                                            {"We do not have access to\nyour bank login information."}
+                                        </Text>
+                                    </View>
+                                    <View style={styles.overviewItemView}>
+                                        <Image
+                                            style={styles.overviewIcon}
+                                            source={MoonbeamLinking4}
                                             resizeMethod={"scale"}
                                             resizeMode={"contain"}
                                         />
@@ -417,7 +499,7 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                         }
                     </View>
                     {
-                        (roundupsSplashStepNumber === 5 || roundupsSplashStepNumber === 6) &&
+                        (roundupsSplashStepNumber === 5 || roundupsSplashStepNumber === 6 || roundupsSplashStepNumber === 7) &&
                         <View style={styles.roundupsSplashDisclaimerView}>
                             <Paragraph
                                 numberOfLines={roundupsSplashStepNumber === 5 ? 2 : 5}
@@ -425,8 +507,9 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                                 {
                                     roundupsSplashStepNumber === 5
                                         ? "Moonbeam will deduct a $2.99 monthly membership fee after your free trial ends from your connected account."
-                                        : "Backed by FDIC-insured Plaid partner banks"
-                                        // : `I agree that starting ${new Date(new Date().setDate(new Date().getDate() + 30)).toLocaleDateString()} Moonbeam will deduct a $2.99/month fee for my Delta One plan from the linked billing account, which can be found on my Accounts page.\nCancel anytime on the Savings Accounts page.`
+                                        : roundupsSplashStepNumber === 6
+                                            ? "Backed by FDIC-insured Plaid partner banks"
+                                            : `I agree that starting ${new Date(new Date().setDate(new Date().getDate() + 30)).toLocaleDateString()} Moonbeam will deduct a $2.99/month fee for my Delta One plan from the linked billing account, which can be found on my Accounts page. Cancel anytime from the Savings Accounts page.`
                                 }
                             </Paragraph>
                         </View>
@@ -439,9 +522,9 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                                 if (roundupsSplashStepNumber < 5) {
                                     setRoundupsSplashStepNumber(5);
                                 }
-                                // once we get to Step 5, we have manual steps that we follow
-                                if (roundupsSplashStepNumber === 5) {
-                                    setRoundupsSplashStepNumber(6);
+                                // once we get past Step 5, we have manual steps that we follow
+                                if (roundupsSplashStepNumber >= 5) {
+                                    setRoundupsSplashStepNumber(roundupsSplashStepNumber + 1);
                                     // // navigate to the RoundupsHome screen
                                     // navigation.navigate('RoundupsHome', {});
                                     // // set the Roundups activation state accordingly
@@ -453,8 +536,10 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                                 style={styles.getStartedButtonText}>{roundupsSplashStepNumber === 5
                                     ? "Start the 30 day Free Trial"
                                     : roundupsSplashStepNumber === 6
-                                        ? "Link Account"
-                                        : "Get Started"}</Text>
+                                        ? "Link Your Bank"
+                                        : roundupsSplashStepNumber === 7
+                                            ? "Proceed with Account"
+                                            : "Get Started"}</Text>
                         </TouchableOpacity>
                     }
                 </GestureRecognizer>
