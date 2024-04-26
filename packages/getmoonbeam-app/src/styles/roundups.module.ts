@@ -20,7 +20,7 @@ export const styles = StyleSheet.create({
         elevation: 15,
         borderRadius: 10
     },
-    nextButton: {
+    learnMoreButton: {
         backgroundColor: '#F2FF5D',
         width: wp(95),
         height: hp(5),
@@ -30,39 +30,19 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center'
     },
-    nextButtonText: {
-        color: '#1e1e21',
-        fontFamily: 'Saira-Medium',
-        fontSize: hp(2.3),
-        marginTop: hp(1.3),
+    getStartedButton: {
+        backgroundColor: '#F2FF5D',
+        width: wp(95),
+        height: hp(5),
+        flexDirection: 'row',
+        flexWrap: 'wrap',
         alignSelf: 'center',
-        textAlign: 'center'
-    },
-    buttonLeft: {
-        position: 'absolute',
-        backgroundColor: '#F2FF5D',
-        width: wp(45),
-        height: hp(5),
-        flexDirection: 'row',
-        flexWrap: 'wrap',
         alignItems: 'center',
         justifyContent: 'center',
-        left: wp(2),
-        bottom: hp(0),
+        position: "absolute",
+        bottom: hp(2)
     },
-    buttonRight: {
-        position: 'absolute',
-        backgroundColor: '#F2FF5D',
-        width: wp(45),
-        height: hp(5),
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        justifyContent: 'center',
-        left: wp(50),
-        bottom: hp(0),
-    },
-    buttonText: {
+    getStartedButtonText: {
         color: '#1e1e21',
         fontFamily: 'Saira-Medium',
         fontSize: hp(2.3),
@@ -76,7 +56,7 @@ export const styles = StyleSheet.create({
         width: wp(96),
         flexDirection: 'row',
         justifyContent: 'space-between',
-        top: hp(0.5)
+        bottom: hp(0.5)
     },
     roundupsSplashStepActive: {
         alignSelf: 'center',
@@ -101,7 +81,7 @@ export const styles = StyleSheet.create({
         left: wp(1),
         color: '#F2FF5D',
         fontFamily: 'Saira-Bold',
-        top: hp(0.5),
+        bottom: hp(1.75),
         fontSize: hp(4),
         alignSelf: 'flex-start',
         width: wp(80),
@@ -115,18 +95,18 @@ export const styles = StyleSheet.create({
         fontSize: hp(1.60),
         alignSelf: 'flex-start',
         width: wp(95),
-        textAlign: 'left'
+        textAlign: 'center'
     },
     roundupsSplashDisclaimerView: {
         width: wp(100),
         position: 'absolute',
-        bottom: hp(11)
+        bottom: hp(8)
     },
     roundupsOverviewBoxTitle: {
         left: wp(1),
         color: '#dedede',
         fontFamily: 'Raleway-SemiBold',
-        top: hp(5),
+        top: hp(2.5),
         fontSize: hp(2.50),
         alignSelf: 'flex-start',
         width: wp(80),
@@ -153,7 +133,7 @@ export const styles = StyleSheet.create({
         textAlign: 'left'
     },
     roundupsOverviewBox: {
-        top: hp(6),
+        top: hp(3.5),
         height: hp(30),
         width: wp(95),
         backgroundColor: '#2b2b2f',
@@ -182,7 +162,7 @@ export const styles = StyleSheet.create({
         textAlign: 'left'
     },
     roundupsSplash1: {
-        top: hp(2.5),
+        bottom: hp(0.5),
         height: hp(25),
         width: wp(55),
         alignSelf: 'center'
@@ -228,9 +208,9 @@ export const styles = StyleSheet.create({
     },
     deltaOnePerksTitle: {
         color: '#FFFFFF',
-        lineHeight: hp(2.75),
+        lineHeight: hp(2.95),
         fontFamily: 'Saira-SemiBold',
-        fontSize: hp(2.40),
+        fontSize: hp(2.60),
         alignSelf: 'center',
         width: wp(95),
         textAlign: 'center',
@@ -259,5 +239,33 @@ export const styles = StyleSheet.create({
         width: hp(44),
         flexDirection: 'row',
         left: wp(3)
-    }
+    },
+    bankLinkingTitle: {
+        color: '#F2FF5D',
+        fontFamily: 'Saira-SemiBold',
+        fontSize: hp(3.00),
+        alignSelf: 'center',
+        width: wp(80),
+        textAlign: 'center',
+        bottom: hp(5)
+    },
+    bankLinkingSubTitle: {
+        color: '#FFFFFF',
+        lineHeight: hp(2.5),
+        fontFamily: 'Saira-SemiBold',
+        fontSize: hp(1.80),
+        alignSelf: 'center',
+        width: wp(95),
+        textAlign: 'center',
+        bottom: hp(3.5)
+    },
+    bankLinkingOverviewItemText: {
+        left: wp(9),
+        color: '#FFFFFF',
+        fontFamily: 'Raleway-Medium',
+        fontSize: hp(1.85),
+        alignSelf: 'center',
+        width: wp(80),
+        textAlign: 'left'
+    },
 });

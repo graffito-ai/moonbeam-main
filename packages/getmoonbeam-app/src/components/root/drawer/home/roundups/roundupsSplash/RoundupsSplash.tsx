@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {RoundupsSplashProps} from "../../../../../../models/props/RoundupsProps";
 import {styles} from "../../../../../../styles/roundups.module";
 import {Image, Text, TouchableOpacity, View} from "react-native";
-import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
+import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Icon} from "@rneui/base";
 import {roundupsActiveState} from "../../../../../../recoil/RoundupsAtom";
@@ -32,7 +32,11 @@ import MoonbeamRoundupsStep3 from "../../../../../../../assets/moonbeam-roundups
 // @ts-ignore
 import MoonbeamRoundupsStep4 from "../../../../../../../assets/moonbeam-roundups-step4.png";
 // @ts-ignore
+import MoonbeamBankLinking from "../../../../../../../assets/moonbeam-bank-linking-step.png";
+// @ts-ignore
 import MoonbeamDeltaOneMembership from "../../../../../../../assets/moonbeam-delta-one-membership.png"
+import GestureRecognizer from 'react-native-swipe-gestures';
+import {Paragraph} from "react-native-paper";
 
 /**
  * RoundupsSplash component.
@@ -68,330 +72,392 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
     return (
         <>
             <SafeAreaView style={styles.roundupsSplashView}>
-                <TouchableOpacity style={styles.closeIcon}>
-                    <Icon
-                        type={"antdesign"}
-                        name={"close"}
-                        size={hp(4.15)}
-                        color={'#FFFFFF'}
-                        onPress={async () => {
-                            // reset the step number
-                            setRoundupsSplashStepNumber(0);
-                            /**
-                             * if the roundups product is active, then we go back to the appropriate screen in the bottom bar,
-                             * otherwise we go back to the Roundups Home
-                             */
-                            if (areRoundupsActive) {
-                                navigation.goBack();
-                            } else {
-                                setAppDrawerHeaderShown(true);
-                                setBannerShown(true);
-                                setDrawerSwipeEnabled(true);
-                                setBottomTabShown(true);
-                                setBottomTabNeedsShowing(true);
-                                bottomBarNavigation && bottomBarNavigation.goBack();
-                            }
-                        }}
-                    />
-                </TouchableOpacity>
-                {
-                    roundupsSplashStepNumber < 5 &&
-                    <View style={styles.roundupsSplashStepView}>
-                        <View
-                            style={roundupsSplashStepNumber === 0 ? styles.roundupsSplashStepActive : styles.roundupsSplashStepInactive}/>
-                        <View
-                            style={roundupsSplashStepNumber === 1 ? styles.roundupsSplashStepActive : styles.roundupsSplashStepInactive}/>
-                        <View
-                            style={roundupsSplashStepNumber === 2 ? styles.roundupsSplashStepActive : styles.roundupsSplashStepInactive}/>
-                        <View
-                            style={roundupsSplashStepNumber === 3 ? styles.roundupsSplashStepActive : styles.roundupsSplashStepInactive}/>
-                        <View
-                            style={roundupsSplashStepNumber === 4 ? styles.roundupsSplashStepActive : styles.roundupsSplashStepInactive}/>
-                        <View
-                            style={roundupsSplashStepNumber === 5 ? styles.roundupsSplashStepActive : styles.roundupsSplashStepInactive}/>
-                    </View>
-                }
-                <View style={styles.roundupsContentView}>
-                    {
-                        roundupsSplashStepNumber === 0 &&
-                        <>
-                            <Text
-                                numberOfLines={1}
-                                style={styles.roundupsSplashMainTitle}>
-                                Savings Objectives
-                            </Text>
-                            <Image
-                                style={styles.roundupsSplash1}
-                                source={RoundupsSplash1}
-                                resizeMode={"contain"}
-                            />
-                            <Text
-                                numberOfLines={1}
-                                style={styles.roundupsOverviewBoxTitle}>
-                                How this works
-                            </Text>
-                            <View style={styles.roundupsOverviewBox}>
-                                <View style={styles.overviewItemView}>
-                                    <Image
-                                        style={styles.overviewIcon}
-                                        source={MoonbeamRoundupsOverview1}
-                                        resizeMethod={"scale"}
-                                        resizeMode={"contain"}
-                                    />
-                                    <Text
-                                        numberOfLines={1}
-                                        style={styles.overviewItemText}>
-                                        Enroll an account
-                                    </Text>
-                                </View>
-                                <View style={styles.overviewItemView}>
-                                    <Image
-                                        style={styles.overviewIcon}
-                                        source={MoonbeamRoundupsOverview2}
-                                        resizeMethod={"scale"}
-                                        resizeMode={"contain"}
-                                    />
-                                    <Text
-                                        numberOfLines={1}
-                                        style={styles.overviewItemText}>
-                                        Set your Savings Objective
-                                    </Text>
-                                </View>
-                                <View style={styles.overviewItemView}>
-                                    <Image
-                                        style={styles.overviewIcon}
-                                        source={MoonbeamRoundupsOverview3}
-                                        resizeMethod={"scale"}
-                                        resizeMode={"contain"}
-                                    />
-                                    <Text
-                                        numberOfLines={1}
-                                        style={styles.overviewItemText}>
-                                        Shop like you normally would
-                                    </Text>
-                                </View>
-                                <View style={styles.overviewItemView}>
-                                    <Image
-                                        style={styles.overviewIcon}
-                                        source={MoonbeamRoundupsOverview4}
-                                        resizeMethod={"scale"}
-                                        resizeMode={"contain"}
-                                    />
-                                    <Text
-                                        numberOfLines={1}
-                                        style={styles.overviewItemText}>
-                                        Automatically save with roundups
-                                    </Text>
-                                </View>
-                            </View>
-                        </>
-                    }
-                    {
-                        roundupsSplashStepNumber === 1 &&
-                        <>
-                            <Text
-                                numberOfLines={1}
-                                style={styles.roundupsSplashMainTitle}>
-                                Link
-                            </Text>
-                            <Text
-                                style={styles.roundupsStepContentText}>
-                                {"First, link your primary bank account to Moonbeam.\n"}
-                            </Text>
-                            <Text
-                                style={styles.roundupsStepContentText}>
-                                <Text style={styles.roundupsStepContentTextHighlighted}>Pro-tip: </Text>
-                                Select a checking account that is linked to your debit card in order to save more!
-                            </Text>
-                            <Image
-                                style={styles.roundupsStepImage}
-                                source={MoonbeamRoundupsStep1}
-                                resizeMode={"contain"}
-                            />
-                        </>
-                    }
-                    {
-                        roundupsSplashStepNumber === 2 &&
-                        <>
-                            <Text
-                                numberOfLines={1}
-                                style={styles.roundupsSplashMainTitle}>
-                                Plan
-                            </Text>
-                            <Text
-                                style={styles.roundupsStepContentText}>
-                                {"Next, set a Savings Objective that will help you stay on track or select from our pre-defined objectives.\n"}
-                            </Text>
-                            <Image
-                                style={styles.roundupsStepImage}
-                                source={MoonbeamRoundupsStep2}
-                                resizeMode={"contain"}
-                            />
-                        </>
-                    }
-                    {
-                        roundupsSplashStepNumber === 3 &&
-                        <>
-                            <Text
-                                numberOfLines={1}
-                                style={styles.roundupsSplashMainTitle}>
-                                Spend
-                            </Text>
-                            <Text
-                                style={styles.roundupsStepContentText}>
-                                {"Shop or pay off bills. Spend as you normally would and we’ll keep track of your transactions.\n"}
-                            </Text>
-                            <Image
-                                style={styles.roundupsStepImage}
-                                source={MoonbeamRoundupsStep3}
-                                resizeMode={"contain"}
-                            />
-                        </>
-                    }
-                    {
-                        roundupsSplashStepNumber === 4 &&
-                        <>
-                            <Text
-                                numberOfLines={1}
-                                style={styles.roundupsSplashMainTitle}>
-                                Save
-                            </Text>
-                            <Text
-                                style={styles.roundupsStepContentText}>
-                                {"Finally, we’ll roundup your transactions to the nearest dollar to help meet your Savings Objective.\n"}
-                            </Text>
-                            <Image
-                                style={styles.roundupsStepImage4}
-                                source={MoonbeamRoundupsStep4}
-                                resizeMode={"contain"}
-                            />
-                        </>
-                    }
-                    {
-                        roundupsSplashStepNumber === 5 &&
-                        <>
-                            <Image
-                                style={styles.deltaOneImage}
-                                source={MoonbeamDeltaOneMembership}
-                                resizeMode={"contain"}
-                            />
-                            <Text
-                                numberOfLines={1}
-                                style={styles.deltaOneTitle}>
-                                Delta One
-                            </Text>
-                            <Text
-                                numberOfLines={1}
-                                style={styles.deltaOnePrice}>
-                                $2.99/month
-                            </Text>
-                            <Text
-                                numberOfLines={1}
-                                style={styles.deltaOnePerksTitle}>
-                                First 30 days free!
-                            </Text>
-                            <View style={styles.deltaOnePerksView}>
-                                <View style={styles.deltaOneIndividualPerk}>
-                                    <Text
-                                        numberOfLines={1}
-                                        style={styles.firstClassPerk}>
-                                        ✅   Seamless savings through Auto-Renewal.
-                                    </Text>
-                                </View>
-                                <View style={[styles.deltaOneIndividualPerk, {bottom: hp(5)}]}>
-                                    <Text
-                                        numberOfLines={1}
-                                        style={styles.firstClassPerk}>
-                                        ✅   Get notified when your trial ends.
-                                    </Text>
-                                </View>
-                                <View style={[styles.deltaOneIndividualPerk, {bottom: hp(9.5)}]}>
-                                    <Text
-                                        numberOfLines={1}
-                                        style={styles.firstClassPerk}>
-                                        ✅   No upfront charges. Cancel anytime.
-                                    </Text>
-                                </View>
-                            </View>
-                        </>
-                    }
-                </View>
-                {
-                    roundupsSplashStepNumber === 5 &&
-                    <View style={styles.roundupsSplashDisclaimerView}>
-                        <Text
-                            numberOfLines={2}
-                            style={styles.roundupsSplashDisclaimerText}>
-                            Moonbeam will deduct a $2.99 monthly membership fee after your free trial ends from your connected account.
-                        </Text>
-                    </View>
-                }
-                <View style={[{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    position: 'absolute',
-                    bottom: hp(5),
-                }, (roundupsSplashStepNumber === 0 || roundupsSplashStepNumber === 5) ? {alignSelf: 'center'} : {
-                    alignSelf: 'center',
-                    left: wp(12)
-                }]}>
-                    {
-                        (roundupsSplashStepNumber === 0 || roundupsSplashStepNumber === 5) &&
-                        <TouchableOpacity
-                            style={styles.nextButton}
-                            onPress={() => {
-                                // increase the step number all the way to Step 6
-                                if (roundupsSplashStepNumber < 5) {
-                                    setRoundupsSplashStepNumber(roundupsSplashStepNumber + 1);
+                <GestureRecognizer
+                    onSwipeLeft={() => {
+                        // increase the step number all the way to Step 6
+                        if (roundupsSplashStepNumber < 5) {
+                            setRoundupsSplashStepNumber(roundupsSplashStepNumber + 1);
+                        }
+                    }}
+                    onSwipeRight={() => {
+                        // decrease the step number all the way to Step 0, besides for last Step
+                        if (roundupsSplashStepNumber > 0 && roundupsSplashStepNumber < 5) {
+                            setRoundupsSplashStepNumber(roundupsSplashStepNumber - 1);
+                        }
+                    }}
+                    style={{flex: 1}}
+                >
+                    <TouchableOpacity style={styles.closeIcon}>
+                        <Icon
+                            type={roundupsSplashStepNumber < 6 ? "antdesign" : "feather"}
+                            name={roundupsSplashStepNumber < 6 ? "close" : "chevron-left"}
+                            size={hp(4.15)}
+                            color={'#FFFFFF'}
+                            onPress={async () => {
+                                // for Steps prior to Step 6, we just allow users to go back to the Home Screen
+                                if (roundupsSplashStepNumber < 6) {
+                                    // reset the step number
+                                    setRoundupsSplashStepNumber(0);
+                                    /**
+                                     * if the roundups product is active, then we go back to the appropriate screen in the bottom bar,
+                                     * otherwise we go back to the Roundups Home
+                                     */
+                                    if (areRoundupsActive) {
+                                        navigation.goBack();
+                                    } else {
+                                        setAppDrawerHeaderShown(true);
+                                        setBannerShown(true);
+                                        setDrawerSwipeEnabled(true);
+                                        setBottomTabShown(true);
+                                        setBottomTabNeedsShowing(true);
+                                        bottomBarNavigation && bottomBarNavigation.goBack();
+                                    }
                                 }
-                                // for the last step, once we click Get Started
+                                // for Steps after Step 6, we will just allow users to go one step back
+                                if (roundupsSplashStepNumber >= 6) {
+                                    setRoundupsSplashStepNumber(roundupsSplashStepNumber - 1);
+                                }
+                            }}
+                        />
+                    </TouchableOpacity>
+                    {
+                        roundupsSplashStepNumber < 5 &&
+                        <View style={styles.roundupsSplashStepView}>
+                            <View
+                                style={roundupsSplashStepNumber === 0 ? styles.roundupsSplashStepActive : styles.roundupsSplashStepInactive}/>
+                            <View
+                                style={roundupsSplashStepNumber === 1 ? styles.roundupsSplashStepActive : styles.roundupsSplashStepInactive}/>
+                            <View
+                                style={roundupsSplashStepNumber === 2 ? styles.roundupsSplashStepActive : styles.roundupsSplashStepInactive}/>
+                            <View
+                                style={roundupsSplashStepNumber === 3 ? styles.roundupsSplashStepActive : styles.roundupsSplashStepInactive}/>
+                            <View
+                                style={roundupsSplashStepNumber === 4 ? styles.roundupsSplashStepActive : styles.roundupsSplashStepInactive}/>
+                            <View
+                                style={roundupsSplashStepNumber === 5 ? styles.roundupsSplashStepActive : styles.roundupsSplashStepInactive}/>
+                        </View>
+                    }
+                    <View style={styles.roundupsContentView}>
+                        {
+                            roundupsSplashStepNumber === 0 &&
+                            <>
+                                <Text
+                                    numberOfLines={1}
+                                    style={styles.roundupsSplashMainTitle}>
+                                    Savings Objectives
+                                </Text>
+                                <Image
+                                    style={styles.roundupsSplash1}
+                                    source={RoundupsSplash1}
+                                    resizeMode={"contain"}
+                                />
+                                <Text
+                                    numberOfLines={1}
+                                    style={styles.roundupsOverviewBoxTitle}>
+                                    How this works
+                                </Text>
+                                <View style={styles.roundupsOverviewBox}>
+                                    <View style={styles.overviewItemView}>
+                                        <Image
+                                            style={styles.overviewIcon}
+                                            source={MoonbeamRoundupsOverview1}
+                                            resizeMethod={"scale"}
+                                            resizeMode={"contain"}
+                                        />
+                                        <Text
+                                            numberOfLines={1}
+                                            style={styles.overviewItemText}>
+                                            Enroll an account
+                                        </Text>
+                                    </View>
+                                    <View style={styles.overviewItemView}>
+                                        <Image
+                                            style={styles.overviewIcon}
+                                            source={MoonbeamRoundupsOverview2}
+                                            resizeMethod={"scale"}
+                                            resizeMode={"contain"}
+                                        />
+                                        <Text
+                                            numberOfLines={1}
+                                            style={styles.overviewItemText}>
+                                            Set your Savings Objective
+                                        </Text>
+                                    </View>
+                                    <View style={styles.overviewItemView}>
+                                        <Image
+                                            style={styles.overviewIcon}
+                                            source={MoonbeamRoundupsOverview3}
+                                            resizeMethod={"scale"}
+                                            resizeMode={"contain"}
+                                        />
+                                        <Text
+                                            numberOfLines={1}
+                                            style={styles.overviewItemText}>
+                                            Shop like you normally would
+                                        </Text>
+                                    </View>
+                                    <View style={styles.overviewItemView}>
+                                        <Image
+                                            style={styles.overviewIcon}
+                                            source={MoonbeamRoundupsOverview4}
+                                            resizeMethod={"scale"}
+                                            resizeMode={"contain"}
+                                        />
+                                        <Text
+                                            numberOfLines={1}
+                                            style={styles.overviewItemText}>
+                                            Automatically save with roundups
+                                        </Text>
+                                    </View>
+                                </View>
+                            </>
+                        }
+                        {
+                            roundupsSplashStepNumber === 1 &&
+                            <>
+                                <Text
+                                    numberOfLines={1}
+                                    style={styles.roundupsSplashMainTitle}>
+                                    Link
+                                </Text>
+                                <Text
+                                    style={styles.roundupsStepContentText}>
+                                    {"First, link your primary bank account to Moonbeam.\n"}
+                                </Text>
+                                <Text
+                                    style={styles.roundupsStepContentText}>
+                                    <Text style={styles.roundupsStepContentTextHighlighted}>Pro-tip: </Text>
+                                    Select a checking account that is linked to your debit card in order to save more!
+                                </Text>
+                                <Image
+                                    style={styles.roundupsStepImage}
+                                    source={MoonbeamRoundupsStep1}
+                                    resizeMode={"contain"}
+                                />
+                            </>
+                        }
+                        {
+                            roundupsSplashStepNumber === 2 &&
+                            <>
+                                <Text
+                                    numberOfLines={1}
+                                    style={styles.roundupsSplashMainTitle}>
+                                    Plan
+                                </Text>
+                                <Text
+                                    style={styles.roundupsStepContentText}>
+                                    {"Next, set a Savings Objective that will help you stay on track or select from our pre-defined objectives.\n"}
+                                </Text>
+                                <Image
+                                    style={styles.roundupsStepImage}
+                                    source={MoonbeamRoundupsStep2}
+                                    resizeMode={"contain"}
+                                />
+                            </>
+                        }
+                        {
+                            roundupsSplashStepNumber === 3 &&
+                            <>
+                                <Text
+                                    numberOfLines={1}
+                                    style={styles.roundupsSplashMainTitle}>
+                                    Spend
+                                </Text>
+                                <Text
+                                    style={styles.roundupsStepContentText}>
+                                    {"Shop or pay off bills. Spend as you normally would and we’ll keep track of your transactions.\n"}
+                                </Text>
+                                <Image
+                                    style={styles.roundupsStepImage}
+                                    source={MoonbeamRoundupsStep3}
+                                    resizeMode={"contain"}
+                                />
+                            </>
+                        }
+                        {
+                            roundupsSplashStepNumber === 4 &&
+                            <>
+                                <Text
+                                    numberOfLines={1}
+                                    style={styles.roundupsSplashMainTitle}>
+                                    Save
+                                </Text>
+                                <Text
+                                    style={styles.roundupsStepContentText}>
+                                    {"Finally, we’ll roundup your transactions to the nearest dollar to help meet your Savings Objective.\n"}
+                                </Text>
+                                <Image
+                                    style={styles.roundupsStepImage4}
+                                    source={MoonbeamRoundupsStep4}
+                                    resizeMode={"contain"}
+                                />
+                            </>
+                        }
+                        {
+                            roundupsSplashStepNumber === 5 &&
+                            <>
+                                <Image
+                                    style={styles.deltaOneImage}
+                                    source={MoonbeamDeltaOneMembership}
+                                    resizeMode={"contain"}
+                                />
+                                <Text
+                                    numberOfLines={1}
+                                    style={styles.deltaOneTitle}>
+                                    Delta One
+                                </Text>
+                                <Text
+                                    numberOfLines={1}
+                                    style={styles.deltaOnePrice}>
+                                    $2.99/month
+                                </Text>
+                                <Text
+                                    numberOfLines={1}
+                                    style={styles.deltaOnePerksTitle}>
+                                    First 30 days free!
+                                </Text>
+                                <View style={styles.deltaOnePerksView}>
+                                    <View style={styles.deltaOneIndividualPerk}>
+                                        <Text
+                                            numberOfLines={1}
+                                            style={styles.firstClassPerk}>
+                                            ✅ Seamless savings through Auto-Renewal.
+                                        </Text>
+                                    </View>
+                                    <View style={[styles.deltaOneIndividualPerk, {bottom: hp(5)}]}>
+                                        <Text
+                                            numberOfLines={1}
+                                            style={styles.firstClassPerk}>
+                                            ✅ Get notified when your trial ends.
+                                        </Text>
+                                    </View>
+                                    <View style={[styles.deltaOneIndividualPerk, {bottom: hp(9.5)}]}>
+                                        <Text
+                                            numberOfLines={1}
+                                            style={styles.firstClassPerk}>
+                                            ✅ No upfront charges. Cancel anytime.
+                                        </Text>
+                                    </View>
+                                </View>
+                            </>
+                        }
+                        {
+                            roundupsSplashStepNumber === 6 &&
+                            <>
+                                <Image
+                                    style={styles.deltaOneImage}
+                                    source={MoonbeamBankLinking}
+                                    resizeMode={"contain"}
+                                />
+                                <Text
+                                    numberOfLines={1}
+                                    style={styles.bankLinkingTitle}>
+                                    Link your Bank Account
+                                </Text>
+                                <Text
+                                    numberOfLines={3}
+                                    style={styles.bankLinkingSubTitle}>
+                                    {"You will need to connect a Checking Account to save more with Moonbeam. It only takes a few minutes."}
+                                </Text>
+                                <View style={styles.roundupsOverviewBox}>
+                                    <View style={styles.overviewItemView}>
+                                        <Image
+                                            style={styles.overviewIcon}
+                                            source={MoonbeamRoundupsOverview1}
+                                            resizeMethod={"scale"}
+                                            resizeMode={"contain"}
+                                        />
+                                        <Text
+                                            numberOfLines={2}
+                                            style={styles.bankLinkingOverviewItemText}>
+                                            {"Make sure your have your bank\ninformation handy."}
+                                        </Text>
+                                    </View>
+                                    <View style={styles.overviewItemView}>
+                                        <Image
+                                            style={styles.overviewIcon}
+                                            source={MoonbeamRoundupsOverview2}
+                                            resizeMethod={"scale"}
+                                            resizeMode={"contain"}
+                                        />
+                                        <Text
+                                            numberOfLines={2}
+                                            style={styles.bankLinkingOverviewItemText}>
+                                            {"Connect securely with Plaid.\nYour data is fully encrypted."}
+                                        </Text>
+                                    </View>
+                                    <View style={styles.overviewItemView}>
+                                        <Image
+                                            style={styles.overviewIcon}
+                                            source={MoonbeamRoundupsOverview3}
+                                            resizeMethod={"scale"}
+                                            resizeMode={"contain"}
+                                        />
+                                        <Text
+                                            numberOfLines={2}
+                                            style={styles.bankLinkingOverviewItemText}>
+                                            {"We do not have access to\nyour bank login information."}
+                                        </Text>
+                                    </View>
+                                    <View style={styles.overviewItemView}>
+                                        <Image
+                                            style={styles.overviewIcon}
+                                            source={MoonbeamRoundupsOverview4}
+                                            resizeMethod={"scale"}
+                                            resizeMode={"contain"}
+                                        />
+                                        <Text
+                                            numberOfLines={2}
+                                            style={styles.bankLinkingOverviewItemText}>
+                                            {"We won't start moving money\nuntil you authorize it."}
+                                        </Text>
+                                    </View>
+                                </View>
+                            </>
+                        }
+                    </View>
+                    {
+                        (roundupsSplashStepNumber === 5 || roundupsSplashStepNumber === 6) &&
+                        <View style={styles.roundupsSplashDisclaimerView}>
+                            <Paragraph
+                                numberOfLines={roundupsSplashStepNumber === 5 ? 2 : 5}
+                                style={styles.roundupsSplashDisclaimerText}>
+                                {
+                                    roundupsSplashStepNumber === 5
+                                        ? "Moonbeam will deduct a $2.99 monthly membership fee after your free trial ends from your connected account."
+                                        : "Backed by FDIC-insured Plaid partner banks"
+                                        // : `I agree that starting ${new Date(new Date().setDate(new Date().getDate() + 30)).toLocaleDateString()} Moonbeam will deduct a $2.99/month fee for my Delta One plan from the linked billing account, which can be found on my Accounts page.\nCancel anytime on the Savings Accounts page.`
+                                }
+                            </Paragraph>
+                        </View>
+                    }
+                    {
+                        <TouchableOpacity
+                            style={styles.getStartedButton}
+                            onPress={() => {
+                                // go straight to Step 6
+                                if (roundupsSplashStepNumber < 5) {
+                                    setRoundupsSplashStepNumber(5);
+                                }
+                                // once we get to Step 5, we have manual steps that we follow
                                 if (roundupsSplashStepNumber === 5) {
-                                    // navigate to the RoundupsHome screen
-                                    navigation.navigate('RoundupsHome', {});
-                                    // set the Roundups activation state accordingly
-                                    setAreRoundupsActive(true);
+                                    setRoundupsSplashStepNumber(6);
+                                    // // navigate to the RoundupsHome screen
+                                    // navigation.navigate('RoundupsHome', {});
+                                    // // set the Roundups activation state accordingly
+                                    // setAreRoundupsActive(true);
                                 }
                             }}
                         >
                             <Text
-                                style={styles.nextButtonText}>{(roundupsSplashStepNumber === 5) ? "Start free trial" : "Next"}</Text>
+                                style={styles.getStartedButtonText}>{roundupsSplashStepNumber === 5
+                                    ? "Start the 30 day Free Trial"
+                                    : roundupsSplashStepNumber === 6
+                                        ? "Link Account"
+                                        : "Get Started"}</Text>
                         </TouchableOpacity>
                     }
-                    {
-                        (roundupsSplashStepNumber === 1 || roundupsSplashStepNumber === 2 || roundupsSplashStepNumber === 3 || roundupsSplashStepNumber === 4) &&
-                        <View style={{
-                            flexDirection: 'row',
-                            alignContent: 'space-between',
-                            backgroundColor: 'red',
-                            right: wp(10)
-                        }}>
-                            <TouchableOpacity
-                                style={styles.buttonLeft}
-                                onPress={() => {
-                                    // decrease the step number all the way to Step 0
-                                    if (roundupsSplashStepNumber > 0) {
-                                        setRoundupsSplashStepNumber(roundupsSplashStepNumber - 1);
-                                    }
-                                }}
-                            >
-                                <Text
-                                    style={styles.buttonText}>{"Previous"}</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={styles.buttonRight}
-                                onPress={() => {
-                                    // increase the step number all the way to Step 6
-                                    if (roundupsSplashStepNumber < 5) {
-                                        setRoundupsSplashStepNumber(roundupsSplashStepNumber + 1);
-                                    }
-                                }}
-                            >
-                                <Text
-                                    style={styles.buttonText}>{"Next"}</Text>
-                            </TouchableOpacity>
-                        </View>
-                    }
-                </View>
+                </GestureRecognizer>
             </SafeAreaView>
         </>
     );

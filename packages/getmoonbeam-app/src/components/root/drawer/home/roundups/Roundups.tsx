@@ -21,13 +21,13 @@ export const Roundups = ({navigation}: RoundupsProps) => {
     // constants used to keep track of local component state
 
     // constants used to keep track of shared states
-    const [drawerNavigation, ] = useRecoilState(drawerNavigationState);
+    const [drawerNavigation,] = useRecoilState(drawerNavigationState);
     const [appDrawerHeaderShown, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
     const [drawerSwipeEnabled, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
     const [bannerShown, setBannerShown] = useRecoilState(customBannerShown);
     const [areRoundupsActive,] = useRecoilState(roundupsActiveState);
     const [bottomTabShown, setBottomTabShown] = useRecoilState(bottomTabShownState);
-    const [showRoundupTransactionsBottomSheet, ] = useRecoilState(showRoundupTransactionBottomSheetState);
+    const [showRoundupTransactionsBottomSheet,] = useRecoilState(showRoundupTransactionBottomSheetState);
 
     // create a native stack navigator, to be used for our Roundups navigation
     const Stack = createNativeStackNavigator<RoundupsStackParamList>();
@@ -71,11 +71,14 @@ export const Roundups = ({navigation}: RoundupsProps) => {
                             gestureEnabled: false
                         }}
                     >
-                        <Stack.Screen
-                            name="RoundupsSplash"
-                            component={RoundupsSplash}
-                            initialParams={{}}
-                        />
+                        {
+                            !areRoundupsActive &&
+                            <Stack.Screen
+                                name="RoundupsSplash"
+                                component={RoundupsSplash}
+                                initialParams={{}}
+                            />
+                        }
                         <Stack.Screen
                             name="RoundupsHome"
                             component={RoundupsHome}

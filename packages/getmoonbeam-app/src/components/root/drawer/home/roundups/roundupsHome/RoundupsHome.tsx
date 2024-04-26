@@ -62,6 +62,13 @@ export const RoundupsHome = ({}: RoundupsHomeProps) => {
                             }}
                             initialParams={{}}
                         />
+                        <Stack.Screen
+                            name="RoundupsCashOut"
+                            component={() => {
+                                return (<></>)
+                            }}
+                            initialParams={{}}
+                        />
                     </Stack.Navigator>
                 </SafeAreaProvider>
             }

@@ -187,7 +187,7 @@ export const RoundupsBottomDashboard = (props: {
                                 <View style={styles.leftItemIconBackground}>
                                     <ExpoImage
                                         style={styles.leftItemIcon}
-                                        source={{uri: transaction.transactionBrandLogoUrl}}
+                                        source={transaction.transactionBrandLogoUrl && transaction.transactionBrandLogoUrl.length !== 0 ? {uri: transaction.transactionBrandLogoUrl} : MoonbeamStorePlaceholder}
                                         placeholder={MoonbeamStorePlaceholder}
                                         placeholderContentFit={'contain'}
                                         contentFit={'contain'}
