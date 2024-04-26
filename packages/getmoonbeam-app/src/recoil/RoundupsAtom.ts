@@ -8,9 +8,15 @@ const roundupsActiveState = atom<boolean>({
     default: false
 });
 
+const isPlaidLinkInitiatedState = atom<boolean>({
+    key: "isPlaidLinkInitiatedState",
+    default: false
+})
+
 /**
  * Export all atoms and/or selectors
  */
 export {
+    isPlaidLinkInitiatedState,
     roundupsActiveState
 };

@@ -282,7 +282,7 @@ import {
     servicePartnersDataState,
     servicePartnerState
 } from "../../recoil/ServicesAtom";
-import {roundupsActiveState} from "../../recoil/RoundupsAtom";
+import {isPlaidLinkInitiatedState, roundupsActiveState} from "../../recoil/RoundupsAtom";
 
 /**
  * import branch only if the app is not running in Expo Go (so we can actually run the application without Branch for
@@ -570,6 +570,7 @@ export const SplashScreen = (props: {
     const verticalOnlineSectionReloadStateReset = useResetRecoilState(verticalOnlineSectionReloadState);
     const showDailySummaryConfettiStateReset = useResetRecoilState(showDailySummaryConfettiState);
     const roundupsActiveStateReset = useResetRecoilState(roundupsActiveState);
+    const isPlaidLinkInitiatedStateReset = useResetRecoilState(isPlaidLinkInitiatedState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -847,6 +848,7 @@ export const SplashScreen = (props: {
             roundupsActiveStateReset();
             showRoundupTransactionBottomSheetStateReset();
             roundupsTransactionDataStateReset();
+            isPlaidLinkInitiatedStateReset();
             // if this is not running in Expo Go
             if (!isRunningInExpoGo) {
                 // import branch

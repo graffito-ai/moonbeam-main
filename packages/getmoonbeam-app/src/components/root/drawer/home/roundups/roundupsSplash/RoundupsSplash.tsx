@@ -5,7 +5,7 @@ import {Image, Text, TouchableOpacity, View} from "react-native";
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Icon} from "@rneui/base";
-import {roundupsActiveState} from "../../../../../../recoil/RoundupsAtom";
+import {isPlaidLinkInitiatedState, roundupsActiveState} from "../../../../../../recoil/RoundupsAtom";
 import {useRecoilState} from "recoil";
 import {
     bottomBarNavigationState,
@@ -45,6 +45,8 @@ import MoonbeamBankLinking from "../../../../../../../assets/moonbeam-bank-linki
 import MoonbeamDeltaOneMembership from "../../../../../../../assets/moonbeam-delta-one-membership.png"
 import GestureRecognizer from 'react-native-swipe-gestures';
 import {Paragraph} from "react-native-paper";
+import {AccountLinkingSummaryStep} from "./AccountLinkingSummaryStep";
+import {AccountLinkingStep} from "./AccountLinkingStep";
 
 /**
  * RoundupsSplash component.
@@ -65,6 +67,7 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
     const [, setBottomTabShown] = useRecoilState(bottomTabShownState);
     const [, setBottomTabNeedsShowing] = useRecoilState(bottomTabNeedsShowingState);
     const [, setAreRoundupsActive] = useRecoilState(roundupsActiveState);
+    const [isPlaidLinkInitiated, setIsPlaidLinkInitiated] = useRecoilState(isPlaidLinkInitiatedState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -351,152 +354,12 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                         }
                         {
                             roundupsSplashStepNumber === 6 &&
-                            <>
-                                <Image
-                                    style={styles.deltaOneImage}
-                                    source={MoonbeamBankLinking}
-                                    resizeMode={"contain"}
-                                />
-                                <Text
-                                    numberOfLines={1}
-                                    style={styles.bankLinkingTitle}>
-                                    Link your Bank Account
-                                </Text>
-                                <Text
-                                    numberOfLines={3}
-                                    style={styles.bankLinkingSubTitle}>
-                                    {"You will need to connect a Checking Account to save more with Moonbeam. It only takes a few minutes."}
-                                </Text>
-                                <View style={styles.roundupsOverviewBox}>
-                                    <View style={styles.overviewItemView}>
-                                        <Image
-                                            style={styles.overviewIcon}
-                                            source={MoonbeamLinking1}
-                                            resizeMethod={"scale"}
-                                            resizeMode={"contain"}
-                                        />
-                                        <Text
-                                            numberOfLines={2}
-                                            style={styles.bankLinkingOverviewItemText}>
-                                            {"Make sure you have your bank\ninformation handy."}
-                                        </Text>
-                                    </View>
-                                    <View style={styles.overviewItemView}>
-                                        <Image
-                                            style={styles.overviewIcon}
-                                            source={MoonbeamLinking2}
-                                            resizeMethod={"scale"}
-                                            resizeMode={"contain"}
-                                        />
-                                        <Text
-                                            numberOfLines={2}
-                                            style={styles.bankLinkingOverviewItemText}>
-                                            {"Connect securely with Plaid.\nYour data is fully encrypted."}
-                                        </Text>
-                                    </View>
-                                    <View style={styles.overviewItemView}>
-                                        <Image
-                                            style={styles.overviewIcon}
-                                            source={MoonbeamLinking3}
-                                            resizeMethod={"scale"}
-                                            resizeMode={"contain"}
-                                        />
-                                        <Text
-                                            numberOfLines={2}
-                                            style={styles.bankLinkingOverviewItemText}>
-                                            {"We do not have access to\nyour bank login information."}
-                                        </Text>
-                                    </View>
-                                    <View style={styles.overviewItemView}>
-                                        <Image
-                                            style={styles.overviewIcon}
-                                            source={MoonbeamLinking4}
-                                            resizeMethod={"scale"}
-                                            resizeMode={"contain"}
-                                        />
-                                        <Text
-                                            numberOfLines={2}
-                                            style={styles.bankLinkingOverviewItemText}>
-                                            {"We won't start moving money\nuntil you authorize it."}
-                                        </Text>
-                                    </View>
-                                </View>
-                            </>
+                            <AccountLinkingStep/>
                         }
-                        {
-                            roundupsSplashStepNumber === 7 &&
-                            <>
-                                <Image
-                                    style={styles.deltaOneImage}
-                                    source={MoonbeamBankLinking}
-                                    resizeMode={"contain"}
-                                />
-                                <Text
-                                    numberOfLines={1}
-                                    style={styles.accountChoiceTitle}>
-                                    {"Choose a Checking Account"}
-                                </Text>
-                                <Text
-                                    numberOfLines={3}
-                                    style={styles.bankLinkingSubTitle}>
-                                    {"This account will be used for depositing your savings and withdrawing your roundups."}
-                                </Text>
-                                <View style={styles.roundupsOverviewBox}>
-                                    <View style={styles.overviewItemView}>
-                                        <Image
-                                            style={styles.overviewIcon}
-                                            source={MoonbeamLinking1}
-                                            resizeMethod={"scale"}
-                                            resizeMode={"contain"}
-                                        />
-                                        <Text
-                                            numberOfLines={2}
-                                            style={styles.bankLinkingOverviewItemText}>
-                                            {"Make sure your have your bank\ninformation handy."}
-                                        </Text>
-                                    </View>
-                                    <View style={styles.overviewItemView}>
-                                        <Image
-                                            style={styles.overviewIcon}
-                                            source={MoonbeamLinking2}
-                                            resizeMethod={"scale"}
-                                            resizeMode={"contain"}
-                                        />
-                                        <Text
-                                            numberOfLines={2}
-                                            style={styles.bankLinkingOverviewItemText}>
-                                            {"Connect securely with Plaid.\nYour data is fully encrypted."}
-                                        </Text>
-                                    </View>
-                                    <View style={styles.overviewItemView}>
-                                        <Image
-                                            style={styles.overviewIcon}
-                                            source={MoonbeamLinking3}
-                                            resizeMethod={"scale"}
-                                            resizeMode={"contain"}
-                                        />
-                                        <Text
-                                            numberOfLines={2}
-                                            style={styles.bankLinkingOverviewItemText}>
-                                            {"We do not have access to\nyour bank login information."}
-                                        </Text>
-                                    </View>
-                                    <View style={styles.overviewItemView}>
-                                        <Image
-                                            style={styles.overviewIcon}
-                                            source={MoonbeamLinking4}
-                                            resizeMethod={"scale"}
-                                            resizeMode={"contain"}
-                                        />
-                                        <Text
-                                            numberOfLines={2}
-                                            style={styles.bankLinkingOverviewItemText}>
-                                            {"We won't start moving money\nuntil you authorize it."}
-                                        </Text>
-                                    </View>
-                                </View>
-                            </>
-                        }
+                        {/*{*/}
+                        {/*    roundupsSplashStepNumber === 7 &&*/}
+                        {/*    <AccountLinkingSummaryStep/>*/}
+                        {/*}*/}
                     </View>
                     {
                         (roundupsSplashStepNumber === 5 || roundupsSplashStepNumber === 6 || roundupsSplashStepNumber === 7) &&
@@ -509,7 +372,7 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                                         ? "Moonbeam will deduct a $2.99 monthly membership fee after your free trial ends from your connected account."
                                         : roundupsSplashStepNumber === 6
                                             ? "Backed by FDIC-insured Plaid partner banks"
-                                            : `I agree that starting ${new Date(new Date().setDate(new Date().getDate() + 30)).toLocaleDateString()} Moonbeam will deduct a $2.99/month fee for my Delta One plan from the linked billing account, which can be found on my Accounts page. Cancel anytime from the Savings Accounts page.`
+                                            : `I agree that starting ${new Date(new Date().setDate(new Date().getDate() + 30)).toLocaleDateString()} Moonbeam will deduct a $2.99/month fee for my Delta One plan from the linked billing account, which can be found on my Accounts page. Cancel anytime from the Accounts page.`
                                 }
                             </Paragraph>
                         </View>
@@ -524,7 +387,16 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                                 }
                                 // once we get past Step 5, we have manual steps that we follow
                                 if (roundupsSplashStepNumber >= 5) {
-                                    setRoundupsSplashStepNumber(roundupsSplashStepNumber + 1);
+                                    /**
+                                     * For Step 6, we want to set the Plaid Link initiation flag to true,
+                                     * so we can initialize Plaid Link accordingly inside the appropriate Step's component
+                                     */
+                                    if (roundupsSplashStepNumber === 6) {
+                                        setIsPlaidLinkInitiated(true);
+                                    }
+                                    // increase the step number for all steps accordingly
+                                    // setRoundupsSplashStepNumber(roundupsSplashStepNumber + 1);
+
                                     // // navigate to the RoundupsHome screen
                                     // navigation.navigate('RoundupsHome', {});
                                     // // set the Roundups activation state accordingly
@@ -534,12 +406,12 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                         >
                             <Text
                                 style={styles.getStartedButtonText}>{roundupsSplashStepNumber === 5
-                                    ? "Start the 30 day Free Trial"
-                                    : roundupsSplashStepNumber === 6
-                                        ? "Link Your Bank"
-                                        : roundupsSplashStepNumber === 7
-                                            ? "Proceed with Account"
-                                            : "Get Started"}</Text>
+                                ? "Start your 30 day trial"
+                                : roundupsSplashStepNumber === 6
+                                    ? "Link your Bank"
+                                    : roundupsSplashStepNumber === 7
+                                        ? "Proceed with Account"
+                                        : "Get Started"}</Text>
                         </TouchableOpacity>
                     }
                 </GestureRecognizer>
