@@ -517,3 +517,13 @@ export interface ScriptsConfiguration {
     readonly cardExpirationBackFillCronRuleName: string;
     readonly offerBackFillCronRuleName: string;
 }
+
+/**
+ * Interface used to define the configuration for the Plaid linking service resolvers
+ * (GraphQL based), and other afferent data stores.
+ */
+export interface PlaidLinkingConfiguration {
+    readonly plaidLinkingFunctionName: string;
+    readonly plaidLinkingSessionsTableName: string;
+    readonly createPlaidLinkingSessionResolverName: string;
+}

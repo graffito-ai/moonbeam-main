@@ -4,7 +4,6 @@ import {Construct} from "constructs";
 import path from "path";
 import {Constants} from "@moonbeam/moonbeam-models";
 import {Effect, PolicyStatement} from "aws-cdk-lib/aws-iam";
-import {Alias} from "aws-cdk-lib/aws-lambda";
 
 /**
  * File used to define the App Review resolver stack, responsible for users' actions
@@ -37,13 +36,7 @@ export class AppReviewResolverStack extends Stack {
                 sourceMapMode: aws_lambda_nodejs.SourceMapMode.BOTH, // defaults to SourceMapMode.DEFAULT
                 sourcesContent: false, // do not include original source into source map, defaults to true
                 target: 'esnext', // target environment for the generated JavaScript code
-            },
-            reservedConcurrentExecutions: 100
-        });
-        new Alias(this, `${props.appReviewConfig.appReviewFunctionName}-current-version-alias`, {
-            aliasName: `${props.appReviewConfig.appReviewFunctionName}-current-version-alias`,
-            version: appReviewLambda.currentVersion,
-            provisionedConcurrentExecutions: 2
+            }
         });
 
         // retrieve the GraphQL API created by the other stack

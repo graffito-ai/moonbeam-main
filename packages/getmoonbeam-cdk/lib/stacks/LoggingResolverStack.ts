@@ -5,6 +5,7 @@ import {Effect, PolicyStatement, Role} from "aws-cdk-lib/aws-iam";
 import path from "path";
 import {Constants, Stages} from "@moonbeam/moonbeam-models";
 import {LogGroup, RetentionDays} from "aws-cdk-lib/aws-logs";
+import {Alias} from "aws-cdk-lib/aws-lambda";
 
 /**
  * File used to define the AppSync/Lambda logging resolver stack, used by Amplify,
@@ -40,6 +41,11 @@ export class LoggingResolverStack extends Stack {
                 sourcesContent: false, // do not include original source into source map, defaults to true
                 target: 'esnext', // target environment for the generated JavaScript code
             }
+        });
+        new Alias(this, `${props.loggingConfig.loggingFunctionName}-current-version-alias`, {
+            aliasName: `${props.loggingConfig.loggingFunctionName}-current-version-alias`,
+            version: loggingLambda.currentVersion,
+            provisionedConcurrentExecutions: 2
         });
 
         // retrieve the GraphQL API created by the other stack

@@ -38,7 +38,23 @@ export class APIGatewayServiceStack extends Stack {
     }) {
         super(scope, id, props);
 
-        // create the API Gateway API service
+        /**
+         * --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+         * Plaid Webhook Resources
+         *
+         * First, create the API Gateway API service
+         */
+
+
+
+
+
+        /**
+         * --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+         * Olive Webhook Resources
+         *
+         * First, create the API Gateway API service
+         */
         const cardLinkingServiceAPI = new aws_apigateway.RestApi(this, `${props.apiGatewayServiceConfig.cardLinkingServiceAPIName}-${props.stage}-${props.env!.region}`, {
             restApiName: `${props.apiGatewayServiceConfig.cardLinkingServiceAPIName}-${props.stage}-${props.env!.region}`,
             description: "The Card Linking Service used for Webhook purposes.",

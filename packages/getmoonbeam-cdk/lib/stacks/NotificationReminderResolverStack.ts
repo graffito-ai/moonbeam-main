@@ -4,7 +4,6 @@ import {Construct} from "constructs";
 import path from "path";
 import {Constants, Stages} from "@moonbeam/moonbeam-models";
 import {Effect, PolicyStatement} from "aws-cdk-lib/aws-iam";
-import {Alias} from "aws-cdk-lib/aws-lambda";
 
 /**
  * File used to define the Notification Reminder resolver stack, responsible for handling
@@ -37,13 +36,7 @@ export class NotificationReminderResolverStack extends Stack {
                 sourceMapMode: aws_lambda_nodejs.SourceMapMode.BOTH, // defaults to SourceMapMode.DEFAULT
                 sourcesContent: false, // do not include original source into source map, defaults to true
                 target: 'esnext', // target environment for the generated JavaScript code
-            },
-            reservedConcurrentExecutions: 145
-        });
-        new Alias(this, `${props.notificationReminderConfig.notificationReminderFunctionName}-alias`, {
-            aliasName: `${props.notificationReminderConfig.notificationReminderFunctionName}-alias`,
-            version: notificationReminderLambda.currentVersion,
-            provisionedConcurrentExecutions: 2
+            }
         });
 
         // retrieve the GraphQL API created by the other stack

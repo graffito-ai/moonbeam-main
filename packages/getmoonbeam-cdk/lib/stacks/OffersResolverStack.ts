@@ -37,13 +37,12 @@ export class OffersResolverStack extends Stack {
                 sourceMapMode: aws_lambda_nodejs.SourceMapMode.BOTH, // defaults to SourceMapMode.DEFAULT
                 sourcesContent: false, // do not include original source into source map, defaults to true
                 target: 'esnext', // target environment for the generated JavaScript code
-            },
-            reservedConcurrentExecutions: 295
+            }
         });
         new Alias(this, `${props.offersConfig.offersFunctionName}-current-version-alias`, {
             aliasName: `${props.offersConfig.offersFunctionName}-current-version-alias`,
             version: offersLambda.currentVersion,
-            provisionedConcurrentExecutions: 5
+            provisionedConcurrentExecutions: 3
         });
 
         // retrieve the GraphQL API created by the other stack

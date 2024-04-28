@@ -18,7 +18,7 @@ import {
     NotificationReminderProducerConsumerConfiguration,
     NotificationsConfiguration,
     OffersConfiguration,
-    PhysicalDevicesConfiguration,
+    PhysicalDevicesConfiguration, PlaidLinkingConfiguration,
     ReferralConfiguration,
     ReferralProducerConsumerConfiguration,
     ReimbursementsConfiguration,
@@ -45,6 +45,7 @@ export interface StageConfiguration {
     readonly storageConfig: StorageConfiguration;
     readonly militaryVerificationConfig: MilitaryVerificationConfiguration;
     readonly cardLinkingConfig: CardLinkingConfiguration;
+    readonly plaidLinkingConfig: PlaidLinkingConfiguration;
     readonly apiGatewayServiceConfig: APIGatewayServiceConfiguration;
     readonly notificationReminderProducerConsumerConfig: NotificationReminderProducerConsumerConfiguration;
     readonly referralProducerConsumerConfig: ReferralProducerConsumerConfiguration;

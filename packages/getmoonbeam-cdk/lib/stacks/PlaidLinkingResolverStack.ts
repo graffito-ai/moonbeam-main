@@ -4,31 +4,30 @@ import {Construct} from "constructs";
 import path from "path";
 import {Constants, Stages} from "@moonbeam/moonbeam-models";
 import {Effect, PolicyStatement} from "aws-cdk-lib/aws-iam";
-import {Alias} from "aws-cdk-lib/aws-lambda";
 
 /**
- * File used to define the Card Linking resolver stack, used by Amplify.
+ * File used to define the Plaid Linking resolver stack, used by Amplify.
  */
-export class CardLinkingResolverStack extends Stack {
+export class PlaidLinkingResolverStack extends Stack {
 
     /**
-     * Constructor for the Card Linking resolver stack.
+     * Constructor for the Plaid Linking resolver stack.
      *
      * @param scope scope to be passed in (usually a CDK App Construct)
      * @param id stack id to be passed in
      * @param props stack properties to be passed in
      */
-    constructor(scope: Construct, id: string, props: StackProps & Pick<StageConfiguration, 'environmentVariables' | 'stage' | 'cardLinkingConfig'> & { graphqlApiId: string, graphqlApiName: string }) {
+    constructor(scope: Construct, id: string, props: StackProps & Pick<StageConfiguration, 'environmentVariables' | 'stage' | 'plaidLinkingConfig'> & { graphqlApiId: string, graphqlApiName: string }) {
         super(scope, id, props);
 
         // create a new Lambda function to be used with the AppSync API for the resolvers
-        const cardLinkingLambda = new aws_lambda_nodejs.NodejsFunction(this, `${props.cardLinkingConfig.cardLinkingFunctionName}-${props.stage}-${props.env!.region}`, {
-            functionName: `${props.cardLinkingConfig.cardLinkingFunctionName}-${props.stage}-${props.env!.region}`,
-            entry: path.resolve(path.join(__dirname, '../../../moonbeam-card-linking-lambda/src/lambda/main.ts')),
+        const cardLinkingLambda = new aws_lambda_nodejs.NodejsFunction(this, `${props.plaidLinkingConfig.plaidLinkingFunctionName}-${props.stage}-${props.env!.region}`, {
+            functionName: `${props.plaidLinkingConfig.plaidLinkingFunctionName}-${props.stage}-${props.env!.region}`,
+            entry: path.resolve(path.join(__dirname, '../../../moonbeam-plaid-linking-lambda/src/lambda/main.ts')),
             handler: 'handler',
             runtime: aws_lambda.Runtime.NODEJS_18_X,
             // we add a timeout here different from the default of 3 seconds, since we expect these API calls to take longer
-            timeout: Duration.seconds(50),
+            timeout: Duration.seconds(900),
             memorySize: 512,
             bundling: {
                 minify: true, // minify code, defaults to false
@@ -37,11 +36,6 @@ export class CardLinkingResolverStack extends Stack {
                 sourcesContent: false, // do not include original source into source map, defaults to true
                 target: 'esnext', // target environment for the generated JavaScript code
             }
-        });
-        new Alias(this, `${props.cardLinkingConfig.cardLinkingFunctionName}-current-version-alias`, {
-            aliasName: `${props.cardLinkingConfig.cardLinkingFunctionName}-current-version-alias`,
-            version: cardLinkingLambda.currentVersion,
-            provisionedConcurrentExecutions: 2
         });
 
         // retrieve the GraphQL API created by the other stack
@@ -95,18 +89,6 @@ export class CardLinkingResolverStack extends Stack {
                 type: aws_dynamodb.AttributeType.STRING,
             },
         });
-        /**
-         * creates a global secondary index for the table, so we can retrieve card linked objects by status.
-         * {@link https://www.dynamodbguide.com/key-concepts/}
-         * {@link https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GSI.html}
-         */
-        cardLinkingTable.addGlobalSecondaryIndex({
-            indexName: `${props.cardLinkingConfig.cardLinkingStatusGlobalIndex}-${props.stage}-${props.env!.region}`,
-            partitionKey: {
-                name: 'status',
-                type: aws_dynamodb.AttributeType.STRING
-            }
-        });
 
         // enable the Lambda function to access the DynamoDB table (using IAM)
         cardLinkingTable.grantFullAccess(cardLinkingLambda);
@@ -125,8 +107,7 @@ export class CardLinkingResolverStack extends Stack {
                         "dynamodb:DeleteItem"
                     ],
                     resources: [
-                        `${cardLinkingTable.tableArn}`,
-                        `${cardLinkingTable.tableArn}/index/${props.cardLinkingConfig.cardLinkingStatusGlobalIndex}-${props.stage}-${props.env!.region}`
+                        `${cardLinkingTable.tableArn}`
                     ]
                 }
             )
@@ -162,7 +143,6 @@ export class CardLinkingResolverStack extends Stack {
 
         // Create environment variables that we will use in the function code
         cardLinkingLambda.addEnvironment(`${Constants.MoonbeamConstants.CARD_LINKING_TABLE}`, cardLinkingTable.tableName);
-        cardLinkingLambda.addEnvironment(`${Constants.MoonbeamConstants.CARD_LINKING_STATUS_GLOBAL_INDEX}`, props.cardLinkingConfig.cardLinkingStatusGlobalIndex);
         cardLinkingLambda.addEnvironment(`${Constants.MoonbeamConstants.ENV_NAME}`, props.stage);
     }
 }

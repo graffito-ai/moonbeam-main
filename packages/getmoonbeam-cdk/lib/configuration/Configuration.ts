@@ -69,6 +69,11 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 getUserCardLinkingIdResolverName: 'getUserCardLinkingId',
                 updateCardResolverName: 'updateCard'
             },
+            plaidLinkingConfig: {
+                plaidLinkingFunctionName: 'plaidLinkingFunction',
+                plaidLinkingSessionsTableName: 'plaidLinkingSessionsTable',
+                createPlaidLinkingSessionResolverName: 'createPlainLinkingSession'
+            },
             apiGatewayServiceConfig: {
                 cardLinkingServiceAPIName: 'cardLinkingServiceAPI',
                 apiDeploymentGroupName: 'cardLinkingAPILogGroup',
@@ -380,6 +385,11 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 getUsersWithNoCardsResolverName: 'getUsersWithNoCards',
                 getUserCardLinkingIdResolverName: 'getUserCardLinkingId',
                 updateCardResolverName: 'updateCard'
+            },
+            plaidLinkingConfig: {
+                plaidLinkingFunctionName: 'plaidLinkingFunction',
+                plaidLinkingSessionsTableName: 'plaidLinkingSessionsTable',
+                createPlaidLinkingSessionResolverName: 'createPlainLinkingSession'
             },
             apiGatewayServiceConfig: {
                 cardLinkingServiceAPIName: 'cardLinkingServiceAPI',

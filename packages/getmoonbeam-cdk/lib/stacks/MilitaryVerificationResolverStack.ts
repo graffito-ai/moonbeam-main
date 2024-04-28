@@ -36,13 +36,12 @@ export class MilitaryVerificationResolverStack extends Stack {
                 sourceMapMode: aws_lambda_nodejs.SourceMapMode.BOTH, // defaults to SourceMapMode.DEFAULT
                 sourcesContent: false, // do not include original source into source map, defaults to true
                 target: 'esnext', // target environment for the generated JavaScript code
-            },
-            reservedConcurrentExecutions: 145
+            }
         });
         new Alias(this, `${props.militaryVerificationConfig.militaryVerificationFunctionName}-alias`, {
             aliasName: `${props.militaryVerificationConfig.militaryVerificationFunctionName}-alias`,
             version: militaryVerificationLambda.currentVersion,
-            provisionedConcurrentExecutions: 3
+            provisionedConcurrentExecutions: 2
         });
 
         // retrieve the GraphQL API created by the other stack

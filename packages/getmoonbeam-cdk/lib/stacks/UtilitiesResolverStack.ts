@@ -41,8 +41,7 @@ export class UtilitiesResolverStack extends Stack {
                 sourceMapMode: aws_lambda_nodejs.SourceMapMode.BOTH, // defaults to SourceMapMode.DEFAULT
                 sourcesContent: false, // do not include original source into source map, defaults to true
                 target: 'esnext', // target environment for the generated JavaScript code
-            },
-            reservedConcurrentExecutions: 100
+            }
         });
         new Alias(this, `${props.utilitiesConfig.utilitiesFunctionName}-current-version-alias`, {
             aliasName: `${props.utilitiesConfig.utilitiesFunctionName}-current-version-alias`,

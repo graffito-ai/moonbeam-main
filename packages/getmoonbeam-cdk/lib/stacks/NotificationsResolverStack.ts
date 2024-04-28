@@ -4,7 +4,6 @@ import {Construct} from "constructs";
 import path from "path";
 import {Constants, Stages} from "@moonbeam/moonbeam-models";
 import {Effect, PolicyStatement} from "aws-cdk-lib/aws-iam";
-import {Alias} from "aws-cdk-lib/aws-lambda";
 
 /**
  * File used to define the Notifications resolver stack, responsible for handling
@@ -39,13 +38,7 @@ export class NotificationsResolverStack extends Stack {
                 sourceMapMode: aws_lambda_nodejs.SourceMapMode.BOTH, // defaults to SourceMapMode.DEFAULT
                 sourcesContent: false, // do not include original source into source map, defaults to true
                 target: 'esnext', // target environment for the generated JavaScript code
-            },
-            reservedConcurrentExecutions: 145
-        });
-        new Alias(this, `${props.notificationsConfig.notificationsFunctionName}-current-version-alias`, {
-            aliasName: `${props.notificationsConfig.notificationsFunctionName}-current-version-alias`,
-            version: notificationsLambda.currentVersion,
-            provisionedConcurrentExecutions: 2
+            }
         });
 
         // retrieve the GraphQL API created by the other stack
@@ -228,7 +221,7 @@ export class NotificationsResolverStack extends Stack {
                 ],
                 resources: [
                     // this ARN is retrieved post GraphQL API creation
-                    ...props.stage === Stages.DEV ? [ "arn:aws:appsync:us-west-2:963863720257:apis/pkr6ygyik5bqjigb6nd57jl2cm/types/Query/*"] : [],
+                    ...props.stage === Stages.DEV ? ["arn:aws:appsync:us-west-2:963863720257:apis/pkr6ygyik5bqjigb6nd57jl2cm/types/Query/*"] : [],
                     ...props.stage === Stages.PROD ? ["arn:aws:appsync:us-west-2:251312580862:apis/p3a4pwssi5dejox33pvznpvz4u/types/Query/*"] : []
                 ]
             })
