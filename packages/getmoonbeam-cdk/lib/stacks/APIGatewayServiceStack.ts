@@ -1,6 +1,6 @@
 import {
     aws_apigateway,
-    aws_certificatemanager,
+    aws_certificatemanager, aws_iam,
     aws_lambda_nodejs,
     aws_secretsmanager,
     Duration,
@@ -32,6 +32,7 @@ export class APIGatewayServiceStack extends Stack {
      */
     constructor(scope: Construct, id: string, props: StackProps & Pick<StageConfiguration, 'environmentVariables' | 'stage' | 'apiGatewayServiceConfig'>
         & {
+        plaidLinkingAcknowledgmentLambda: aws_lambda_nodejs.NodejsFunction,
         transactionsProducerLambda: aws_lambda_nodejs.NodejsFunction,
         updatedTransactionsProducerLambda: aws_lambda_nodejs.NodejsFunction,
         militaryVerificationNotificationProducerLambda: aws_lambda_nodejs.NodejsFunction
@@ -44,18 +45,94 @@ export class APIGatewayServiceStack extends Stack {
          *
          * First, create the API Gateway API service
          */
+        const plaidLinkingAPIResourcePolicy = new aws_iam.PolicyDocument({
+            statements: [
+                new aws_iam.PolicyStatement({
+                    actions: ['execute-api:Invoke'],
+                    principals: [new aws_iam.AnyPrincipal()],
+                    resources: ['execute-api:/*/*/*'],
+                }),
+                new aws_iam.PolicyStatement({
+                    effect: aws_iam.Effect.DENY,
+                    principals: [new aws_iam.AnyPrincipal()],
+                    actions: ['execute-api:Invoke'],
+                    resources: ['execute-api:/*/*/*'],
+                    conditions: {
+                        /**
+                         * Whitelist only Plaid IPs to cal this endpoint,
+                         * according to {@link https://plaid.com/docs/api/webhooks/}.
+                         */
+                        NotIpAddress: {
+                            'aws:SourceIp': ['52.21.26.131', '52.21.47.157', '52.41.247.19', '52.88.82.239']
+                        },
+                    },
+                }),
+            ],
+        })
 
+        // Create the Plaid Linking API Gateway API service
+        const plaidLinkingAPIService = new aws_apigateway.RestApi(this, `${props.apiGatewayServiceConfig.plaidLinkingServiceAPIName}-${props.stage}-${props.env!.region}`, {
+            restApiName: `${props.apiGatewayServiceConfig.plaidLinkingServiceAPIName}-${props.stage}-${props.env!.region}`,
+            description: "The Plaid Linking Service used for Webhook purposes.",
+            deploy: true,
+            apiKeySourceType: ApiKeySourceType.HEADER,
+            policy: plaidLinkingAPIResourcePolicy,
+            cloudWatchRole: true,
+            domainName: {
+                // our domain for incoming requests, to point to an Edge Cloudfront endpoint, that will then point to the actual API Gateway distribution endpoint
+                domainName:
+                    props.stage === Stages.DEV
+                        ? 'api-plaid-dev.moonbeam.vet'
+                        : props.stage === Stages.PROD
+                            ? 'api-plaid.moonbeam.vet'
+                            : '',
+                endpointType: EndpointType.EDGE,
+                // ARN retrieved after its creation, has to be in us-east-1
+                certificate: aws_certificatemanager.Certificate
+                    .fromCertificateArn(this, `${props.apiGatewayServiceConfig.plaidLinkingServiceAPIName}-certificate-${props.stage}-${props.env!.region}`,
+                        props.stage === Stages.DEV
+                            ? `arn:aws:acm:us-east-1:963863720257:certificate/9803dd3d-2354-49fd-993d-df0d67141d4f`
+                            : props.stage === Stages.PROD
+                                ? `arn:aws:acm:us-east-1:251312580862:certificate/ee3f75a8-3ed7-446b-ba1f-dad04f767224`
+                                : ``)
+            },
+            deployOptions: {
+                accessLogDestination: new LogGroupLogDestination(new LogGroup(this, `${props.apiGatewayServiceConfig.plaidApiDeploymentGroupName}-${props.stage}-${props.env!.region}`, {
+                    logGroupName: `${props.apiGatewayServiceConfig.plaidApiDeploymentGroupName}-${props.stage}-${props.env!.region}`,
+                    retention: RetentionDays.THREE_MONTHS,
+                    removalPolicy: RemovalPolicy.DESTROY
+                }))
+            },
+            retainDeployments: false
+        });
 
+        // create a new API Integration for plaid sync/updates.
+        const postPlaidUpdatesIntegration = new aws_apigateway.LambdaIntegration(props.plaidLinkingAcknowledgmentLambda, {
+            allowTestInvoke: true,
+            timeout: Duration.seconds(29)
+        });
 
-
+        /**
+         * create a new POST method for the API/Lambda integration, used for posting plaid sync/updates.
+         * This method will be secured via an API key.
+         */
+        new Method(this, `${props.apiGatewayServiceConfig.plaidAcknowledgmentMethodName}-${props.stage}-${props.env!.region}`, {
+            httpMethod: "POST",
+            resource: plaidLinkingAPIService.root.addResource(`${props.apiGatewayServiceConfig.plaidAcknowledgmentMethodName}`),
+            integration: postPlaidUpdatesIntegration,
+            options: {
+                apiKeyRequired: true,
+                operationName: props.apiGatewayServiceConfig.plaidAcknowledgmentMethodName
+            }
+        });
 
         /**
          * --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
          * Olive Webhook Resources
          *
-         * First, create the API Gateway API service
+         * First, create the Card Linking API Gateway API service
          */
-        const cardLinkingServiceAPI = new aws_apigateway.RestApi(this, `${props.apiGatewayServiceConfig.cardLinkingServiceAPIName}-${props.stage}-${props.env!.region}`, {
+        const cardLinkingAPIService = new aws_apigateway.RestApi(this, `${props.apiGatewayServiceConfig.cardLinkingServiceAPIName}-${props.stage}-${props.env!.region}`, {
             restApiName: `${props.apiGatewayServiceConfig.cardLinkingServiceAPIName}-${props.stage}-${props.env!.region}`,
             description: "The Card Linking Service used for Webhook purposes.",
             deploy: true,
@@ -80,8 +157,8 @@ export class APIGatewayServiceStack extends Stack {
                                 : ``)
             },
             deployOptions: {
-                accessLogDestination: new LogGroupLogDestination(new LogGroup(this, `${props.apiGatewayServiceConfig.apiDeploymentGroupName}-${props.stage}-${props.env!.region}`, {
-                    logGroupName: `${props.apiGatewayServiceConfig.apiDeploymentGroupName}-${props.stage}-${props.env!.region}`,
+                accessLogDestination: new LogGroupLogDestination(new LogGroup(this, `${props.apiGatewayServiceConfig.cardLinkingApiDeploymentGroupName}-${props.stage}-${props.env!.region}`, {
+                    logGroupName: `${props.apiGatewayServiceConfig.cardLinkingApiDeploymentGroupName}-${props.stage}-${props.env!.region}`,
                     retention: RetentionDays.THREE_MONTHS,
                     removalPolicy: RemovalPolicy.DESTROY
                 }))
@@ -94,13 +171,14 @@ export class APIGatewayServiceStack extends Stack {
             allowTestInvoke: true,
             timeout: Duration.seconds(29)
         });
+
         /**
          * create a new POST method for the API/Lambda integration, used for posting transactions.
          * This method will be secured via an API key.
          */
         const transactionAcknowledgmentMethod = new Method(this, `${props.apiGatewayServiceConfig.transactionsAcknowledgmentMethodName}-${props.stage}-${props.env!.region}`, {
             httpMethod: "POST",
-            resource: cardLinkingServiceAPI.root.addResource(`${props.apiGatewayServiceConfig.transactionsAcknowledgmentMethodName}`),
+            resource: cardLinkingAPIService.root.addResource(`${props.apiGatewayServiceConfig.transactionsAcknowledgmentMethodName}`),
             integration: postTransactionsIntegration,
             options: {
                 apiKeyRequired: true,
@@ -119,7 +197,7 @@ export class APIGatewayServiceStack extends Stack {
          */
         const updatedTransactionAcknowledgmentMethod = new Method(this, `${props.apiGatewayServiceConfig.updatedTransactionsAcknowledgmentMethodName}-${props.stage}-${props.env!.region}`, {
             httpMethod: "POST",
-            resource: cardLinkingServiceAPI.root.addResource(`${props.apiGatewayServiceConfig.updatedTransactionsAcknowledgmentMethodName}`),
+            resource: cardLinkingAPIService.root.addResource(`${props.apiGatewayServiceConfig.updatedTransactionsAcknowledgmentMethodName}`),
             integration: postUpdatedTransactionsIntegration,
             options: {
                 apiKeyRequired: true,
@@ -138,7 +216,7 @@ export class APIGatewayServiceStack extends Stack {
          */
         const militaryVerificationUpdatesAcknowledgmentMethod = new Method(this, `${props.apiGatewayServiceConfig.militaryVerificationUpdatesAcknowledgmentMethodName}-${props.stage}-${props.env!.region}`, {
             httpMethod: "POST",
-            resource: cardLinkingServiceAPI.root.addResource(`${props.apiGatewayServiceConfig.militaryVerificationUpdatesAcknowledgmentMethodName}`),
+            resource: cardLinkingAPIService.root.addResource(`${props.apiGatewayServiceConfig.militaryVerificationUpdatesAcknowledgmentMethodName}`),
             integration: postMilitaryVerificationUpdatesIntegration,
             options: {
                 apiKeyRequired: true,
@@ -176,8 +254,8 @@ export class APIGatewayServiceStack extends Stack {
             description: `Usage plan for the API Key to be shared with Olive`,
             apiStages: [
                 {
-                    api: cardLinkingServiceAPI,
-                    stage: cardLinkingServiceAPI.deploymentStage,
+                    api: cardLinkingAPIService,
+                    stage: cardLinkingAPIService.deploymentStage,
                     throttle: [
                         /**
                          * we want to throttle any methods other than the ones related to transactions,
@@ -196,13 +274,6 @@ export class APIGatewayServiceStack extends Stack {
                         },
                         {
                             method: updatedTransactionAcknowledgmentMethod,
-                            throttle: {
-                                burstLimit: 5000,
-                                rateLimit: 10000
-                            }
-                        },
-                        {
-                            method: militaryVerificationUpdatesAcknowledgmentMethod,
                             throttle: {
                                 burstLimit: 5000,
                                 rateLimit: 10000
@@ -240,7 +311,29 @@ export class APIGatewayServiceStack extends Stack {
         const internalUsagePlan = new aws_apigateway.UsagePlan(this, `${props.apiGatewayServiceConfig.internalUsagePlan}-${props.stage}-${props.env!.region}`, {
             name: `${props.apiGatewayServiceConfig.internalUsagePlan}-${props.stage}-${props.env!.region}`,
             description: `Usage plan for the API Key to be shared internally`,
-            apiStages: [{api: cardLinkingServiceAPI, stage: cardLinkingServiceAPI.deploymentStage}],
+            apiStages: [
+                {
+                    api: cardLinkingAPIService,
+                    stage: cardLinkingAPIService.deploymentStage,
+                    throttle: [
+                        /**
+                         * we want to throttle any methods other than the ones related to Plaid updates/sync,
+                         * so the key associated with this plan, cannot be used for anything else, since
+                         * it is shared with Plaid.
+                         *
+                         * ToDo: in the future if we create new methods we will need to configure them here
+                         *       individually.
+                         */
+                        {
+                            method: militaryVerificationUpdatesAcknowledgmentMethod,
+                            throttle: {
+                                burstLimit: 5000,
+                                rateLimit: 10000
+                            }
+                        }
+                    ]
+                }
+            ],
             /**
              * we want to have a throttle overall for all methods, since we want the key associated with this plan,
              * to have access to every method, regardless of its purpose, given its internal use

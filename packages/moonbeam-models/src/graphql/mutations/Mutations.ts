@@ -1,6 +1,24 @@
 /**
  * This is a file used to define the all GraphQL mutation constants
  */
+// Mutation used to create a Plaid linking session
+export const createPlaidLinkingSession = /* GraphQL */ `
+    mutation createPlaidLinkingSession($createPlaidLinkingSessionInput: CreatePlaidLinkingSessionInput!) {
+        createPlaidLinkingSession(createPlaidLinkingSessionInput: $createPlaidLinkingSessionInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                createdAt
+                updatedAt
+                expiration
+                hosted_link_url
+                link_token
+                request_id
+            }
+        }
+    }
+`;
 
 // Mutation used to update an existing daily earnings summary for a particular user and date (used only to update it status at the moment)
 export const updateDailyEarningsSummary = /* GraphQL */ `

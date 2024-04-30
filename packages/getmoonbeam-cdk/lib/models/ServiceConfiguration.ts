@@ -141,8 +141,10 @@ export interface CardLinkingConfiguration {
  * such as: transactions, offers, reimbursements/credits, etc.
  */
 export interface APIGatewayServiceConfiguration {
+    readonly plaidLinkingServiceAPIName: string;
+    readonly plaidApiDeploymentGroupName: string;
     readonly cardLinkingServiceAPIName: string;
-    readonly apiDeploymentGroupName: string;
+    readonly cardLinkingApiDeploymentGroupName: string;
     readonly oliveSharedAPIKeyName: string;
     readonly oliveUsagePlan: string;
     readonly internallySharedAPIKeyName: string;
@@ -150,6 +152,7 @@ export interface APIGatewayServiceConfiguration {
     readonly transactionsAcknowledgmentMethodName: string;
     readonly updatedTransactionsAcknowledgmentMethodName: string;
     readonly militaryVerificationUpdatesAcknowledgmentMethodName: string;
+    readonly plaidAcknowledgmentMethodName: string;
 }
 
 /**
@@ -523,6 +526,7 @@ export interface ScriptsConfiguration {
  * (GraphQL based), and other afferent data stores.
  */
 export interface PlaidLinkingConfiguration {
+    readonly plaidLinkingAcknowledgmentFunctionName: string;
     readonly plaidLinkingFunctionName: string;
     readonly plaidLinkingSessionsTableName: string;
     readonly createPlaidLinkingSessionResolverName: string;

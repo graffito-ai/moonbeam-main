@@ -9,7 +9,7 @@ import {
     CardLinkResponse, CreateBulkNotificationInput,
     CreateBulkNotificationResponse, CreateDailyEarningsSummaryInput, CreateEventSeriesInput,
     CreateNotificationInput,
-    CreateNotificationResponse,
+    CreateNotificationResponse, CreatePlaidLinkingSessionInput,
     DailyEarningsSummaryResponse,
     EligibleLinkedUsersResponse,
     EmailFromCognitoResponse, EventSeriesResponse,
@@ -44,7 +44,7 @@ import {
     NotificationType,
     OfferIdResponse,
     OfferRedemptionTypeResponse,
-    OffersResponse,
+    OffersResponse, PlaidLinkingSessionResponse,
     PutMilitaryVerificationReportInput,
     ReferralResponse, ReimbursementProcessingResponse,
     RemoveCardResponse,
@@ -151,6 +151,9 @@ export abstract class BaseAPIClient {
                             clientPairAsJson[Constants.AWSPairConstants.GOOGLE_MAPS_APIS_KEY]];
                     case Constants.AWSPairConstants.EVENTBRITE_SECRET_NAME:
                         return [clientPairAsJson[Constants.AWSPairConstants.EVENTBRITE_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.EVENTBRITE_API_KEY]];
+                    case Constants.AWSPairConstants.PLAID_SECRET_NAME:
+                        return [clientPairAsJson[Constants.AWSPairConstants.PLAID_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.PLAID_CLIENT_ID],
+                            clientPairAsJson[Constants.AWSPairConstants.PLAID_SECRET_KEY]];
                     case Constants.AWSPairConstants.COURIER_INTERNAL_SECRET_NAME:
                         // return the appropriate secrets, depending on the type of notification passed in
                         if (!notificationType) {
@@ -935,6 +938,19 @@ export abstract class BaseAPIClient {
      * @protected
      */
     protected verifyMemberSpouse?(): Promise<MilitaryVerificationStatusType>;
+
+    /**
+     * Function used to initiate a Plaid Hosted Linking Session.
+     *
+     * @param createPlaidLinkingSessionInput create Plaid linking session input, used to
+     * create a Plaid Linking Hosted session.
+     *
+     * @return a {@link Promise} of {@link PlaidLinkingSessionResponse} representing the
+     * Plaid linking session response object obtained from the linking session call
+     *
+     * @protected
+     */
+    protected createPlaidLinkSession?(createPlaidLinkingSessionInput: CreatePlaidLinkingSessionInput): Promise<PlaidLinkingSessionResponse>;
 
     /**
      * Function used to complete the linking of an individual's card on the platform.

@@ -70,20 +70,24 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 updateCardResolverName: 'updateCard'
             },
             plaidLinkingConfig: {
+                plaidLinkingAcknowledgmentFunctionName: 'plaidLinkingAcknowledgmentFunction',
                 plaidLinkingFunctionName: 'plaidLinkingFunction',
                 plaidLinkingSessionsTableName: 'plaidLinkingSessionsTable',
-                createPlaidLinkingSessionResolverName: 'createPlainLinkingSession'
+                createPlaidLinkingSessionResolverName: 'createPlaidLinkingSession'
             },
             apiGatewayServiceConfig: {
+                plaidLinkingServiceAPIName: 'plaidLinkingServiceAPI',
+                plaidApiDeploymentGroupName: 'plaidAPILogGroup',
                 cardLinkingServiceAPIName: 'cardLinkingServiceAPI',
-                apiDeploymentGroupName: 'cardLinkingAPILogGroup',
+                cardLinkingApiDeploymentGroupName: 'cardLinkingAPILogGroup',
                 oliveSharedAPIKeyName: 'cardLinkingOliveSharedAPIKey',
                 oliveUsagePlan: `cardLinkingOliveUsagePlan`,
                 internallySharedAPIKeyName: `internallySharedAPIKey`,
                 internalUsagePlan: `internalUsagePlan`,
                 transactionsAcknowledgmentMethodName: `transactionsAcknowledgment`,
                 updatedTransactionsAcknowledgmentMethodName: `updatedTransactionsAcknowledgment`,
-                militaryVerificationUpdatesAcknowledgmentMethodName: `militaryVerificationUpdatesAcknowledgment`
+                militaryVerificationUpdatesAcknowledgmentMethodName: `militaryVerificationUpdatesAcknowledgment`,
+                plaidAcknowledgmentMethodName: `plaidAcknowledgment`
             },
             referralProducerConsumerConfig: {
                 referralProducerFunctionName: 'referralProducerFunction',
@@ -387,20 +391,24 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 updateCardResolverName: 'updateCard'
             },
             plaidLinkingConfig: {
+                plaidLinkingAcknowledgmentFunctionName: 'plaidLinkingAcknowledgmentFunction',
                 plaidLinkingFunctionName: 'plaidLinkingFunction',
                 plaidLinkingSessionsTableName: 'plaidLinkingSessionsTable',
-                createPlaidLinkingSessionResolverName: 'createPlainLinkingSession'
+                createPlaidLinkingSessionResolverName: 'createPlaidLinkingSession'
             },
             apiGatewayServiceConfig: {
+                plaidLinkingServiceAPIName: 'plaidLinkingServiceAPI',
+                plaidApiDeploymentGroupName: 'plaidAPILogGroup',
                 cardLinkingServiceAPIName: 'cardLinkingServiceAPI',
-                apiDeploymentGroupName: 'cardLinkingAPILogGroup',
+                cardLinkingApiDeploymentGroupName: 'cardLinkingAPILogGroup',
                 oliveSharedAPIKeyName: 'cardLinkingOliveSharedAPIKey',
                 oliveUsagePlan: `cardLinkingOliveUsagePlan`,
                 internallySharedAPIKeyName: `internallySharedAPIKey`,
                 internalUsagePlan: `internalUsagePlan`,
                 transactionsAcknowledgmentMethodName: `transactionsAcknowledgment`,
                 updatedTransactionsAcknowledgmentMethodName: `updatedTransactionsAcknowledgment`,
-                militaryVerificationUpdatesAcknowledgmentMethodName: `militaryVerificationUpdatesAcknowledgment`
+                militaryVerificationUpdatesAcknowledgmentMethodName: `militaryVerificationUpdatesAcknowledgment`,
+                plaidAcknowledgmentMethodName: `plaidAcknowledgment`
             },
             referralProducerConsumerConfig: {
                 referralProducerFunctionName: 'referralProducerFunction',

@@ -68,6 +68,7 @@ type Mutation {
     createReimbursement(createReimbursementInput: CreateReimbursementInput!): ReimbursementResponse! @aws_cognito_user_pools
     createDailyEarningsSummary(createDailyEarningsSummaryInput: CreateDailyEarningsSummaryInput!): DailyEarningsSummaryResponse! @aws_cognito_user_pools @aws_api_key
     updateDailyEarningsSummary(updateDailyEarningsSummaryInput: UpdateDailyEarningsSummaryInput!): DailyEarningsSummaryResponse! @aws_cognito_user_pools @aws_api_key
+    createPlaidLinkingSession(createPlaidLinkingSessionInput: CreatePlaidLinkingSessionInput!): PlaidLinkingSessionResponse! @aws_cognito_user_pools @aws_api_key
 }
 
 type Subscription {
@@ -1968,3 +1969,101 @@ input UpdateDailyEarningsSummaryInput {
     targetDate: AWSDateTime! ## this represents the date used to sort and retrieve the appropriate daily earnings summary for.
     status: DailyEarningsSummaryStatus!
 }
+# graphql/PlaidLinkingSchema.graphql
+# Plaid Linking Schema File
+enum PlaidLinkingErrorType {
+    DUPLICATE_OBJECT_FOUND
+    NONE_OR_ABSENT
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+    UNPROCESSABLE
+}
+
+enum PlaidProducts {
+    auth
+    transactions
+}
+
+enum PlaidCountryCodes {
+    US
+}
+
+enum PlaidLanguages {
+    en
+}
+
+## this Follows Plaid's https://plaid.com/docs/api/tokens/#linktokencreate API schema
+type PlaidLinkingSession @aws_cognito_user_pools @aws_api_key {
+    id: ID!, ## this represents the user ID, passed into the create call through the user.client_user_id parameter
+    timestamp: AWSTimestamp! ## this represents the timestamp, in a Number epoch based format (for sorting purposes)
+    createdAt: AWSDateTime!
+    updatedAt: AWSDateTime!
+    hosted_link_url: String!,
+    link_token: String!,
+    request_id: String!,
+    expiration: AWSDateTime!
+}
+
+type PlaidLinkingSessionResponse @aws_cognito_user_pools @aws_api_key {
+    data: PlaidLinkingSession
+    errorType: PlaidLinkingErrorType
+    errorMessage: String
+}
+
+## this Follows Plaid's https://plaid.com/docs/api/tokens/#linktokencreate API schema
+input PlaidLinkingUserNameInput {
+    given_name: String!
+    family_name: String!
+}
+
+## this Follows Plaid's https://plaid.com/docs/api/tokens/#linktokencreate API schema
+input PlaidLinkingUserAddressInput {
+    street: String!
+    city: String!
+    region: String!
+    postal_code: String!
+    country: String!
+}
+
+## this Follows Plaid's https://plaid.com/docs/api/tokens/#linktokencreate API schema
+input PlaidLinkingTransactionsInput {
+    days_requested: Int!
+}
+
+## this Follows Plaid's https://plaid.com/docs/api/tokens/#linktokencreate API schema
+input PlaidLinkingHostedLinkInput {
+    completion_redirect_uri: String!
+    url_lifetime_seconds: Int!
+    is_mobile_app: Boolean!
+}
+
+## this Follows Plaid's https://plaid.com/docs/api/tokens/#linktokencreate API schema
+input PlaidLinkingUserInput {
+    client_user_id: String!
+    legal_name: String!
+    name: PlaidLinkingUserNameInput!
+    phone_number: String!
+    email_address: String!
+    date_of_birth: String!
+    address: PlaidLinkingUserAddressInput!
+}
+
+## this Follows Plaid's https://plaid.com/docs/api/tokens/#linktokencreate API schema
+input CreatePlaidLinkingSessionInput {
+    client_name: String
+    client_id: String
+    secret: String
+    link_customization_name: String!
+    user: PlaidLinkingUserInput!
+    products: [PlaidProducts]
+    transactions: PlaidLinkingTransactionsInput
+    country_codes: [PlaidCountryCodes]
+    redirect_uri: String
+    language: PlaidLanguages
+    webhook: String
+    hosted_link: PlaidLinkingHostedLinkInput!
+    createdAt: AWSDateTime
+    updatedAt: AWSDateTime
+}
+
+

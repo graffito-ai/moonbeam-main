@@ -22,6 +22,7 @@ schema:
   - ./src/graphql/schemas/ServicesSchema.graphql
   - ./src/graphql/schemas/EventsSchema.graphql
   - ./src/graphql/schemas/DailySummarySchema.graphql
+  - ./src/graphql/schemas/PlaidLinkingSchema.graphql
 documents:
   - ./src/graphql/queries/Queries.graphql
   - ./src/graphql/mutations/Mutations.graphql

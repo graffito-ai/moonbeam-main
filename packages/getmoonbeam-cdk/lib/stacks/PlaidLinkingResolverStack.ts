@@ -11,6 +11,13 @@ import {Effect, PolicyStatement} from "aws-cdk-lib/aws-iam";
 export class PlaidLinkingResolverStack extends Stack {
 
     /**
+     * the Plaid Linking producer Lambda Function, acting as the
+     * Plaid Linking updates producer, to be used in kick-starting the whole
+     * Plaid updates process, by dropping messages in the appropriate topic and queue.
+     */
+    readonly plaidLinkingAcknowledgmentLambda: aws_lambda_nodejs.NodejsFunction;
+
+    /**
      * Constructor for the Plaid Linking resolver stack.
      *
      * @param scope scope to be passed in (usually a CDK App Construct)
@@ -20,8 +27,25 @@ export class PlaidLinkingResolverStack extends Stack {
     constructor(scope: Construct, id: string, props: StackProps & Pick<StageConfiguration, 'environmentVariables' | 'stage' | 'plaidLinkingConfig'> & { graphqlApiId: string, graphqlApiName: string }) {
         super(scope, id, props);
 
+        // create a new Lambda function to be used with the Plaid Updates Webhook service for Plaid sync/updates purposes, acting as the acknowledgment service or producer
+        this.plaidLinkingAcknowledgmentLambda = new aws_lambda_nodejs.NodejsFunction(this, `${props.plaidLinkingConfig.plaidLinkingAcknowledgmentFunctionName}-${props.stage}-${props.env!.region}`, {
+            functionName: `${props.plaidLinkingConfig.plaidLinkingAcknowledgmentFunctionName}-${props.stage}-${props.env!.region}`,
+            entry: path.resolve(path.join(__dirname, '../../../moonbeam-plaid-acknowledgment-lambda/src/lambda/main.ts')),
+            handler: 'handler',
+            runtime: aws_lambda.Runtime.NODEJS_18_X,
+            // we add a timeout here different from the default of 3 seconds, since we expect these API calls to take longer
+            timeout: Duration.seconds(30),
+            bundling: {
+                minify: true, // minify code, defaults to false
+                sourceMap: true, // include source map, defaults to false
+                sourceMapMode: aws_lambda_nodejs.SourceMapMode.BOTH, // defaults to SourceMapMode.DEFAULT
+                sourcesContent: false, // do not include original source into source map, defaults to true
+                target: 'esnext', // target environment for the generated JavaScript code
+            }
+        });
+
         // create a new Lambda function to be used with the AppSync API for the resolvers
-        const cardLinkingLambda = new aws_lambda_nodejs.NodejsFunction(this, `${props.plaidLinkingConfig.plaidLinkingFunctionName}-${props.stage}-${props.env!.region}`, {
+        const plaidLinkingLambda = new aws_lambda_nodejs.NodejsFunction(this, `${props.plaidLinkingConfig.plaidLinkingFunctionName}-${props.stage}-${props.env!.region}`, {
             functionName: `${props.plaidLinkingConfig.plaidLinkingFunctionName}-${props.stage}-${props.env!.region}`,
             entry: path.resolve(path.join(__dirname, '../../../moonbeam-plaid-linking-lambda/src/lambda/main.ts')),
             handler: 'handler',
@@ -43,56 +67,40 @@ export class PlaidLinkingResolverStack extends Stack {
             {graphqlApiId: props.graphqlApiId});
 
         // set the new Lambda function as a data source for the AppSync API
-        const cardLinkingLambdaDataSource = graphqlApi.addLambdaDataSource(`${props.cardLinkingConfig.cardLinkingFunctionName}-datasource-${props.stage}-${props.env!.region}`,
-            cardLinkingLambda);
+        const plaidLinkingLambdaDataSource = graphqlApi.addLambdaDataSource(`${props.plaidLinkingConfig.plaidLinkingFunctionName}-datasource-${props.stage}-${props.env!.region}`,
+            plaidLinkingLambda);
 
         // add resolvers for which Query or Mutation type from the GraphQL schema listed above
-        cardLinkingLambdaDataSource.createResolver(`${props.cardLinkingConfig.createCardLinkResolverName}-${props.stage}-${props.env!.region}`, {
+        plaidLinkingLambdaDataSource.createResolver(`${props.plaidLinkingConfig.createPlaidLinkingSessionResolverName}-${props.stage}-${props.env!.region}`, {
             typeName: "Mutation",
-            fieldName: `${props.cardLinkingConfig.createCardLinkResolverName}`
-        });
-        cardLinkingLambdaDataSource.createResolver(`${props.cardLinkingConfig.addCardResolverName}-${props.stage}-${props.env!.region}`, {
-            typeName: "Mutation",
-            fieldName: `${props.cardLinkingConfig.addCardResolverName}`
-        });
-        cardLinkingLambdaDataSource.createResolver(`${props.cardLinkingConfig.deleteCardResolverName}-${props.stage}-${props.env!.region}`, {
-            typeName: "Mutation",
-            fieldName: `${props.cardLinkingConfig.deleteCardResolverName}`
-        });
-        cardLinkingLambdaDataSource.createResolver(`${props.cardLinkingConfig.updateCardResolverName}-${props.stage}-${props.env!.region}`, {
-            typeName: "Mutation",
-            fieldName: `${props.cardLinkingConfig.updateCardResolverName}`
-        });
-        cardLinkingLambdaDataSource.createResolver(`${props.cardLinkingConfig.getUsersWithNoCardsResolverName}-${props.stage}-${props.env!.region}`, {
-            typeName: "Query",
-            fieldName: `${props.cardLinkingConfig.getUsersWithNoCardsResolverName}`
-        });
-        cardLinkingLambdaDataSource.createResolver(`${props.cardLinkingConfig.getCardLinkResolverName}-${props.stage}-${props.env!.region}`, {
-            typeName: "Query",
-            fieldName: `${props.cardLinkingConfig.getCardLinkResolverName}`
-        });
-        cardLinkingLambdaDataSource.createResolver(`${props.cardLinkingConfig.getEligibleLinkedUsersResolverName}-${props.stage}-${props.env!.region}`, {
-            typeName: "Query",
-            fieldName: `${props.cardLinkingConfig.getEligibleLinkedUsersResolverName}`
-        });
-        cardLinkingLambdaDataSource.createResolver(`${props.cardLinkingConfig.getUserCardLinkingIdResolverName}-${props.stage}-${props.env!.region}`, {
-            typeName: "Query",
-            fieldName: `${props.cardLinkingConfig.getUserCardLinkingIdResolverName}`
+            fieldName: `${props.plaidLinkingConfig.createPlaidLinkingSessionResolverName}`
         });
 
-        // create a new table to be used for the Card Linking purposes
-        const cardLinkingTable = new aws_dynamodb.Table(this, `${props.cardLinkingConfig.cardLinkingTableName}-${props.stage}-${props.env!.region}`, {
-            tableName: `${props.cardLinkingConfig.cardLinkingTableName}-${props.stage}-${props.env!.region}`,
+        // create a new table to be used for the Plaid Linking Session Creation purposes
+        const plaidLinkingSessionsTable = new aws_dynamodb.Table(this, `${props.plaidLinkingConfig.plaidLinkingSessionsTableName}-${props.stage}-${props.env!.region}`, {
+            tableName: `${props.plaidLinkingConfig.plaidLinkingSessionsTableName}-${props.stage}-${props.env!.region}`,
             billingMode: aws_dynamodb.BillingMode.PAY_PER_REQUEST,
+            /**
+             * the primary key of this table, will be a composite key [id, timestamp], where the id represents the user id,
+             * and the timestamp represents the creation time of a plaid linking session (aka when it occurred, in a UNIX format).
+             * The timestamp will be the same as `createdAt` property, only that the `createdAt` will be in EPOCH time format
+             * instead.
+             *
+             * This will allow us to sort through plaid linking sessions for a particular user during a specific timeframe.
+             */
             partitionKey: {
                 name: 'id',
-                type: aws_dynamodb.AttributeType.STRING,
+                type: aws_dynamodb.AttributeType.STRING
             },
+            sortKey: {
+                name: 'timestamp',
+                type: aws_dynamodb.AttributeType.NUMBER
+            }
         });
 
         // enable the Lambda function to access the DynamoDB table (using IAM)
-        cardLinkingTable.grantFullAccess(cardLinkingLambda);
-        cardLinkingLambda.addToRolePolicy(
+        plaidLinkingSessionsTable.grantFullAccess(plaidLinkingLambda);
+        plaidLinkingLambda.addToRolePolicy(
             /**
              * policy used to allow full Dynamo DB access for the Lambda, added again on top of the lines above, since they sometimes don't work
              * Note: by "they" meaning "grantFullAccess" above.
@@ -107,13 +115,28 @@ export class PlaidLinkingResolverStack extends Stack {
                         "dynamodb:DeleteItem"
                     ],
                     resources: [
-                        `${cardLinkingTable.tableArn}`
+                        `${plaidLinkingSessionsTable.tableArn}`
                     ]
                 }
             )
         );
+        // enable the Lambda function the retrieval of the Plaid API secrets
+        plaidLinkingLambda.addToRolePolicy(
+            new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: [
+                    "secretsmanager:GetSecretValue"
+                ],
+                resources: [
+                    // this ARN is retrieved post secret creation
+                    ...props.stage === Stages.DEV ? ["arn:aws:secretsmanager:us-west-2:963863720257:secret:plaid-secret-pair-dev-us-west-2-wwMgcC"] : [],
+                    ...props.stage === Stages.PROD ? ["arn:aws:secretsmanager:us-west-2:251312580862:secret:plaid-secret-pair-prod-us-west-2-XXmqfi"] : []
+                ]
+            })
+        );
+
         // enable the Lambda function the retrieval of the Moonbeam internal API secrets
-        cardLinkingLambda.addToRolePolicy(
+        this.plaidLinkingAcknowledgmentLambda.addToRolePolicy(
             new PolicyStatement({
                 effect: Effect.ALLOW,
                 actions: [
@@ -126,23 +149,36 @@ export class PlaidLinkingResolverStack extends Stack {
                 ]
             })
         );
-        // enable the Lambda function the retrieval of the Olive API secrets
-        cardLinkingLambda.addToRolePolicy(
+        // enable the Lambda function to access the AppSync mutations and queries
+        this.plaidLinkingAcknowledgmentLambda.addToRolePolicy(
             new PolicyStatement({
                 effect: Effect.ALLOW,
                 actions: [
-                    "secretsmanager:GetSecretValue"
+                    "appsync:GraphQL"
                 ],
                 resources: [
-                    // this ARN is retrieved post secret creation
-                    ...props.stage === Stages.DEV ? ["arn:aws:secretsmanager:us-west-2:963863720257:secret:olive-secret-pair-dev-us-west-2-OTgCOk"] : [],
-                    ...props.stage === Stages.PROD ? ["arn:aws:secretsmanager:us-west-2:251312580862:secret:olive-secret-pair-prod-us-west-2-gIvRt8"] : []
+                    // this ARN is retrieved post GraphQL API creation
+                    ...props.stage === Stages.DEV ? ["arn:aws:appsync:us-west-2:963863720257:apis/pkr6ygyik5bqjigb6nd57jl2cm/types/Mutation/*"] : [],
+                    ...props.stage === Stages.PROD ? ["arn:aws:appsync:us-west-2:251312580862:apis/p3a4pwssi5dejox33pvznpvz4u/types/Mutation/*"] : []
+                ]
+            })
+        );
+        this.plaidLinkingAcknowledgmentLambda.addToRolePolicy(
+            new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: [
+                    "appsync:GraphQL"
+                ],
+                resources: [
+                    // this ARN is retrieved post GraphQL API creation
+                    ...props.stage === Stages.DEV ? [ "arn:aws:appsync:us-west-2:963863720257:apis/pkr6ygyik5bqjigb6nd57jl2cm/types/Query/*"] : [],
+                    ...props.stage === Stages.PROD ? ["arn:aws:appsync:us-west-2:251312580862:apis/p3a4pwssi5dejox33pvznpvz4u/types/Query/*"] : []
                 ]
             })
         );
 
         // Create environment variables that we will use in the function code
-        cardLinkingLambda.addEnvironment(`${Constants.MoonbeamConstants.CARD_LINKING_TABLE}`, cardLinkingTable.tableName);
-        cardLinkingLambda.addEnvironment(`${Constants.MoonbeamConstants.ENV_NAME}`, props.stage);
+        plaidLinkingLambda.addEnvironment(`${Constants.MoonbeamConstants.PLAID_LINKING_SESSIONS_TABLE}`, plaidLinkingSessionsTable.tableName);
+        plaidLinkingLambda.addEnvironment(`${Constants.MoonbeamConstants.ENV_NAME}`, props.stage);
     }
 }

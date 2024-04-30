@@ -323,6 +323,23 @@ export type CreatePartnerInput = {
   zipCode: Scalars['String'];
 };
 
+export type CreatePlaidLinkingSessionInput = {
+  client_id?: InputMaybe<Scalars['String']>;
+  client_name?: InputMaybe<Scalars['String']>;
+  country_codes?: InputMaybe<Array<InputMaybe<PlaidCountryCodes>>>;
+  createdAt?: InputMaybe<Scalars['AWSDateTime']>;
+  hosted_link: PlaidLinkingHostedLinkInput;
+  language?: InputMaybe<PlaidLanguages>;
+  link_customization_name: Scalars['String'];
+  products?: InputMaybe<Array<InputMaybe<PlaidProducts>>>;
+  redirect_uri?: InputMaybe<Scalars['String']>;
+  secret?: InputMaybe<Scalars['String']>;
+  transactions?: InputMaybe<PlaidLinkingTransactionsInput>;
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+  user: PlaidLinkingUserInput;
+  webhook?: InputMaybe<Scalars['String']>;
+};
+
 export type CreateReferralInput = {
   campaignCode: MarketingCampaignCode;
   createdAt?: InputMaybe<Scalars['AWSDateTime']>;
@@ -1162,6 +1179,7 @@ export type Mutation = {
   createMilitaryVerification: CreateMilitaryVerificationResponse;
   createNotification: CreateNotificationResponse;
   createNotificationReminder: NotificationReminderResponse;
+  createPlaidLinkingSession: PlaidLinkingSessionResponse;
   createReferral: ReferralResponse;
   createReimbursement: ReimbursementResponse;
   createServicePartner: PartnerResponse;
@@ -1241,6 +1259,11 @@ export type MutationCreateNotificationArgs = {
 
 export type MutationCreateNotificationReminderArgs = {
   createNotificationReminderInput: CreateNotificationReminderInput;
+};
+
+
+export type MutationCreatePlaidLinkingSessionArgs = {
+  createPlaidLinkingSessionInput: CreatePlaidLinkingSessionInput;
 };
 
 
@@ -1629,6 +1652,79 @@ export type PartnerResponse = {
   errorMessage?: Maybe<Scalars['String']>;
   errorType?: Maybe<ServicesErrorType>;
 };
+
+export enum PlaidCountryCodes {
+  Us = 'US'
+}
+
+export enum PlaidLanguages {
+  En = 'en'
+}
+
+export enum PlaidLinkingErrorType {
+  DuplicateObjectFound = 'DUPLICATE_OBJECT_FOUND',
+  NoneOrAbsent = 'NONE_OR_ABSENT',
+  UnexpectedError = 'UNEXPECTED_ERROR',
+  Unprocessable = 'UNPROCESSABLE',
+  ValidationError = 'VALIDATION_ERROR'
+}
+
+export type PlaidLinkingHostedLinkInput = {
+  completion_redirect_uri: Scalars['String'];
+  is_mobile_app: Scalars['Boolean'];
+  url_lifetime_seconds: Scalars['Int'];
+};
+
+export type PlaidLinkingSession = {
+  __typename?: 'PlaidLinkingSession';
+  createdAt: Scalars['AWSDateTime'];
+  expiration: Scalars['AWSDateTime'];
+  hosted_link_url: Scalars['String'];
+  id: Scalars['ID'];
+  link_token: Scalars['String'];
+  request_id: Scalars['String'];
+  timestamp: Scalars['AWSTimestamp'];
+  updatedAt: Scalars['AWSDateTime'];
+};
+
+export type PlaidLinkingSessionResponse = {
+  __typename?: 'PlaidLinkingSessionResponse';
+  data?: Maybe<PlaidLinkingSession>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<PlaidLinkingErrorType>;
+};
+
+export type PlaidLinkingTransactionsInput = {
+  days_requested: Scalars['Int'];
+};
+
+export type PlaidLinkingUserAddressInput = {
+  city: Scalars['String'];
+  country: Scalars['String'];
+  postal_code: Scalars['String'];
+  region: Scalars['String'];
+  street: Scalars['String'];
+};
+
+export type PlaidLinkingUserInput = {
+  address: PlaidLinkingUserAddressInput;
+  client_user_id: Scalars['String'];
+  date_of_birth: Scalars['String'];
+  email_address: Scalars['String'];
+  legal_name: Scalars['String'];
+  name: PlaidLinkingUserNameInput;
+  phone_number: Scalars['String'];
+};
+
+export type PlaidLinkingUserNameInput = {
+  family_name: Scalars['String'];
+  given_name: Scalars['String'];
+};
+
+export enum PlaidProducts {
+  Auth = 'auth',
+  Transactions = 'transactions'
+}
 
 export enum PlaidTransactionsStatus {
   Added = 'ADDED',
@@ -2319,6 +2415,13 @@ export enum UtilitiesErrorType {
   UnexpectedError = 'UNEXPECTED_ERROR',
   ValidationError = 'VALIDATION_ERROR'
 }
+
+export type CreatePlaidLinkingSessionMutationVariables = Exact<{
+  createPlaidLinkingSessionInput: CreatePlaidLinkingSessionInput;
+}>;
+
+
+export type CreatePlaidLinkingSessionMutation = { __typename?: 'Mutation', createPlaidLinkingSession: { __typename?: 'PlaidLinkingSessionResponse', errorMessage?: string | null, errorType?: PlaidLinkingErrorType | null, data?: { __typename?: 'PlaidLinkingSession', id: string, createdAt: string, updatedAt: string, expiration: string, hosted_link_url: string, link_token: string, request_id: string } | null } };
 
 export type UpdateDailyEarningsSummaryMutationVariables = Exact<{
   updateDailyEarningsSummaryInput: UpdateDailyEarningsSummaryInput;

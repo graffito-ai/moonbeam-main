@@ -70,6 +70,7 @@ export namespace Constants {
         export const NOTIFICATION_REMINDER_TABLE: string = 'NOTIFICATION_REMINDER_TABLE';
         export const MILITARY_VERIFICATION_TABLE: string = 'MILITARY_VERIFICATION_TABLE';
         export const PARTNER_MERCHANT_TABLE: string = 'PARTNER_MERCHANT_TABLE';
+        export const PLAID_LINKING_SESSIONS_TABLE: string = 'PLAID_LINKING_SESSIONS_TABLE';
         export const CARD_LINKING_TABLE: string = 'CARD_LINKING_TABLE';
         export const CARD_LINKING_STATUS_GLOBAL_INDEX: string = 'CARD_LINKING_STATUS_GLOBAL_INDEX';
         export const REFERRAL_TABLE: string = 'REFERRAL_TABLE';
@@ -246,5 +247,10 @@ export namespace Constants {
         export const APP_UPGRADE_SECRET_NAME = `app-upgrade-secret-pair`;
         export const APP_UPGRADE_API_KEY = `APP-UPGRADE-API-KEY`;
         export const APP_UPGRADE_BASE_URL = `APP-UPGRADE-BASE-URL`;
+
+        export const PLAID_SECRET_NAME = `plaid-secret-pair`;
+        export const PLAID_BASE_URL = `PLAID_BASE_URL`;
+        export const PLAID_CLIENT_ID = `PLAID_CLIENT_ID`;
+        export const PLAID_SECRET_KEY = `PLAID_SECRET_KEY`;
     }
 }

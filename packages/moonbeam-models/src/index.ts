@@ -12,6 +12,7 @@ export * from './common/clients/BaseAPIClient';
 export * from './common/clients/MoonbeamClient';
 export * from './common/clients/OliveClient';
 export * from './common/clients/CourierClient';
+export * from './common/clients/PlaidClient';
 export * from './common/clients/AppUpgradeClient';
 export * from './common/clients/GoogleMapsClient';
 export * from './common/clients/EventBriteClient';

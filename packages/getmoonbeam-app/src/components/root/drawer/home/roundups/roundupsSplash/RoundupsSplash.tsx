@@ -393,14 +393,14 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                                      */
                                     if (roundupsSplashStepNumber === 6) {
                                         setIsPlaidLinkInitiated(true);
+
+                                        // navigate to the RoundupsHome screen
+                                        navigation.navigate('RoundupsHome', {});
+                                        // set the Roundups activation state accordingly
+                                        setAreRoundupsActive(true);
                                     }
                                     // increase the step number for all steps accordingly
-                                    // setRoundupsSplashStepNumber(roundupsSplashStepNumber + 1);
-
-                                    // // navigate to the RoundupsHome screen
-                                    // navigation.navigate('RoundupsHome', {});
-                                    // // set the Roundups activation state accordingly
-                                    // setAreRoundupsActive(true);
+                                    setRoundupsSplashStepNumber(roundupsSplashStepNumber + 1);
                                 }
                             }}
                         >
