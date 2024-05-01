@@ -160,6 +160,7 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
                 onOpenComplete: async (event) => {
                     const params = event.params;
                     if (params) {
+                        // referrals or cashback notifications
                         if (params['~tags'] && params['~tags'].length === 2) {
                             // check whether this is a referral specific branch url or a notification deep-link url
                             if ((params['~tags'][0].toString() === 'cashback' && params['~tags'][1].toString() === 'notifications') ||
@@ -191,6 +192,13 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
                                     expoPushToken: route.params.expoPushToken,
                                     onLayoutRootView: route.params.onLayoutRootView
                                 });
+                            }
+                        }
+                        // Plaid redirects
+                        if (params['~tags'] && params['~tags'].length === 1) {
+                            // Plaid redirects
+                            if (params['~tags'][0].toString() === 'sandbox-plaid-redirect' || params['~tags'][0].toString() === 'plaid-redirect') {
+                                setAppUrl(`${await ExpoLinking.getInitialURL()}/plaidRedirect`);
                             }
                         }
                     }

@@ -25,6 +25,8 @@ import {initiatePlaidLinkingSession} from "../../../../../../utils/AppSync";
 import {splashStatusState} from "../../../../../../recoil/SplashAtom";
 // @ts-ignore
 import MoonbeamErrorImage from "../../../../../../../assets/art/moonbeam-error.png";
+import * as envInfo from "../../../../../../../local-env-info.json";
+import {Stages} from "@moonbeam/moonbeam-models";
 
 /**
  * AccountLinkingSummaryStep component.
@@ -53,11 +55,10 @@ export const AccountLinkingStep = () => {
         // if this flag is active, then we know we have to kickstart the linking step
         if (isPlaidLinkInitiated && plaidLinkingSession === null && splashState.splashTitle !== `Houston we got a problem!`) {
             setIsReady(false);
-
             // then, initialize the Plaid Linking session in order to obtain the hosted_link
             initiatePlaidLinkingSession(userInformation["custom:userId"], userInformation["given_name"], userInformation["family_name"],
                 userInformation["email"], userInformation["birthdate"], userInformation["phone_number"], userInformation["address"]["formatted"],
-                `https://app.moonbeam.vet/sandbox-plaid-redirect`).then(plaidLinkingSessionResponse => {
+                envInfo.envName === Stages.PROD ? `https://app.moonbeam.vet/plaid-redirect` : `https://app.moonbeam.vet/sandbox-plaid-redirect`).then(plaidLinkingSessionResponse => {
                 // if there were any errors in the linking session creation, then display a Splash prompting the user to try again
                 if (plaidLinkingSessionResponse && !plaidLinkingSessionResponse.errorMessage &&
                     plaidLinkingSessionResponse.data !== undefined && plaidLinkingSessionResponse.data !== null) {

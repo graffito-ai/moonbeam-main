@@ -54,6 +54,7 @@ import {Spinner} from "../../../../../common/Spinner";
 import {splashStatusState} from "../../../../../../recoil/SplashAtom";
 import {SplashScreen} from "../../../../../common/Splash";
 import {PlaidLinkingSessionStep} from "./PlaidLinkingSessionStep";
+import {PlaidLoadingStep} from "./PlaidLoadingStep";
 
 /**
  * RoundupsSplash component.
@@ -143,7 +144,7 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                                     style={{flex: 1}}
                                 >
                                     {
-                                        roundupsSplashStepNumber !== 7 &&
+                                        (roundupsSplashStepNumber !== 7 && roundupsSplashStepNumber !== 8) &&
                                         <TouchableOpacity style={styles.closeIcon}>
                                             <Icon
                                                 type={roundupsSplashStepNumber < 6 ? "antdesign" : "feather"}
@@ -411,13 +412,18 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                                             roundupsSplashStepNumber === 7 &&
                                             <PlaidLinkingSessionStep/>
                                         }
+                                        {
+                                            roundupsSplashStepNumber === 8 &&
+                                            <PlaidLoadingStep/>
+                                        }
+
                                         {/*{*/}
                                         {/*    roundupsSplashStepNumber === 8 &&*/}
                                         {/*    <AccountLinkingSummaryStep/>*/}
                                         {/*}*/}
                                     </View>
                                     {
-                                        (roundupsSplashStepNumber === 5 || roundupsSplashStepNumber === 6 || roundupsSplashStepNumber === 8) &&
+                                        (roundupsSplashStepNumber === 5 || roundupsSplashStepNumber === 6 || roundupsSplashStepNumber === 9) &&
                                         <View style={styles.roundupsSplashDisclaimerView}>
                                             <Paragraph
                                                 numberOfLines={roundupsSplashStepNumber === 5 ? 2 : 5}
@@ -433,7 +439,7 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                                         </View>
                                     }
                                     {
-                                        roundupsSplashStepNumber !== 7 &&
+                                        (roundupsSplashStepNumber !== 7 && roundupsSplashStepNumber !== 8) &&
                                         <TouchableOpacity
                                             style={styles.getStartedButton}
                                             onPress={() => {
@@ -466,7 +472,7 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                                                 ? "Start your 30 day trial"
                                                 : roundupsSplashStepNumber === 6
                                                     ? "Link your Bank"
-                                                    : roundupsSplashStepNumber === 8
+                                                    : roundupsSplashStepNumber === 9
                                                         ? "Proceed with Account"
                                                         : "Get Started"}</Text>
                                         </TouchableOpacity>
