@@ -2000,6 +2000,7 @@ type PlaidLinkingSession @aws_cognito_user_pools @aws_api_key {
     updatedAt: AWSDateTime!
     hosted_link_url: String!,
     link_token: String!,
+    public_token: String,
     request_id: String!,
     expiration: AWSDateTime!
 }
@@ -2053,7 +2054,7 @@ input CreatePlaidLinkingSessionInput {
     client_name: String
     client_id: String
     secret: String
-    link_customization_name: String!
+    link_customization_name: String
     user: PlaidLinkingUserInput!
     products: [PlaidProducts]
     transactions: PlaidLinkingTransactionsInput

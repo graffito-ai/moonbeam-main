@@ -488,6 +488,19 @@ export abstract class BaseAPIClient {
     protected getMilitaryVerificationInformation?(getMilitaryVerificationInformationInput: GetMilitaryVerificationInformationInput): Promise<MilitaryVerificationReportingInformationResponse>;
 
     /**
+     * Function used to get create and initiate a Plaid linking session,
+     *
+     * @param createPlaidLinkingSessionInput the input containing the information
+     * necessary to initiate a Plaid linking session.
+     *
+     * @returns a {@link PlaidLinkingSessionResponse}, representing the initiated
+     * Plaid linking session
+     *
+     * @protected
+     */
+    protected createPlaidLinkingSession?(createPlaidLinkingSessionInput: CreatePlaidLinkingSessionInput): Promise<PlaidLinkingSessionResponse>;
+
+    /**
      * Function used to update and/or create an existing/new military verification report
      * file.
      *

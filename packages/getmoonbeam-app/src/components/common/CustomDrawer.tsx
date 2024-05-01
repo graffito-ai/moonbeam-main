@@ -289,7 +289,7 @@ import {
     servicePartnersDataState,
     servicePartnerState
 } from "../../recoil/ServicesAtom";
-import {isPlaidLinkInitiatedState, roundupsActiveState} from '../../recoil/RoundupsAtom';
+import {isPlaidLinkInitiatedState, isRoundupsSplashReadyState, plaidLinkingSessionState, roundupsActiveState, roundupsSplashStepNumberState} from '../../recoil/RoundupsAtom';
 
 /**
  * import branch only if the app is not running in Expo Go (so we can actually run the application without Branch for
@@ -582,6 +582,9 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const showDailySummaryConfettiStateReset = useResetRecoilState(showDailySummaryConfettiState);
     const roundupsActiveStateReset = useResetRecoilState(roundupsActiveState);
     const isPlaidLinkInitiatedStateReset = useResetRecoilState(isPlaidLinkInitiatedState);
+    const isRoundupsSplashReadyStateReset = useResetRecoilState(isRoundupsSplashReadyState);
+    const plaidLinkingHostedSessionURLStateReset = useResetRecoilState(plaidLinkingSessionState);
+    const roundupsSplashStepNumberStateReset = useResetRecoilState(roundupsSplashStepNumberState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -877,6 +880,9 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
             showRoundupTransactionBottomSheetStateReset();
             roundupsTransactionDataStateReset();
             isPlaidLinkInitiatedStateReset();
+            isRoundupsSplashReadyStateReset();
+            plaidLinkingHostedSessionURLStateReset();
+            roundupsSplashStepNumberStateReset();
             // if this is not running in Expo Go
             if (!isRunningInExpoGo) {
                 // import branch

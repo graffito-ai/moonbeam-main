@@ -278,4 +278,21 @@ export const styles = StyleSheet.create({
         textAlign: 'center',
         bottom: hp(5)
     },
+    splashButtonDismiss: {
+        bottom: hp(5),
+        backgroundColor: '#F2FF5D',
+        width: wp(30),
+        height: hp(5),
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignSelf: 'center',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    splashButtonDismissText: {
+        color: '#313030',
+        fontFamily: 'Saira-Medium',
+        fontSize: hp(2.3),
+        marginTop: hp(1)
+    }
 });

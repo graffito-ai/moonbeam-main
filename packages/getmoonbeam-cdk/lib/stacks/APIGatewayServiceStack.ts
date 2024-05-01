@@ -121,7 +121,7 @@ export class APIGatewayServiceStack extends Stack {
             resource: plaidLinkingAPIService.root.addResource(`${props.apiGatewayServiceConfig.plaidAcknowledgmentMethodName}`),
             integration: postPlaidUpdatesIntegration,
             options: {
-                apiKeyRequired: true,
+                apiKeyRequired: false,
                 operationName: props.apiGatewayServiceConfig.plaidAcknowledgmentMethodName
             }
         });

@@ -6,7 +6,8 @@ import {
     PlaidLinkingErrorType,
     PlaidLinkingSession,
     PlaidLinkingSessionResponse,
-    PlaidProducts, Stages
+    PlaidProducts,
+    Stages
 } from "@moonbeam/moonbeam-models";
 import {DynamoDBClient, GetItemCommand, PutItemCommand} from "@aws-sdk/client-dynamodb";
 
@@ -133,7 +134,10 @@ export const createPlaidLinkingSession = async (fieldName: string, createPlaidLi
                 console.log(`Unexpected error returned from the linking session creation call!`);
 
                 // if there are errors associated with the call, just return the error message and error type from the upstream client
-                return response;
+                return {
+                    errorMessage: response.errorMessage,
+                    errorType: PlaidLinkingErrorType.ValidationError
+                }
             }
         }
     } catch (err) {

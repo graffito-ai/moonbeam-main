@@ -81,9 +81,6 @@ export class PlaidClient extends BaseAPIClient {
                 timeout: 15000, // in milliseconds here
                 timeoutErrorMessage: 'Plaid API timed out after 15000ms!'
             }).then(plaidLinkingSessionResponse => {
-                console.log(`${plaidLinkingSessionResponse}`);
-                console.log(`${endpointInfo} response ${JSON.stringify(plaidLinkingSessionResponse.data)}`);
-
                 /**
                  * if we reached this, then we assume that a 2xx response code was returned.
                  * check the contents of the response, and act appropriately.
@@ -92,14 +89,16 @@ export class PlaidClient extends BaseAPIClient {
                     plaidLinkingSessionResponse.data["hosted_link_url"] !== undefined && plaidLinkingSessionResponse.data["link_token"] !== undefined &&
                     plaidLinkingSessionResponse.data["request_id"] !== undefined) {
                     return {
-                        id: createPlaidLinkingSessionInput.user.client_user_id,
-                        timestamp: Date.parse(createPlaidLinkingSessionInput.createdAt!).toString(),
-                        createdAt: createPlaidLinkingSessionInput.createdAt!,
-                        updatedAt: createPlaidLinkingSessionInput.createdAt!,
-                        expiration: plaidLinkingSessionResponse.data["expiration"],
-                        hosted_link_url: plaidLinkingSessionResponse.data["hosted_link_url"],
-                        link_token: plaidLinkingSessionResponse.data["link_token"],
-                        request_id: plaidLinkingSessionResponse.data["request_id"]
+                        data: {
+                            id: createPlaidLinkingSessionInput.user.client_user_id,
+                            timestamp: Date.parse(createPlaidLinkingSessionInput.createdAt!),
+                            createdAt: createPlaidLinkingSessionInput.createdAt!,
+                            updatedAt: createPlaidLinkingSessionInput.createdAt!,
+                            expiration: plaidLinkingSessionResponse.data["expiration"],
+                            hosted_link_url: plaidLinkingSessionResponse.data["hosted_link_url"],
+                            link_token: plaidLinkingSessionResponse.data["link_token"],
+                            request_id: plaidLinkingSessionResponse.data["request_id"]
+                        }
                     }
                 } else {
                     return {

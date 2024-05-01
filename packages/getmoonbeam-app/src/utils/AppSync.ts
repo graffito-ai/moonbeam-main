@@ -7,6 +7,7 @@ import {
     createLogEvent,
     createNotification,
     CreateNotificationInput,
+    createPlaidLinkingSession,
     createReferral,
     createReimbursement,
     CreateReimbursementInput,
@@ -45,6 +46,8 @@ import {
     OfferStore,
     OsType,
     Partner,
+    PlaidLinkingErrorType, PlaidLinkingSession,
+    PlaidLinkingSessionResponse,
     RedemptionType,
     Referral,
     ReferralErrorType,
@@ -82,6 +85,94 @@ const calculateDateTime = (): Date => {
     return d.getTimezoneOffset() > 0
         ? new Date(d.getTime() - (d.getTimezoneOffset() * 60000))
         : new Date(d.getTime() + (d.getTimezoneOffset() * 60000));
+}
+
+/**
+ * Function used to initiate a Plaid Linking session.
+ *
+ * @param userId user id passed in, used to initialize the Plaid Linking session
+ * @param firstName first name passed in, used to initialize the Plaid Linking session
+ * @param lastName last name passed in, used to initialize the Plaid Linking session
+ * @param email email passed in, used to initialize the Plaid Linking session
+ * @param dob dob passed in, used to initialize the Plaid Linking session
+ * @param phoneNumber phoneNumber passed in, used to initialize the Plaid Linking session
+ * @param address address passed in, used to initialize the Plaid Linking session
+ * @param redirectUri redirectUri passed in, used to initialize the Plaid Linking session
+ *
+ * @returns a {@link PlaidLinkingSessionResponse} representing the linking session information
+ * or any errors associated with it, accordingly
+ */
+export const initiatePlaidLinkingSession = async (userId: string, firstName: string, lastName: string,
+                                                  email: string, dob: string, phoneNumber: string, address: string,
+                                                  redirectUri: string): Promise<PlaidLinkingSessionResponse> => {
+    // initialize the creation date accordingly
+    const createdAt = new Date().toISOString();
+    try {
+        // call the createPlaidLinkingSession API to update the initiate the Plaid Linking Session accordingly
+        const addressParts = address.split(',');
+        const plaidLinkingSessionResult = await API.graphql(graphqlOperation(createPlaidLinkingSession, {
+            createPlaidLinkingSessionInput: {
+                hosted_link: {
+                    completion_redirect_uri: redirectUri,
+                    is_mobile_app: true,
+                    url_lifetime_seconds: 1800
+                },
+                redirect_uri: redirectUri,
+                user: {
+                    client_user_id: userId,
+                    date_of_birth: dob,
+                    email_address: email,
+                    legal_name: `${firstName} ${lastName}`,
+                    phone_number: `${phoneNumber.substring(0,2)} ${phoneNumber.substring(2,5)} ${phoneNumber.substring(5,12)}`,
+                    name: {
+                        family_name: lastName,
+                        given_name: firstName
+                    },
+                    address: {
+                        city: addressParts[1],
+                        country: "US",
+                        postal_code: addressParts[3],
+                        region: addressParts[2],
+                        street: addressParts[0]
+                    }
+                },
+                createdAt: createdAt
+            }
+        }))
+
+        // retrieve the data block from the response
+        // @ts-ignore
+        const plaidLinkingSession = plaidLinkingSessionResult ? plaidLinkingSessionResult.data : null;
+
+        // check if the linking initiation call was successful or not
+        if (plaidLinkingSession && !plaidLinkingSession.createPlaidLinkingSession.errorMessage &&
+            plaidLinkingSession.createPlaidLinkingSession.data !== undefined && plaidLinkingSession.createPlaidLinkingSession.data !== null) {
+            // return the successfully initialized Plaid Linking session
+            return {
+                data: plaidLinkingSession.createPlaidLinkingSession.data as PlaidLinkingSession
+            }
+        } else {
+            // return that the errors from the createPlaidLinkingSession Mutation call
+            const message = `Error while executing the createPlaidLinkingSession mutation ${plaidLinkingSession.createPlaidLinkingSession.errorMessage}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, false);
+
+            return {
+                errorMessage: message,
+                errorType: plaidLinkingSession.createPlaidLinkingSession.errorType
+            };
+        }
+    } catch (error) {
+        // return the unexpected error accordingly
+        const message = `Unexpected error while initiating a Plaid Linking session for user ${userId} and date ${createdAt}, ${JSON.stringify(error)} ${error}`;
+        console.log(message);
+        await logEvent(message, LoggingLevel.Error, false);
+
+        return {
+            errorMessage: message,
+            errorType: PlaidLinkingErrorType.UnexpectedError
+        }
+    }
 }
 
 /**

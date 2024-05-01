@@ -330,7 +330,7 @@ export type CreatePlaidLinkingSessionInput = {
   createdAt?: InputMaybe<Scalars['AWSDateTime']>;
   hosted_link: PlaidLinkingHostedLinkInput;
   language?: InputMaybe<PlaidLanguages>;
-  link_customization_name: Scalars['String'];
+  link_customization_name?: InputMaybe<Scalars['String']>;
   products?: InputMaybe<Array<InputMaybe<PlaidProducts>>>;
   redirect_uri?: InputMaybe<Scalars['String']>;
   secret?: InputMaybe<Scalars['String']>;
@@ -1682,6 +1682,7 @@ export type PlaidLinkingSession = {
   hosted_link_url: Scalars['String'];
   id: Scalars['ID'];
   link_token: Scalars['String'];
+  public_token?: Maybe<Scalars['String']>;
   request_id: Scalars['String'];
   timestamp: Scalars['AWSTimestamp'];
   updatedAt: Scalars['AWSDateTime'];
