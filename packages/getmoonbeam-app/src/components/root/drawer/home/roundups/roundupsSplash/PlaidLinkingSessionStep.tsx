@@ -6,9 +6,9 @@ import {
     roundupsSplashStepNumberState
 } from "../../../../../../recoil/RoundupsAtom";
 import {SafeAreaView} from "react-native-safe-area-context";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import {Text} from "react-native";
 import * as WebBrowser from 'expo-web-browser';
-import {appUrlState} from "../../../../../../recoil/AuthAtom";
 
 /**
  * PlaidLinkingSessionStep component.
@@ -17,12 +17,11 @@ import {appUrlState} from "../../../../../../recoil/AuthAtom";
  */
 export const PlaidLinkingSessionStep = () => {
     // constants used to keep track of local component state
-    const [result, setResult] = useState<WebBrowser.WebBrowserResult | null>(null);
+    const [result, setResult] = useState<WebBrowser.WebBrowserAuthSessionResult | WebBrowser.WebBrowserResult | null>(null);
     // constants used to keep track of shared states
-    const [appUrl,] = useRecoilState(appUrlState);
     const [, setRoundupsSplashStepNumber] = useRecoilState(roundupsSplashStepNumberState);
     const [plaidLinkingSession,] = useRecoilState(plaidLinkingSessionState);
-    const plaidLinkingSessionReset = useResetRecoilState(plaidLinkingSessionState);
+    const plaidLinkSessionReset = useResetRecoilState(plaidLinkingSessionState);
     const [, setIsPlaidLinkInitiated] = useRecoilState(isPlaidLinkInitiatedState);
 
     /**
@@ -33,35 +32,31 @@ export const PlaidLinkingSessionStep = () => {
      * included in here.
      */
     useEffect(() => {
-        // initialize the web browser with the Hosted Link session URL if the result is null
-        result === null && WebBrowser.openBrowserAsync(plaidLinkingSession!.hosted_link_url!, {
-            dismissButtonStyle: 'cancel'
-        }).then(result => {
-            setResult(result);
-        });
-        // if the result is not null, then the Hosted Link session is already initialized
+        if (result === null) {
+            WebBrowser.openAuthSessionAsync(plaidLinkingSession!.hosted_link_url!, `moonbeamfin://plaidRedirect`).then(result => {
+                setResult(result);
+            });
+        }
         if (result !== null) {
-            // if the browser is dismissed or cancelled
-            if (result.type === 'cancel') {
-                // go back a step if we cancel or dismiss
-                setRoundupsSplashStepNumber(6);
+            // @ts-ignore
+            if (result.url && result.url === 'moonbeamfin://plaidRedirect') {
                 setIsPlaidLinkInitiated(false);
-                plaidLinkingSessionReset();
+                plaidLinkSessionReset();
+                setRoundupsSplashStepNumber(8);
+            } else if (result.type === WebBrowser.WebBrowserResultType.CANCEL) {
+                setIsPlaidLinkInitiated(false);
+                plaidLinkSessionReset();
+                setRoundupsSplashStepNumber(6);
             }
         }
-        // handle Plaid redirects
-        if (appUrl.includes('plaidRedirect')) {
-            // go forward a step to capture the Plaid data accordingly
-            setRoundupsSplashStepNumber(8);
-        }
-    }, [result, appUrl]);
+    }, [result]);
 
     // return the component for the PlaidLinkingSessionStep, part of the RoundupsSplash page
     return (
         <>
             <SafeAreaView edges={['right', 'left']}
-                          style={{flex: 1}}>
-                <Text>{result !== null && JSON.stringify(result)}</Text>
+                          style={{height: hp(92), width: wp(95)}}>
+                <Text>{result && JSON.stringify(result)}</Text>
             </SafeAreaView>
         </>
     );

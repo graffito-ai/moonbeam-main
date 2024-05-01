@@ -294,5 +294,30 @@ export const styles = StyleSheet.create({
         fontFamily: 'Saira-Medium',
         fontSize: hp(2.3),
         marginTop: hp(1)
+    },
+    moonbeamPlaidConnectionImage: {
+        height: hp(25),
+        width: wp(53),
+        alignSelf: 'center'
+    },
+    plaidLoadingStepView: {
+        height: hp(80),
+        width: wp(100),
+        alignSelf: 'center',
+        top: hp(10)
+    },
+    plaidLoadingStepText: {
+        color: '#FFFFFF',
+        fontFamily: 'Saira-Medium',
+        lineHeight: hp(3.5),
+        fontSize: hp(2.90),
+        alignSelf: 'center',
+        width: wp(90),
+        textAlign: 'center'
+    },
+    plaidLoadingStepLoader: {
+        position: 'absolute',
+        bottom: hp(10),
+        alignSelf: 'center'
     }
 });

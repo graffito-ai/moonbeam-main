@@ -25,8 +25,6 @@ import {initiatePlaidLinkingSession} from "../../../../../../utils/AppSync";
 import {splashStatusState} from "../../../../../../recoil/SplashAtom";
 // @ts-ignore
 import MoonbeamErrorImage from "../../../../../../../assets/art/moonbeam-error.png";
-import * as envInfo from "../../../../../../../local-env-info.json";
-import {Stages} from "@moonbeam/moonbeam-models";
 
 /**
  * AccountLinkingSummaryStep component.
@@ -58,7 +56,7 @@ export const AccountLinkingStep = () => {
             // then, initialize the Plaid Linking session in order to obtain the hosted_link
             initiatePlaidLinkingSession(userInformation["custom:userId"], userInformation["given_name"], userInformation["family_name"],
                 userInformation["email"], userInformation["birthdate"], userInformation["phone_number"], userInformation["address"]["formatted"],
-                envInfo.envName === Stages.PROD ? `https://app.moonbeam.vet/plaid-redirect` : `https://app.moonbeam.vet/sandbox-plaid-redirect`).then(plaidLinkingSessionResponse => {
+                `moonbeamfin://plaidRedirect`).then(plaidLinkingSessionResponse => {
                 // if there were any errors in the linking session creation, then display a Splash prompting the user to try again
                 if (plaidLinkingSessionResponse && !plaidLinkingSessionResponse.errorMessage &&
                     plaidLinkingSessionResponse.data !== undefined && plaidLinkingSessionResponse.data !== null) {
@@ -77,7 +75,7 @@ export const AccountLinkingStep = () => {
                         splashDescription: `There was an error while initializing your Bank linking session.`,
                         splashButtonText: `Try Again`,
                         splashArtSource: MoonbeamErrorImage
-                    })
+                    });
                 }
             });
         }

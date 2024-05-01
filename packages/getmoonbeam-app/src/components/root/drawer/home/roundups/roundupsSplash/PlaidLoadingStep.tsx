@@ -1,5 +1,10 @@
 import React, {useEffect} from "react";
-
+// @ts-ignore
+import MoonbeamPlaidConnection from "../../../../../../../assets/moonbeam-plaid-connection.png"
+import {styles} from "../../../../../../styles/roundups.module";
+import {Image, Text, View} from "react-native";
+import {widthPercentageToDP as wp} from "react-native-responsive-screen";
+import {ActivityIndicator} from "react-native-paper";
 
 /**
  * PlaidLoadingStep component.
@@ -25,8 +30,19 @@ export const PlaidLoadingStep = () => {
 
     // return the component for the PlaidLoadingStep, part of the RoundupsSplash page
     return (
-        <>
-
-        </>
+        <View style={styles.plaidLoadingStepView}>
+            <Image
+                style={styles.moonbeamPlaidConnectionImage}
+                source={MoonbeamPlaidConnection}
+                resizeMode={"contain"}
+            />
+            <Text style={styles.plaidLoadingStepText}>
+                Waiting for your Banking information to sync from Plaid.
+            </Text>
+            <ActivityIndicator
+                style={styles.plaidLoadingStepLoader}
+                animating={true} color={'#F2FF5D'}
+                size={wp(10)}/>
+        </View>
     );
 }

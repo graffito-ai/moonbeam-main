@@ -62,6 +62,19 @@ export class PlaidClient extends BaseAPIClient {
              * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
              * error for a better customer experience.
              */
+            console.log(`Plaid request data: ${JSON.stringify({
+                client_name: createPlaidLinkingSessionInput.client_name,
+                client_id: createPlaidLinkingSessionInput.client_id,
+                secret: createPlaidLinkingSessionInput.secret,
+                user: createPlaidLinkingSessionInput.user,
+                products: createPlaidLinkingSessionInput.products,
+                transactions: createPlaidLinkingSessionInput.transactions,
+                country_codes: createPlaidLinkingSessionInput.country_codes,
+                redirect_uri: createPlaidLinkingSessionInput.redirect_uri,
+                language: createPlaidLinkingSessionInput.language,
+                webhook: createPlaidLinkingSessionInput.webhook,
+                hosted_link: createPlaidLinkingSessionInput.hosted_link
+            })}`);
             return axios.post(`${plaidBaseURL}/link/token/create`, {
                 client_name: createPlaidLinkingSessionInput.client_name,
                 client_id: createPlaidLinkingSessionInput.client_id,
@@ -81,6 +94,7 @@ export class PlaidClient extends BaseAPIClient {
                 timeout: 15000, // in milliseconds here
                 timeoutErrorMessage: 'Plaid API timed out after 15000ms!'
             }).then(plaidLinkingSessionResponse => {
+                console.log(`Plaid response data: ${JSON.stringify(plaidLinkingSessionResponse.data)}`)
                 /**
                  * if we reached this, then we assume that a 2xx response code was returned.
                  * check the contents of the response, and act appropriately.
