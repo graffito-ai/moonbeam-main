@@ -15,6 +15,7 @@ export const createPlaidLinkingSession = /* GraphQL */ `
                 hosted_link_url
                 link_token
                 request_id
+                session_id
             }
         }
     }

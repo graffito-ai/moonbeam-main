@@ -21,6 +21,21 @@ enum PlaidLanguages {
     en
 }
 
+enum PlaidLinkingAccountSubtype {
+    checking,
+    savings,
+    hsa,
+    cd,
+    money market,
+    paypal,
+    prepaid,
+    cash management,
+    ebt,
+    all,
+    credit card
+}
+
+
 ## this Follows Plaid's https://plaid.com/docs/api/tokens/#linktokencreate API schema
 type PlaidLinkingSession @aws_cognito_user_pools @aws_api_key {
     id: ID!, ## this represents the user ID, passed into the create call through the user.client_user_id parameter
@@ -32,6 +47,7 @@ type PlaidLinkingSession @aws_cognito_user_pools @aws_api_key {
     public_token: String,
     request_id: String!,
     expiration: AWSDateTime!
+    session_id: String!
 }
 
 type PlaidLinkingSessionResponse @aws_cognito_user_pools @aws_api_key {
@@ -79,6 +95,17 @@ input PlaidLinkingUserInput {
 }
 
 ## this Follows Plaid's https://plaid.com/docs/api/tokens/#linktokencreate API schema
+input PlaidLinkingAccountFilterInput {
+    account_subtypes: [PlaidLinkingAccountSubtype!]
+}
+
+## this Follows Plaid's https://plaid.com/docs/api/tokens/#linktokencreate API schema
+input PlaidLinkingAccountFiltersInput {
+    depository: PlaidLinkingAccountFilterInput
+    credit: PlaidLinkingAccountFilterInput
+}
+
+## this Follows Plaid's https://plaid.com/docs/api/tokens/#linktokencreate API schema
 input CreatePlaidLinkingSessionInput {
     client_name: String
     client_id: String
@@ -92,8 +119,8 @@ input CreatePlaidLinkingSessionInput {
     language: PlaidLanguages
     webhook: String
     hosted_link: PlaidLinkingHostedLinkInput!
+    account_filters: PlaidLinkingAccountFiltersInput
     createdAt: AWSDateTime
     updatedAt: AWSDateTime
 }
-
 

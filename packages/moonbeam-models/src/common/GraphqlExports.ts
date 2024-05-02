@@ -324,6 +324,7 @@ export type CreatePartnerInput = {
 };
 
 export type CreatePlaidLinkingSessionInput = {
+  account_filters?: InputMaybe<PlaidLinkingAccountFiltersInput>;
   client_id?: InputMaybe<Scalars['String']>;
   client_name?: InputMaybe<Scalars['String']>;
   country_codes?: InputMaybe<Array<InputMaybe<PlaidCountryCodes>>>;
@@ -1661,6 +1662,32 @@ export enum PlaidLanguages {
   En = 'en'
 }
 
+export type PlaidLinkingAccountFilterInput = {
+  account_subtypes?: InputMaybe<Array<PlaidLinkingAccountSubtype>>;
+};
+
+export type PlaidLinkingAccountFiltersInput = {
+  credit?: InputMaybe<PlaidLinkingAccountFilterInput>;
+  depository?: InputMaybe<PlaidLinkingAccountFilterInput>;
+};
+
+export enum PlaidLinkingAccountSubtype {
+  All = 'all',
+  Card = 'card',
+  Cash = 'cash',
+  Cd = 'cd',
+  Checking = 'checking',
+  Credit = 'credit',
+  Ebt = 'ebt',
+  Hsa = 'hsa',
+  Management = 'management',
+  Market = 'market',
+  Money = 'money',
+  Paypal = 'paypal',
+  Prepaid = 'prepaid',
+  Savings = 'savings'
+}
+
 export enum PlaidLinkingErrorType {
   DuplicateObjectFound = 'DUPLICATE_OBJECT_FOUND',
   NoneOrAbsent = 'NONE_OR_ABSENT',
@@ -1684,6 +1711,7 @@ export type PlaidLinkingSession = {
   link_token: Scalars['String'];
   public_token?: Maybe<Scalars['String']>;
   request_id: Scalars['String'];
+  session_id: Scalars['String'];
   timestamp: Scalars['AWSTimestamp'];
   updatedAt: Scalars['AWSDateTime'];
 };
@@ -2422,7 +2450,7 @@ export type CreatePlaidLinkingSessionMutationVariables = Exact<{
 }>;
 
 
-export type CreatePlaidLinkingSessionMutation = { __typename?: 'Mutation', createPlaidLinkingSession: { __typename?: 'PlaidLinkingSessionResponse', errorMessage?: string | null, errorType?: PlaidLinkingErrorType | null, data?: { __typename?: 'PlaidLinkingSession', id: string, createdAt: string, updatedAt: string, expiration: string, hosted_link_url: string, link_token: string, request_id: string } | null } };
+export type CreatePlaidLinkingSessionMutation = { __typename?: 'Mutation', createPlaidLinkingSession: { __typename?: 'PlaidLinkingSessionResponse', errorMessage?: string | null, errorType?: PlaidLinkingErrorType | null, data?: { __typename?: 'PlaidLinkingSession', id: string, createdAt: string, updatedAt: string, expiration: string, hosted_link_url: string, link_token: string, request_id: string, session_id: string } | null } };
 
 export type UpdateDailyEarningsSummaryMutationVariables = Exact<{
   updateDailyEarningsSummaryInput: UpdateDailyEarningsSummaryInput;

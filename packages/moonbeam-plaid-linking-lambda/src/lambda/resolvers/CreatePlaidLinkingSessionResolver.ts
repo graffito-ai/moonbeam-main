@@ -2,7 +2,7 @@ import {
     CreatePlaidLinkingSessionInput,
     PlaidClient,
     PlaidCountryCodes,
-    PlaidLanguages,
+    PlaidLanguages, PlaidLinkingAccountSubtype,
     PlaidLinkingErrorType,
     PlaidLinkingSession,
     PlaidLinkingSessionResponse,
@@ -41,6 +41,11 @@ export const createPlaidLinkingSession = async (fieldName: string, createPlaidLi
         createPlaidLinkingSessionInput.products = [PlaidProducts.Auth, PlaidProducts.Transactions];
         createPlaidLinkingSessionInput.transactions = {
             days_requested: 1
+        }
+        createPlaidLinkingSessionInput.account_filters = {
+            depository: {
+                account_subtypes: [PlaidLinkingAccountSubtype.Checking]
+            }
         }
         /**
          * If using Hosted Link, the redirect_uri must be set to https://hosted.plaid.com/oauth/redirect
@@ -122,6 +127,9 @@ export const createPlaidLinkingSession = async (fieldName: string, createPlaidLi
                         },
                         timestamp: {
                             N: Date.parse(createdAt).toString()
+                        },
+                        session_id: {
+                            S: plaidLinkingSession.session_id
                         }
                     },
                 }));
