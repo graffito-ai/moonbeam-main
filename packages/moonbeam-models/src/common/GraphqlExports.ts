@@ -335,6 +335,7 @@ export type CreatePlaidLinkingSessionInput = {
   products?: InputMaybe<Array<InputMaybe<PlaidProducts>>>;
   redirect_uri?: InputMaybe<Scalars['String']>;
   secret?: InputMaybe<Scalars['String']>;
+  status?: InputMaybe<PlaidLinkingSessionStatus>;
   transactions?: InputMaybe<PlaidLinkingTransactionsInput>;
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
   user: PlaidLinkingUserInput;
@@ -1192,6 +1193,7 @@ export type Mutation = {
   updateDailyEarningsSummary: DailyEarningsSummaryResponse;
   updateMilitaryVerificationStatus: UpdateMilitaryVerificationResponse;
   updateNotificationReminder: NotificationReminderResponse;
+  updatePlaidLinkingSession: PlaidLinkingSessionResponse;
   updateReferral: ReferralResponse;
   updateTransaction: MoonbeamUpdatedTransactionResponse;
   updateUserAuthSession: UserAuthSessionResponse;
@@ -1320,6 +1322,11 @@ export type MutationUpdateMilitaryVerificationStatusArgs = {
 
 export type MutationUpdateNotificationReminderArgs = {
   updateNotificationReminderInput: UpdateNotificationReminderInput;
+};
+
+
+export type MutationUpdatePlaidLinkingSessionArgs = {
+  updatePlaidLinkingSessionInput: UpdatePlaidLinkingSessionInput;
 };
 
 
@@ -1711,7 +1718,8 @@ export type PlaidLinkingSession = {
   link_token: Scalars['String'];
   public_token?: Maybe<Scalars['String']>;
   request_id: Scalars['String'];
-  session_id: Scalars['String'];
+  session_id?: Maybe<Scalars['String']>;
+  status: PlaidLinkingSessionStatus;
   timestamp: Scalars['AWSTimestamp'];
   updatedAt: Scalars['AWSDateTime'];
 };
@@ -1722,6 +1730,13 @@ export type PlaidLinkingSessionResponse = {
   errorMessage?: Maybe<Scalars['String']>;
   errorType?: Maybe<PlaidLinkingErrorType>;
 };
+
+export enum PlaidLinkingSessionStatus {
+  Error = 'ERROR',
+  Exit = 'EXIT',
+  Initiated = 'INITIATED',
+  Success = 'SUCCESS'
+}
 
 export type PlaidLinkingTransactionsInput = {
   days_requested: Scalars['Int'];
@@ -2283,6 +2298,15 @@ export type UpdateNotificationReminderInput = {
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
+export type UpdatePlaidLinkingSessionInput = {
+  id: Scalars['ID'];
+  link_token: Scalars['String'];
+  public_token: Scalars['String'];
+  session_id: Scalars['String'];
+  status: PlaidLinkingSessionStatus;
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+};
+
 export type UpdateReferralInput = {
   fromId: Scalars['ID'];
   status: ReferralStatus;
@@ -2445,12 +2469,19 @@ export enum UtilitiesErrorType {
   ValidationError = 'VALIDATION_ERROR'
 }
 
+export type UpdatePlaidLinkingSessionMutationVariables = Exact<{
+  updatePlaidLinkingSessionInput: UpdatePlaidLinkingSessionInput;
+}>;
+
+
+export type UpdatePlaidLinkingSessionMutation = { __typename?: 'Mutation', updatePlaidLinkingSession: { __typename?: 'PlaidLinkingSessionResponse', errorMessage?: string | null, errorType?: PlaidLinkingErrorType | null, data?: { __typename?: 'PlaidLinkingSession', id: string, createdAt: string, updatedAt: string, expiration: string, hosted_link_url: string, link_token: string, request_id: string, session_id?: string | null, status: PlaidLinkingSessionStatus } | null } };
+
 export type CreatePlaidLinkingSessionMutationVariables = Exact<{
   createPlaidLinkingSessionInput: CreatePlaidLinkingSessionInput;
 }>;
 
 
-export type CreatePlaidLinkingSessionMutation = { __typename?: 'Mutation', createPlaidLinkingSession: { __typename?: 'PlaidLinkingSessionResponse', errorMessage?: string | null, errorType?: PlaidLinkingErrorType | null, data?: { __typename?: 'PlaidLinkingSession', id: string, createdAt: string, updatedAt: string, expiration: string, hosted_link_url: string, link_token: string, request_id: string, session_id: string } | null } };
+export type CreatePlaidLinkingSessionMutation = { __typename?: 'Mutation', createPlaidLinkingSession: { __typename?: 'PlaidLinkingSessionResponse', errorMessage?: string | null, errorType?: PlaidLinkingErrorType | null, data?: { __typename?: 'PlaidLinkingSession', id: string, createdAt: string, updatedAt: string, expiration: string, hosted_link_url: string, link_token: string, request_id: string, session_id?: string | null, status: PlaidLinkingSessionStatus } | null } };
 
 export type UpdateDailyEarningsSummaryMutationVariables = Exact<{
   updateDailyEarningsSummaryInput: UpdateDailyEarningsSummaryInput;

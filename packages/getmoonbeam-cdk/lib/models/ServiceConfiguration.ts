@@ -529,5 +529,7 @@ export interface PlaidLinkingConfiguration {
     readonly plaidLinkingAcknowledgmentFunctionName: string;
     readonly plaidLinkingFunctionName: string;
     readonly plaidLinkingSessionsTableName: string;
+    readonly plaidLinkTokenLocalIndex: string;
     readonly createPlaidLinkingSessionResolverName: string;
+    readonly updatePlaidLinkingSessionResolverName: string;
 }

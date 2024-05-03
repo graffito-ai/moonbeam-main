@@ -99,7 +99,7 @@ export class PlaidClient extends BaseAPIClient {
                             hosted_link_url: plaidLinkingSessionResponse.data["hosted_link_url"],
                             link_token: plaidLinkingSessionResponse.data["link_token"],
                             request_id: plaidLinkingSessionResponse.data["request_id"],
-                            session_id: 'NOT_AVAILABLE' // the session_id gets initiated as not available at first, and it will get updated through the Webhook accordingly
+                            status: createPlaidLinkingSessionInput.status!
                         }
                     }
                 } else {

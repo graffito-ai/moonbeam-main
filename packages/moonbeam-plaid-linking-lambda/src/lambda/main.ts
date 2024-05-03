@@ -1,8 +1,10 @@
 import {createPlaidLinkingSession} from "./resolvers/CreatePlaidLinkingSessionResolver";
+import {updatePlaidLinkingSession} from "./resolvers/UpdatePlaidLinkingSessionResolver";
 import {
     CreatePlaidLinkingSessionInput,
     PlaidLinkingErrorType,
-    PlaidLinkingSessionResponse
+    PlaidLinkingSessionResponse,
+    UpdatePlaidLinkingSessionInput
 } from "@moonbeam/moonbeam-models";
 
 /**
@@ -13,7 +15,8 @@ type AppSyncEvent = {
         fieldName: string
     },
     arguments: {
-        createPlaidLinkingSessionInput: CreatePlaidLinkingSessionInput
+        createPlaidLinkingSessionInput: CreatePlaidLinkingSessionInput,
+        updatePlaidLinkingSessionInput: UpdatePlaidLinkingSessionInput
     },
     identity: {
         sub: string;
@@ -33,6 +36,8 @@ exports.handler = async (event: AppSyncEvent): Promise<PlaidLinkingSessionRespon
     switch (event.info.fieldName) {
         case "createPlaidLinkingSession":
             return await createPlaidLinkingSession(event.info.fieldName, event.arguments.createPlaidLinkingSessionInput);
+        case "updatePlaidLinkingSession":
+            return await updatePlaidLinkingSession(event.info.fieldName, event.arguments.updatePlaidLinkingSessionInput);
         default:
             const errorMessage = `Unexpected field name: ${event.info.fieldName}`;
             console.log(errorMessage);

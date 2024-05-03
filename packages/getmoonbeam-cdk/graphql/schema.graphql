@@ -69,6 +69,7 @@ type Mutation {
     createDailyEarningsSummary(createDailyEarningsSummaryInput: CreateDailyEarningsSummaryInput!): DailyEarningsSummaryResponse! @aws_cognito_user_pools @aws_api_key
     updateDailyEarningsSummary(updateDailyEarningsSummaryInput: UpdateDailyEarningsSummaryInput!): DailyEarningsSummaryResponse! @aws_cognito_user_pools @aws_api_key
     createPlaidLinkingSession(createPlaidLinkingSessionInput: CreatePlaidLinkingSessionInput!): PlaidLinkingSessionResponse! @aws_cognito_user_pools @aws_api_key
+    updatePlaidLinkingSession(updatePlaidLinkingSessionInput: UpdatePlaidLinkingSessionInput!): PlaidLinkingSessionResponse! @aws_cognito_user_pools @aws_api_key
 }
 
 type Subscription {
@@ -2006,19 +2007,27 @@ enum PlaidLinkingAccountSubtype {
     credit card
 }
 
+enum PlaidLinkingSessionStatus {
+    INITIATED
+    ERROR
+    EXIT
+    SUCCESS
+}
+
 
 ## this Follows Plaid's https://plaid.com/docs/api/tokens/#linktokencreate API schema
 type PlaidLinkingSession @aws_cognito_user_pools @aws_api_key {
-    id: ID!, ## this represents the user ID, passed into the create call through the user.client_user_id parameter
+    id: ID! ## this represents the user ID, passed into the create call through the user.client_user_id parameter
     timestamp: AWSTimestamp! ## this represents the timestamp, in a Number epoch based format (for sorting purposes)
     createdAt: AWSDateTime!
     updatedAt: AWSDateTime!
-    hosted_link_url: String!,
-    link_token: String!,
-    public_token: String,
-    request_id: String!,
+    hosted_link_url: String!
+    link_token: String!
+    request_id: String!
     expiration: AWSDateTime!
-    session_id: String!
+    status: PlaidLinkingSessionStatus!
+    public_token: String,
+    session_id: String
 }
 
 type PlaidLinkingSessionResponse @aws_cognito_user_pools @aws_api_key {
@@ -2093,5 +2102,14 @@ input CreatePlaidLinkingSessionInput {
     account_filters: PlaidLinkingAccountFiltersInput
     createdAt: AWSDateTime
     updatedAt: AWSDateTime
+    status: PlaidLinkingSessionStatus
 }
 
+input UpdatePlaidLinkingSessionInput {
+    id: ID!
+    link_token: String!
+    session_id: String!
+    status: PlaidLinkingSessionStatus!
+    public_token: String!
+    updatedAt: AWSDateTime
+}

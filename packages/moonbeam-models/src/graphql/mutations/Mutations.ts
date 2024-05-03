@@ -1,6 +1,28 @@
 /**
  * This is a file used to define the all GraphQL mutation constants
  */
+
+// Mutation used to update an existing Plaid linking session
+export const updatePlaidLinkingSession = /* GraphQL */ `
+    mutation updatePlaidLinkingSession($updatePlaidLinkingSessionInput: UpdatePlaidLinkingSessionInput!) {
+        updatePlaidLinkingSession(updatePlaidLinkingSessionInput: $updatePlaidLinkingSessionInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                createdAt
+                updatedAt
+                expiration
+                hosted_link_url
+                link_token
+                request_id
+                session_id
+                status
+            }
+        }
+    }
+`;
+
 // Mutation used to create a Plaid linking session
 export const createPlaidLinkingSession = /* GraphQL */ `
     mutation createPlaidLinkingSession($createPlaidLinkingSessionInput: CreatePlaidLinkingSessionInput!) {
@@ -16,6 +38,7 @@ export const createPlaidLinkingSession = /* GraphQL */ `
                 link_token
                 request_id
                 session_id
+                status
             }
         }
     }

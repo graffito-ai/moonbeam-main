@@ -75,6 +75,10 @@ export class PlaidLinkingResolverStack extends Stack {
             typeName: "Mutation",
             fieldName: `${props.plaidLinkingConfig.createPlaidLinkingSessionResolverName}`
         });
+        plaidLinkingLambdaDataSource.createResolver(`${props.plaidLinkingConfig.updatePlaidLinkingSessionResolverName}-${props.stage}-${props.env!.region}`, {
+            typeName: "Mutation",
+            fieldName: `${props.plaidLinkingConfig.updatePlaidLinkingSessionResolverName}`
+        });
 
         // create a new table to be used for the Plaid Linking Session Creation purposes
         const plaidLinkingSessionsTable = new aws_dynamodb.Table(this, `${props.plaidLinkingConfig.plaidLinkingSessionsTableName}-${props.stage}-${props.env!.region}`, {
@@ -97,6 +101,19 @@ export class PlaidLinkingResolverStack extends Stack {
                 type: aws_dynamodb.AttributeType.NUMBER
             }
         });
+        /**
+         * creates a local secondary index for the table, so we can retrieve Plaid Linking sessions for a particular user, sorted
+         * by their link_token.
+         * {@link https://www.dynamodbguide.com/key-concepts/}
+         * {@link https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GSI.html}
+         */
+        plaidLinkingSessionsTable.addLocalSecondaryIndex({
+            indexName: `${props.plaidLinkingConfig.plaidLinkTokenLocalIndex}-${props.stage}-${props.env!.region}`,
+            sortKey: {
+                name: 'link_token',
+                type: aws_dynamodb.AttributeType.STRING
+            }
+        });
 
         // enable the Lambda function to access the DynamoDB table (using IAM)
         plaidLinkingSessionsTable.grantFullAccess(plaidLinkingLambda);
@@ -115,7 +132,8 @@ export class PlaidLinkingResolverStack extends Stack {
                         "dynamodb:DeleteItem"
                     ],
                     resources: [
-                        `${plaidLinkingSessionsTable.tableArn}`
+                        `${plaidLinkingSessionsTable.tableArn}`,
+                        `${plaidLinkingSessionsTable.tableArn}/index/${props.plaidLinkingConfig.plaidLinkTokenLocalIndex}-${props.stage}-${props.env!.region}`,
                     ]
                 }
             )
@@ -179,6 +197,9 @@ export class PlaidLinkingResolverStack extends Stack {
 
         // Create environment variables that we will use in the function code
         plaidLinkingLambda.addEnvironment(`${Constants.MoonbeamConstants.PLAID_LINKING_SESSIONS_TABLE}`, plaidLinkingSessionsTable.tableName);
+        plaidLinkingLambda.addEnvironment(`${Constants.MoonbeamConstants.PLAID_LINK_TOKEN_LOCAL_INDEX}`, props.plaidLinkingConfig.plaidLinkTokenLocalIndex);
         plaidLinkingLambda.addEnvironment(`${Constants.MoonbeamConstants.ENV_NAME}`, props.stage);
+
+        this.plaidLinkingAcknowledgmentLambda.addEnvironment(`${Constants.MoonbeamConstants.ENV_NAME}`, props.stage);
     }
 }

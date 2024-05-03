@@ -1,5 +1,22 @@
 # graphql/Mutations.graphql
 # Mutations Schema File
+mutation updatePlaidLinkingSession($updatePlaidLinkingSessionInput: UpdatePlaidLinkingSessionInput!) {
+    updatePlaidLinkingSession(updatePlaidLinkingSessionInput: $updatePlaidLinkingSessionInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            createdAt
+            updatedAt
+            expiration
+            hosted_link_url
+            link_token
+            request_id
+            session_id
+            status
+        }
+    }
+}
 mutation createPlaidLinkingSession($createPlaidLinkingSessionInput: CreatePlaidLinkingSessionInput!) {
     createPlaidLinkingSession(createPlaidLinkingSessionInput: $createPlaidLinkingSessionInput) {
         errorMessage
@@ -13,6 +30,7 @@ mutation createPlaidLinkingSession($createPlaidLinkingSessionInput: CreatePlaidL
             link_token
             request_id
             session_id
+            status
         }
     }
 }

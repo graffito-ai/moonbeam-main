@@ -69,6 +69,7 @@ type Mutation {
     createDailyEarningsSummary(createDailyEarningsSummaryInput: CreateDailyEarningsSummaryInput!): DailyEarningsSummaryResponse! @aws_cognito_user_pools @aws_api_key
     updateDailyEarningsSummary(updateDailyEarningsSummaryInput: UpdateDailyEarningsSummaryInput!): DailyEarningsSummaryResponse! @aws_cognito_user_pools @aws_api_key
     createPlaidLinkingSession(createPlaidLinkingSessionInput: CreatePlaidLinkingSessionInput!): PlaidLinkingSessionResponse! @aws_cognito_user_pools @aws_api_key
+    updatePlaidLinkingSession(updatePlaidLinkingSessionInput: UpdatePlaidLinkingSessionInput!): PlaidLinkingSessionResponse! @aws_cognito_user_pools @aws_api_key
 }
 
 type Subscription {

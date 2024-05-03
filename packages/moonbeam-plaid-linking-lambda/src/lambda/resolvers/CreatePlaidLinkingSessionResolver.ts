@@ -7,6 +7,7 @@ import {
     PlaidLinkingSession,
     PlaidLinkingSessionResponse,
     PlaidProducts,
+    PlaidLinkingSessionStatus,
     Stages
 } from "@moonbeam/moonbeam-models";
 import {DynamoDBClient, GetItemCommand, PutItemCommand} from "@aws-sdk/client-dynamodb";
@@ -47,6 +48,8 @@ export const createPlaidLinkingSession = async (fieldName: string, createPlaidLi
                 account_subtypes: [PlaidLinkingAccountSubtype.Checking]
             }
         }
+        // the Session gets created with a status of INITIATED to begin with
+        createPlaidLinkingSessionInput.status = PlaidLinkingSessionStatus.Initiated
         /**
          * If using Hosted Link, the redirect_uri must be set to https://hosted.plaid.com/oauth/redirect
          * {@link https://plaid.com/docs/api/tokens/#linktokencreate}
@@ -128,8 +131,8 @@ export const createPlaidLinkingSession = async (fieldName: string, createPlaidLi
                         timestamp: {
                             N: Date.parse(createdAt).toString()
                         },
-                        session_id: {
-                            S: plaidLinkingSession.session_id
+                        status: {
+                            S: plaidLinkingSession.status!
                         }
                     },
                 }));
