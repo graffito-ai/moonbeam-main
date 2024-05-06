@@ -69,10 +69,11 @@ type Mutation {
     createDailyEarningsSummary(createDailyEarningsSummaryInput: CreateDailyEarningsSummaryInput!): DailyEarningsSummaryResponse! @aws_cognito_user_pools @aws_api_key
     updateDailyEarningsSummary(updateDailyEarningsSummaryInput: UpdateDailyEarningsSummaryInput!): DailyEarningsSummaryResponse! @aws_cognito_user_pools @aws_api_key
     createPlaidLinkingSession(createPlaidLinkingSessionInput: CreatePlaidLinkingSessionInput!): PlaidLinkingSessionResponse! @aws_cognito_user_pools @aws_api_key
-    updatePlaidLinkingSession(updatePlaidLinkingSessionInput: UpdatePlaidLinkingSessionInput!): PlaidLinkingSessionResponse! @aws_cognito_user_pools @aws_api_key
+    updatePlaidLinkingSession(updatePlaidLinkingSessionInput: UpdatePlaidLinkingSessionInput!): UpdatePlaidLinkingSessionResponse! @aws_cognito_user_pools @aws_api_key
 }
 
 type Subscription {
+    updatedPlaidLinkingSession(id: ID!, link_token: String!, timestamp: AWSTimestamp!): UpdatePlaidLinkingSessionResponse @aws_cognito_user_pools @aws_subscribe(mutations: ["updatePlaidLinkingSession"])
     updatedMilitaryVerificationStatus(id: ID!): UpdateMilitaryVerificationResponse @aws_cognito_user_pools @aws_subscribe(mutations: ["updateMilitaryVerificationStatus"])
     createdTransaction(id: ID!): MoonbeamTransactionResponse @aws_cognito_user_pools @aws_subscribe(mutations: ["createTransaction"])
     updatedTransaction(id: ID!): MoonbeamUpdatedTransactionResponse @aws_cognito_user_pools @aws_subscribe(mutations: ["updateTransaction"])
@@ -2031,6 +2032,15 @@ type PlaidLinkingSession @aws_cognito_user_pools @aws_api_key {
 }
 
 type PlaidLinkingSessionResponse @aws_cognito_user_pools @aws_api_key {
+    data: PlaidLinkingSession
+    errorType: PlaidLinkingErrorType
+    errorMessage: String
+}
+
+type UpdatePlaidLinkingSessionResponse @aws_cognito_user_pools @aws_api_key {
+    id: ID ## this represents the userID, and the reason we repeat it in the parent response is for the subscription filtering to work properly
+    link_token: String ## this represents the link token, and the reason we repeat it in the parent response is for the subscription filtering to work properly
+    timestamp: AWSTimestamp ### this represents the creation timestamp, in a Number epoch based format, and the reason we repeat it in the parent response is for the subscription filtering to work properly
     data: PlaidLinkingSession
     errorType: PlaidLinkingErrorType
     errorMessage: String

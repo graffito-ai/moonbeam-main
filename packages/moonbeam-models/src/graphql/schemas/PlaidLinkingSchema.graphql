@@ -64,6 +64,15 @@ type PlaidLinkingSessionResponse @aws_cognito_user_pools @aws_api_key {
     errorMessage: String
 }
 
+type UpdatePlaidLinkingSessionResponse @aws_cognito_user_pools @aws_api_key {
+    id: ID ## this represents the userID, and the reason we repeat it in the parent response is for the subscription filtering to work properly
+    link_token: String ## this represents the link token, and the reason we repeat it in the parent response is for the subscription filtering to work properly
+    timestamp: AWSTimestamp ### this represents the creation timestamp, in a Number epoch based format, and the reason we repeat it in the parent response is for the subscription filtering to work properly
+    data: PlaidLinkingSession
+    errorType: PlaidLinkingErrorType
+    errorMessage: String
+}
+
 ## this Follows Plaid's https://plaid.com/docs/api/tokens/#linktokencreate API schema
 input PlaidLinkingUserNameInput {
     given_name: String!

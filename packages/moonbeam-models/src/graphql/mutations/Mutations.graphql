@@ -4,6 +4,9 @@ mutation updatePlaidLinkingSession($updatePlaidLinkingSessionInput: UpdatePlaidL
     updatePlaidLinkingSession(updatePlaidLinkingSessionInput: $updatePlaidLinkingSessionInput) {
         errorMessage
         errorType
+        id
+        link_token
+        timestamp
         data {
             id
             createdAt

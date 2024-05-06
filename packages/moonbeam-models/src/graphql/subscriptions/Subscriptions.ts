@@ -1,5 +1,29 @@
 // This is a file used to define the all GraphQL subscription constants
 
+// Subscription used to subscribe to a Plaid Linking session update for a particular user it, timestamp and link token.
+export const updatedPlaidLinkingSession = /* GraphQL */ `
+    subscription UpdatedPlaidLinkingSession($id: ID!, $link_token: String!, $timestamp: AWSTimestamp!) {
+        updatedPlaidLinkingSession(id: $id, link_token: $link_token, timestamp: $timestamp) {
+            errorType
+            errorMessage
+            id
+            link_token
+            timestamp
+            data {
+                id
+                createdAt
+                updatedAt
+                expiration
+                hosted_link_url
+                link_token
+                request_id
+                session_id
+                status
+            }
+        }
+    }
+`;
+
 // Subscription used to subscribe to a military status update for a particular user id.
 export const updatedMilitaryVerificationStatus = /* GraphQL */ `
     subscription UpdatedMilitaryVerificationStatus($id: ID!) {

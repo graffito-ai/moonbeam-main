@@ -4,7 +4,7 @@ import {
     CreatePlaidLinkingSessionInput,
     PlaidLinkingErrorType,
     PlaidLinkingSessionResponse,
-    UpdatePlaidLinkingSessionInput
+    UpdatePlaidLinkingSessionInput, UpdatePlaidLinkingSessionResponse
 } from "@moonbeam/moonbeam-models";
 
 /**
@@ -29,9 +29,9 @@ type AppSyncEvent = {
  * depending on the AppSync field name.
  *
  * @param event AppSync event to be passed in the handler
- * @returns a {@link Promise} containing a {@link PlaidLinkingSessionResponse}
+ * @returns a {@link Promise} containing a {@link PlaidLinkingSessionResponse} or {@link UpdatePlaidLinkingSessionResponse}
  */
-exports.handler = async (event: AppSyncEvent): Promise<PlaidLinkingSessionResponse> => {
+exports.handler = async (event: AppSyncEvent): Promise<PlaidLinkingSessionResponse | UpdatePlaidLinkingSessionResponse> => {
     console.log(`Received new Plaid Linking event for operation [${event.info.fieldName}], with arguments ${JSON.stringify(event.arguments)}`);
     switch (event.info.fieldName) {
         case "createPlaidLinkingSession":

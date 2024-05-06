@@ -1193,7 +1193,7 @@ export type Mutation = {
   updateDailyEarningsSummary: DailyEarningsSummaryResponse;
   updateMilitaryVerificationStatus: UpdateMilitaryVerificationResponse;
   updateNotificationReminder: NotificationReminderResponse;
-  updatePlaidLinkingSession: PlaidLinkingSessionResponse;
+  updatePlaidLinkingSession: UpdatePlaidLinkingSessionResponse;
   updateReferral: ReferralResponse;
   updateTransaction: MoonbeamUpdatedTransactionResponse;
   updateUserAuthSession: UserAuthSessionResponse;
@@ -2172,6 +2172,7 @@ export type Subscription = {
   __typename?: 'Subscription';
   createdTransaction?: Maybe<MoonbeamTransactionResponse>;
   updatedMilitaryVerificationStatus?: Maybe<UpdateMilitaryVerificationResponse>;
+  updatedPlaidLinkingSession?: Maybe<UpdatePlaidLinkingSessionResponse>;
   updatedTransaction?: Maybe<MoonbeamUpdatedTransactionResponse>;
 };
 
@@ -2183,6 +2184,13 @@ export type SubscriptionCreatedTransactionArgs = {
 
 export type SubscriptionUpdatedMilitaryVerificationStatusArgs = {
   id: Scalars['ID'];
+};
+
+
+export type SubscriptionUpdatedPlaidLinkingSessionArgs = {
+  id: Scalars['ID'];
+  link_token: Scalars['String'];
+  timestamp: Scalars['AWSTimestamp'];
 };
 
 
@@ -2305,6 +2313,16 @@ export type UpdatePlaidLinkingSessionInput = {
   session_id: Scalars['String'];
   status: PlaidLinkingSessionStatus;
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+};
+
+export type UpdatePlaidLinkingSessionResponse = {
+  __typename?: 'UpdatePlaidLinkingSessionResponse';
+  data?: Maybe<PlaidLinkingSession>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<PlaidLinkingErrorType>;
+  id?: Maybe<Scalars['ID']>;
+  link_token?: Maybe<Scalars['String']>;
+  timestamp?: Maybe<Scalars['AWSTimestamp']>;
 };
 
 export type UpdateReferralInput = {
@@ -2474,7 +2492,7 @@ export type UpdatePlaidLinkingSessionMutationVariables = Exact<{
 }>;
 
 
-export type UpdatePlaidLinkingSessionMutation = { __typename?: 'Mutation', updatePlaidLinkingSession: { __typename?: 'PlaidLinkingSessionResponse', errorMessage?: string | null, errorType?: PlaidLinkingErrorType | null, data?: { __typename?: 'PlaidLinkingSession', id: string, createdAt: string, updatedAt: string, expiration: string, hosted_link_url: string, link_token: string, request_id: string, session_id?: string | null, status: PlaidLinkingSessionStatus } | null } };
+export type UpdatePlaidLinkingSessionMutation = { __typename?: 'Mutation', updatePlaidLinkingSession: { __typename?: 'UpdatePlaidLinkingSessionResponse', errorMessage?: string | null, errorType?: PlaidLinkingErrorType | null, id?: string | null, link_token?: string | null, timestamp?: number | null, data?: { __typename?: 'PlaidLinkingSession', id: string, createdAt: string, updatedAt: string, expiration: string, hosted_link_url: string, link_token: string, request_id: string, session_id?: string | null, status: PlaidLinkingSessionStatus } | null } };
 
 export type CreatePlaidLinkingSessionMutationVariables = Exact<{
   createPlaidLinkingSessionInput: CreatePlaidLinkingSessionInput;
@@ -2906,6 +2924,15 @@ export type GetMilitaryVerificationStatusQueryVariables = Exact<{
 
 
 export type GetMilitaryVerificationStatusQuery = { __typename?: 'Query', getMilitaryVerificationStatus: { __typename?: 'GetMilitaryVerificationResponse', errorMessage?: string | null, errorType?: MilitaryVerificationErrorType | null, data?: { __typename?: 'MilitaryVerificationStatus', id: string, militaryVerificationStatus: MilitaryVerificationStatusType } | null } };
+
+export type UpdatedPlaidLinkingSessionSubscriptionVariables = Exact<{
+  id: Scalars['ID'];
+  link_token: Scalars['String'];
+  timestamp: Scalars['AWSTimestamp'];
+}>;
+
+
+export type UpdatedPlaidLinkingSessionSubscription = { __typename?: 'Subscription', updatedPlaidLinkingSession?: { __typename?: 'UpdatePlaidLinkingSessionResponse', errorType?: PlaidLinkingErrorType | null, errorMessage?: string | null, id?: string | null, link_token?: string | null, timestamp?: number | null, data?: { __typename?: 'PlaidLinkingSession', id: string, createdAt: string, updatedAt: string, expiration: string, hosted_link_url: string, link_token: string, request_id: string, session_id?: string | null, status: PlaidLinkingSessionStatus } | null } | null };
 
 export type UpdatedMilitaryVerificationStatusSubscriptionVariables = Exact<{
   id: Scalars['ID'];

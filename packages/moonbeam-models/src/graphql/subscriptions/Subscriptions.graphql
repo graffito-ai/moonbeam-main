@@ -1,5 +1,25 @@
 # graphql/Subscriptions.graphql
 # Subscriptions Schema File
+subscription UpdatedPlaidLinkingSession($id: ID!, $link_token: String!, $timestamp: AWSTimestamp!) {
+    updatedPlaidLinkingSession(id: $id, link_token: $link_token, timestamp: $timestamp) {
+        errorType
+        errorMessage
+        id
+        link_token
+        timestamp
+        data {
+            id
+            createdAt
+            updatedAt
+            expiration
+            hosted_link_url
+            link_token
+            request_id
+            session_id
+            status
+        }
+    }
+}
 subscription UpdatedMilitaryVerificationStatus($id: ID!) {
     updatedMilitaryVerificationStatus(id: $id) {
         errorType

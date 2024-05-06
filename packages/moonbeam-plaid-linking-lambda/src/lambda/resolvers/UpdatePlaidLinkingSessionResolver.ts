@@ -1,7 +1,7 @@
 import {
     PlaidLinkingErrorType,
-    PlaidLinkingSessionResponse,
-    UpdatePlaidLinkingSessionInput
+    UpdatePlaidLinkingSessionInput,
+    UpdatePlaidLinkingSessionResponse
 } from "@moonbeam/moonbeam-models";
 import {AttributeValue, DynamoDBClient, QueryCommand, UpdateItemCommand} from "@aws-sdk/client-dynamodb";
 
@@ -10,9 +10,9 @@ import {AttributeValue, DynamoDBClient, QueryCommand, UpdateItemCommand} from "@
  *
  * @param updatePlaidLinkingSessionInput the input needed to update an existing plaid linking session's data
  * @param fieldName name of the resolver path from the AppSync event
- * @returns {@link Promise} of {@link PlaidLinkingSessionResponse}
+ * @returns {@link Promise} of {@link UpdatePlaidLinkingSessionResponse}
  */
-export const updatePlaidLinkingSession = async (fieldName: string, updatePlaidLinkingSessionInput: UpdatePlaidLinkingSessionInput): Promise<PlaidLinkingSessionResponse> => {
+export const updatePlaidLinkingSession = async (fieldName: string, updatePlaidLinkingSessionInput: UpdatePlaidLinkingSessionInput): Promise<UpdatePlaidLinkingSessionResponse> => {
     try {
         // retrieving the current function region
         const region = process.env.AWS_REGION!;
@@ -107,6 +107,9 @@ export const updatePlaidLinkingSession = async (fieldName: string, updatePlaidLi
 
             // return the updated PLaid Linking Session's details
             return {
+                id: updatePlaidLinkingSessionInput.id,
+                timestamp: Number(result[0].timestamp.N!),
+                link_token: result[0].link_token.S!,
                 data: {
                     createdAt: result[0].createdAt.S!,
                     expiration: result[0].expiration.S!,

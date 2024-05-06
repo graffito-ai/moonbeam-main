@@ -8,6 +8,9 @@ export const updatePlaidLinkingSession = /* GraphQL */ `
         updatePlaidLinkingSession(updatePlaidLinkingSessionInput: $updatePlaidLinkingSessionInput) {
             errorMessage
             errorType
+            id
+            link_token
+            timestamp
             data {
                 id
                 createdAt
