@@ -179,6 +179,28 @@ export interface NotificationReminderProducerConsumerConfiguration {
 }
 
 /**
+ * Interface used to define the configuration for the Plaid Linking message-related
+ * fan-out pattern, composed of an event-based process, driven by SNS and SQS.
+ */
+export interface PlaidLinkingFanOutConfiguration {
+    readonly plaidLinkingProcessingTopicName: string;
+    readonly plaidLinkingProcessingQueueName: string;
+    readonly plaidLinkingProcessingDLQName: string;
+    readonly plaidLinkingProcessingTopicDLQName: string;
+    readonly plaidLinkingProcessingEventSourceMapping: string;
+}
+
+/**
+ * Interface used to define all the resources for the producer and consumers, taking advantage of the
+ * async Plaid Linking data.
+ */
+export interface PlaidLinkingProducerConsumerConfiguration {
+    readonly plaidLinkingAcknowledgmentFunctionName: string;
+    readonly plaidLinkingConsumerFunctionName: string;
+    readonly plaidLinkingFanOutConfig: PlaidLinkingFanOutConfiguration;
+}
+
+/**
  * Interface used to define the configuration for the referral-related fan-out pattern, composed
  * of an event-based process, driven by SNS and SQS.
  */
@@ -526,7 +548,6 @@ export interface ScriptsConfiguration {
  * (GraphQL based), and other afferent data stores.
  */
 export interface PlaidLinkingConfiguration {
-    readonly plaidLinkingAcknowledgmentFunctionName: string;
     readonly plaidLinkingFunctionName: string;
     readonly plaidLinkingSessionsTableName: string;
     readonly plaidLinkTokenLocalIndex: string;

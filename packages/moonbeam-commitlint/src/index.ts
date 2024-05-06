@@ -73,7 +73,10 @@ export const setCommitLintConfig = (
                     'moonbeam-location-reminders-producer-lambda',
                     'moonbeam-ineligible-transactions-consumer-lambda',
                     'moonbeam-ineligible-transactions-notifications-consumer-lambda',
-                    'moonbeam-earnings-summary-lambda'
+                    'moonbeam-earnings-summary-lambda',
+                    'moonbeam-plaid-linking-consumer-lambda',
+                    'moonbeam-plaid-acknowledgment-lambda',
+                    'moonbeam-plaid-linking-lambda'
                 ]
             ],
             'subject-case': [

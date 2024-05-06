@@ -11,13 +11,6 @@ import {Effect, PolicyStatement} from "aws-cdk-lib/aws-iam";
 export class PlaidLinkingResolverStack extends Stack {
 
     /**
-     * the Plaid Linking producer Lambda Function, acting as the
-     * Plaid Linking updates producer, to be used in kick-starting the whole
-     * Plaid updates process, by dropping messages in the appropriate topic and queue.
-     */
-    readonly plaidLinkingAcknowledgmentLambda: aws_lambda_nodejs.NodejsFunction;
-
-    /**
      * Constructor for the Plaid Linking resolver stack.
      *
      * @param scope scope to be passed in (usually a CDK App Construct)
@@ -26,23 +19,6 @@ export class PlaidLinkingResolverStack extends Stack {
      */
     constructor(scope: Construct, id: string, props: StackProps & Pick<StageConfiguration, 'environmentVariables' | 'stage' | 'plaidLinkingConfig'> & { graphqlApiId: string, graphqlApiName: string }) {
         super(scope, id, props);
-
-        // create a new Lambda function to be used with the Plaid Updates Webhook service for Plaid sync/updates purposes, acting as the acknowledgment service or producer
-        this.plaidLinkingAcknowledgmentLambda = new aws_lambda_nodejs.NodejsFunction(this, `${props.plaidLinkingConfig.plaidLinkingAcknowledgmentFunctionName}-${props.stage}-${props.env!.region}`, {
-            functionName: `${props.plaidLinkingConfig.plaidLinkingAcknowledgmentFunctionName}-${props.stage}-${props.env!.region}`,
-            entry: path.resolve(path.join(__dirname, '../../../moonbeam-plaid-acknowledgment-lambda/src/lambda/main.ts')),
-            handler: 'handler',
-            runtime: aws_lambda.Runtime.NODEJS_18_X,
-            // we add a timeout here different from the default of 3 seconds, since we expect these API calls to take longer
-            timeout: Duration.seconds(30),
-            bundling: {
-                minify: true, // minify code, defaults to false
-                sourceMap: true, // include source map, defaults to false
-                sourceMapMode: aws_lambda_nodejs.SourceMapMode.BOTH, // defaults to SourceMapMode.DEFAULT
-                sourcesContent: false, // do not include original source into source map, defaults to true
-                target: 'esnext', // target environment for the generated JavaScript code
-            }
-        });
 
         // create a new Lambda function to be used with the AppSync API for the resolvers
         const plaidLinkingLambda = new aws_lambda_nodejs.NodejsFunction(this, `${props.plaidLinkingConfig.plaidLinkingFunctionName}-${props.stage}-${props.env!.region}`, {
@@ -153,53 +129,9 @@ export class PlaidLinkingResolverStack extends Stack {
             })
         );
 
-        // enable the Lambda function the retrieval of the Moonbeam internal API secrets
-        this.plaidLinkingAcknowledgmentLambda.addToRolePolicy(
-            new PolicyStatement({
-                effect: Effect.ALLOW,
-                actions: [
-                    "secretsmanager:GetSecretValue"
-                ],
-                resources: [
-                    // this ARN is retrieved post secret creation
-                    ...props.stage === Stages.DEV ? ["arn:aws:secretsmanager:us-west-2:963863720257:secret:moonbeam-internal-secret-pair-dev-us-west-2-vgMpp2"] : [],
-                    ...props.stage === Stages.PROD ? ["arn:aws:secretsmanager:us-west-2:251312580862:secret:moonbeam-internal-secret-pair-prod-us-west-2-9xP6tj"] : []
-                ]
-            })
-        );
-        // enable the Lambda function to access the AppSync mutations and queries
-        this.plaidLinkingAcknowledgmentLambda.addToRolePolicy(
-            new PolicyStatement({
-                effect: Effect.ALLOW,
-                actions: [
-                    "appsync:GraphQL"
-                ],
-                resources: [
-                    // this ARN is retrieved post GraphQL API creation
-                    ...props.stage === Stages.DEV ? ["arn:aws:appsync:us-west-2:963863720257:apis/pkr6ygyik5bqjigb6nd57jl2cm/types/Mutation/*"] : [],
-                    ...props.stage === Stages.PROD ? ["arn:aws:appsync:us-west-2:251312580862:apis/p3a4pwssi5dejox33pvznpvz4u/types/Mutation/*"] : []
-                ]
-            })
-        );
-        this.plaidLinkingAcknowledgmentLambda.addToRolePolicy(
-            new PolicyStatement({
-                effect: Effect.ALLOW,
-                actions: [
-                    "appsync:GraphQL"
-                ],
-                resources: [
-                    // this ARN is retrieved post GraphQL API creation
-                    ...props.stage === Stages.DEV ? [ "arn:aws:appsync:us-west-2:963863720257:apis/pkr6ygyik5bqjigb6nd57jl2cm/types/Query/*"] : [],
-                    ...props.stage === Stages.PROD ? ["arn:aws:appsync:us-west-2:251312580862:apis/p3a4pwssi5dejox33pvznpvz4u/types/Query/*"] : []
-                ]
-            })
-        );
-
         // Create environment variables that we will use in the function code
         plaidLinkingLambda.addEnvironment(`${Constants.MoonbeamConstants.PLAID_LINKING_SESSIONS_TABLE}`, plaidLinkingSessionsTable.tableName);
         plaidLinkingLambda.addEnvironment(`${Constants.MoonbeamConstants.PLAID_LINK_TOKEN_LOCAL_INDEX}`, props.plaidLinkingConfig.plaidLinkTokenLocalIndex);
         plaidLinkingLambda.addEnvironment(`${Constants.MoonbeamConstants.ENV_NAME}`, props.stage);
-
-        this.plaidLinkingAcknowledgmentLambda.addEnvironment(`${Constants.MoonbeamConstants.ENV_NAME}`, props.stage);
     }
 }

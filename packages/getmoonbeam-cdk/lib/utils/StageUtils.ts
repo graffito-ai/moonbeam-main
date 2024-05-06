@@ -35,6 +35,7 @@ import {LocationBasedReminderProducerConsumerStack} from "../stacks/LocationBase
 import {IneligibleTransactionsProducerConsumerStack} from "../stacks/IneligibleTransactionsProducerConsumerStack";
 import {EarningsSummaryResolverStack} from "../stacks/EarningsSummaryResolverStack";
 import {PlaidLinkingResolverStack} from "../stacks/PlaidLinkingResolverStack";
+import {PlaidLinkingProducerConsumerStack} from "../stacks/PlaidLinkingProducerConsumerStack";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages
@@ -482,6 +483,16 @@ export class StageUtils {
                 });
                 earningsSummaryStack.addDependency(appSyncStack);
 
+                const plaidLinkingProducerConsumerStack = new PlaidLinkingProducerConsumerStack(this.app, `moonbeam-plaid-link-producer-consumer-${stageKey}`, {
+                    stackName: `moonbeam-plaid-link-producer-consumer-${stageKey}`,
+                    description: 'This stack will contain all the resources needed for the Plaid Link consumers, as well as producers',
+                    env: stageEnv,
+                    stage: stageConfiguration.stage,
+                    plaidLinkingProducerConsumerConfig: stageConfiguration.plaidLinkingProducerConsumerConfig,
+                    environmentVariables: stageConfiguration.environmentVariables
+                });
+                plaidLinkingProducerConsumerStack.addDependency(appSyncStack);
+
                 // create the Plaid Linking resolver stack && add it to the CDK app
                 const plaidLinkingResolverStack = new PlaidLinkingResolverStack(this.app, `moonbeam-plaid-linking-resolver-${stageKey}`, {
                     stackName: `moonbeam-plaid-linking-resolver-${stageKey}`,
@@ -501,14 +512,14 @@ export class StageUtils {
                     description: 'This stack will contain all the API Gateway related resources for the GetMoonbeam Application',
                     env: stageEnv,
                     stage: stageConfiguration.stage,
-                    plaidLinkingAcknowledgmentLambda: plaidLinkingResolverStack.plaidLinkingAcknowledgmentLambda,
+                    plaidLinkingAcknowledgmentLambda: plaidLinkingProducerConsumerStack.plaidLinkingAcknowledgmentLambda,
                     transactionsProducerLambda: transactionsProducerConsumerStack.transactionsProducerLambda,
                     updatedTransactionsProducerLambda: updatedTransactionsProducerConsumerStack.updatedTransactionalOffersProducerLambda,
                     militaryVerificationNotificationProducerLambda: militaryVerificationUpdatesProducerConsumerStack.militaryVerificationNotificationProducerLambda,
                     apiGatewayServiceConfig: stageConfiguration.apiGatewayServiceConfig,
                     environmentVariables: stageConfiguration.environmentVariables,
                 });
-                apiGatewayStack.addDependency(plaidLinkingResolverStack);
+                apiGatewayStack.addDependency(plaidLinkingProducerConsumerStack);
                 apiGatewayStack.addDependency(transactionsProducerConsumerStack);
                 apiGatewayStack.addDependency(updatedTransactionsProducerConsumerStack);
                 apiGatewayStack.addDependency(militaryVerificationUpdatesProducerConsumerStack);

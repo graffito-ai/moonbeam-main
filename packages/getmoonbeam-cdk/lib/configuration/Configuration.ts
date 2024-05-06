@@ -70,7 +70,6 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 updateCardResolverName: 'updateCard'
             },
             plaidLinkingConfig: {
-                plaidLinkingAcknowledgmentFunctionName: 'plaidLinkingAcknowledgmentFunction',
                 plaidLinkingFunctionName: 'plaidLinkingFunction',
                 plaidLinkingSessionsTableName: 'plaidLinkingSessionsTable',
                 plaidLinkTokenLocalIndex: 'plaidLinkTokenLocalIndex',
@@ -144,6 +143,17 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                     notificationReminderProcessingDLQName: 'notificationReminderProcessingDLQ',
                     notificationReminderProcessingTopicDLQName: 'notificationReminderProcessingTopicDLQ',
                     notificationReminderProcessingEventSourceMapping: 'notificationReminderProcessingEventSourceMapping'
+                }
+            },
+            plaidLinkingProducerConsumerConfig: {
+                plaidLinkingAcknowledgmentFunctionName: 'plaidLinkingAcknowledgmentFunction',
+                plaidLinkingConsumerFunctionName: 'plaidLinkingConsumerFunction',
+                plaidLinkingFanOutConfig: {
+                    plaidLinkingProcessingTopicName: 'plaidLinkingProcessingTopic',
+                    plaidLinkingProcessingQueueName: 'plaidLinkingProcessingQueue',
+                    plaidLinkingProcessingDLQName: 'plaidLinkingProcessingDLQ',
+                    plaidLinkingProcessingTopicDLQName: 'plaidLinkingProcessingTopicDLQ',
+                    plaidLinkingProcessingEventSourceMapping: 'plaidLinkingProcessingEventSourceMapping'
                 }
             },
             updatedTransactionsProducerConsumerConfig: {
@@ -393,7 +403,6 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 updateCardResolverName: 'updateCard'
             },
             plaidLinkingConfig: {
-                plaidLinkingAcknowledgmentFunctionName: 'plaidLinkingAcknowledgmentFunction',
                 plaidLinkingFunctionName: 'plaidLinkingFunction',
                 plaidLinkingSessionsTableName: 'plaidLinkingSessionsTable',
                 plaidLinkTokenLocalIndex: 'plaidLinkTokenLocalIndex',
@@ -490,6 +499,17 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                     notificationReminderProcessingDLQName: 'notificationReminderProcessingDLQ',
                     notificationReminderProcessingTopicDLQName: 'notificationReminderProcessingTopicDLQ',
                     notificationReminderProcessingEventSourceMapping: 'notificationReminderProcessingEventSourceMapping'
+                }
+            },
+            plaidLinkingProducerConsumerConfig: {
+                plaidLinkingAcknowledgmentFunctionName: 'plaidLinkingAcknowledgmentFunction',
+                plaidLinkingConsumerFunctionName: 'plaidLinkingConsumerFunction',
+                plaidLinkingFanOutConfig: {
+                    plaidLinkingProcessingTopicName: 'plaidLinkingProcessingTopic',
+                    plaidLinkingProcessingQueueName: 'plaidLinkingProcessingQueue',
+                    plaidLinkingProcessingDLQName: 'plaidLinkingProcessingDLQ',
+                    plaidLinkingProcessingTopicDLQName: 'plaidLinkingProcessingTopicDLQ',
+                    plaidLinkingProcessingEventSourceMapping: 'plaidLinkingProcessingEventSourceMapping'
                 }
             },
             transactionsConfig: {

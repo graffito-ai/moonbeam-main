@@ -210,7 +210,7 @@ export class NotificationReminderProducerConsumerStack extends Stack {
              * the time that a message will wait to be deleted by one of the queue subscribers (aka how much time to we have to process a military verification record)
              * since this message will be "invisible" to other consumers during this time.
              */
-            visibilityTimeout: Duration.seconds(50),
+            visibilityTimeout: Duration.seconds(900),
             fifo: true,
             // we are guaranteed that for messages with a same content, to be dropped in the queue, that the deduplication id will be based on the content
             contentBasedDeduplication: true,
