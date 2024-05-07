@@ -3,6 +3,29 @@
  */
 
 /**
+ * Query used to retrieve a Plaid Linking session by its link_token
+ */
+export const getPlaidLinkingSessionByToken = /* GraphQL */ `
+    query getPlaidLinkingSessionByToken($getPlaidLinkingSessionByTokenInput: GetPlaidLinkingSessionByTokenInput!) {
+        getPlaidLinkingSessionByToken(getPlaidLinkingSessionByTokenInput: $getPlaidLinkingSessionByTokenInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                createdAt
+                updatedAt
+                expiration
+                hosted_link_url
+                link_token
+                request_id
+                session_id
+                status
+            }
+        }
+    }
+`;
+
+/**
  * Query used to retrieve a user's notification assets (such as email address and push token),
  * used when sending notifications
   */

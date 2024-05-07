@@ -56,7 +56,7 @@ import {
     TransactionsErrorType,
     UpdateCardInput,
     UpdatedTransactionEvent,
-    UpdateNotificationReminderInput,
+    UpdateNotificationReminderInput, UpdatePlaidLinkingSessionInput, UpdatePlaidLinkingSessionResponse,
     UpdateReferralInput,
     UpdateTransactionInput,
     UserDeviceErrorType,
@@ -74,7 +74,8 @@ import {
     updateCard,
     updateNotificationReminder,
     updateReferral,
-    updateTransaction
+    updateTransaction,
+    updatePlaidLinkingSession
 } from "../../graphql/mutations/Mutations";
 import {
     getAllUsersEligibleForReimbursements,
@@ -621,7 +622,134 @@ export class MoonbeamClient extends BaseAPIClient {
     }
 
     /**
-     * Function used to get create and initiate a Plaid linking session,
+     * Function used to update a Plaid linking session.
+     *
+     * @param updatePlaidLinkingSessionInput the input containing the information
+     * necessary to update a Plaid linking session.
+     *
+     * @returns a {@link UpdatePlaidLinkingSessionResponse}, representing the updated
+     * Plaid linking session
+     */
+    async updatePlaidLinkingSession(updatePlaidLinkingSessionInput: UpdatePlaidLinkingSessionInput): Promise<UpdatePlaidLinkingSessionResponse> {
+        // easily identifiable API endpoint information
+        const endpointInfo = 'updatePlaidLinkingSession Mutation Moonbeam GraphQL API';
+
+        try {
+            // retrieve the API Key and Base URL, needed in order to make the military verification information retrieval call through the client
+            const [moonbeamBaseURL, moonbeamPrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME);
+
+            // check to see if we obtained any invalid secret values from the call above
+            if (moonbeamBaseURL === null || moonbeamBaseURL.length === 0 ||
+                moonbeamPrivateKey === null || moonbeamPrivateKey.length === 0) {
+                const errorMessage = "Invalid Secrets obtained for Moonbeam API call!";
+                console.log(errorMessage);
+
+                return {
+                    errorMessage: errorMessage,
+                    errorType: PlaidLinkingErrorType.UnexpectedError
+                };
+            }
+
+            /**
+             * updatePlaidLinkingSession Query
+             *
+             * build the Moonbeam AppSync API GraphQL query, and perform a POST to it,
+             * with the appropriate information.
+             *
+             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
+             * error for a better customer experience.
+             */
+            return axios.post(`${moonbeamBaseURL}`, {
+                query: updatePlaidLinkingSession,
+                variables: {
+                    updatePlaidLinkingSessionInput: updatePlaidLinkingSessionInput
+                }
+            }, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": moonbeamPrivateKey
+                },
+                timeout: 15000, // in milliseconds here
+                timeoutErrorMessage: 'Moonbeam API timed out after 15000ms!'
+            }).then(updatePlaidLinkingSessionResponse => {
+                // retrieve the data block from the response
+                const responseData = (updatePlaidLinkingSessionResponse && updatePlaidLinkingSessionResponse.data)
+                    ? updatePlaidLinkingSessionResponse.data.data
+                    : null;
+
+                // check if there are any errors in the returned response
+                if (responseData && responseData.updatePlaidLinkingSession.errorMessage === null) {
+                    // returned the successfully updated linking session
+                    return {
+                        id: responseData.updatePlaidLinkingSession.id,
+                        link_token: responseData.updatePlaidLinkingSession.link_token,
+                        timestamp: responseData.updatePlaidLinkingSession.timestamp,
+                        data: responseData.updatePlaidLinkingSession.data as PlaidLinkingSession
+                    }
+                } else {
+                    return responseData ?
+                        // return the error message and type, from the original AppSync call
+                        {
+                            errorMessage: responseData.updatePlaidLinkingSession.errorMessage,
+                            errorType: responseData.updatePlaidLinkingSession.errorType
+                        } :
+                        // return the error response indicating an invalid structure returned
+                        {
+                            errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
+                            errorType: PlaidLinkingErrorType.ValidationError
+                        }
+                }
+            }).catch(error => {
+                if (error.response) {
+                    /**
+                     * The request was made and the server responded with a status code
+                     * that falls out of the range of 2xx.
+                     */
+                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Moonbeam API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
+                    console.log(errorMessage);
+
+                    // any other specific errors to be filtered below
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: PlaidLinkingErrorType.UnexpectedError
+                    };
+                } else if (error.request) {
+                    /**
+                     * The request was made but no response was received
+                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                     *  http.ClientRequest in node.js.
+                     */
+                    const errorMessage = `No response received while calling the ${endpointInfo} Moonbeam API, for request ${error.request}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: PlaidLinkingErrorType.UnexpectedError
+                    };
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Moonbeam API, ${(error && error.message) && error.message}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: PlaidLinkingErrorType.UnexpectedError
+                    };
+                }
+            });
+        } catch (err) {
+            const errorMessage = `Unexpected error while updating the Plaid linking session through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                errorMessage: errorMessage,
+                errorType: PlaidLinkingErrorType.UnexpectedError
+            };
+        }
+    }
+
+    /**
+     * Function used to create and initiate a Plaid linking session.
      *
      * @param createPlaidLinkingSessionInput the input containing the information
      * necessary to initiate a Plaid linking session.

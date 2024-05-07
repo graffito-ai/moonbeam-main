@@ -1,5 +1,22 @@
 # graphql/Queries.graphql
 # Queries Schema File
+query getPlaidLinkingSessionByToken($getPlaidLinkingSessionByTokenInput: GetPlaidLinkingSessionByTokenInput!) {
+    getPlaidLinkingSessionByToken(getPlaidLinkingSessionByTokenInput: $getPlaidLinkingSessionByTokenInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            createdAt
+            updatedAt
+            expiration
+            hosted_link_url
+            link_token
+            request_id
+            session_id
+            status
+        }
+    }
+}
 query getUserNotificationAssets($getUserNotificationAssetsInput: GetUserNotificationAssetsInput!) {
     getUserNotificationAssets(getUserNotificationAssetsInput: $getUserNotificationAssetsInput) {
         errorMessage

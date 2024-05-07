@@ -1665,6 +1665,12 @@ export enum PlaidCountryCodes {
   Us = 'US'
 }
 
+export enum PlaidEnvironment {
+  Development = 'development',
+  Production = 'production',
+  Sandbox = 'sandbox'
+}
+
 export enum PlaidLanguages {
   En = 'en'
 }
@@ -1774,6 +1780,30 @@ export enum PlaidTransactionsStatus {
   Added = 'ADDED',
   Modified = 'MODIFIED',
   Removed = 'REMOVED'
+}
+
+export enum PlaidWebhookCode {
+  SessionFinished = 'SESSION_FINISHED'
+}
+
+export type PlaidWebhookLinkInput = {
+  __typename?: 'PlaidWebhookLinkInput';
+  environment: PlaidEnvironment;
+  link_session_id: Scalars['String'];
+  link_token: Scalars['String'];
+  public_token?: Maybe<Scalars['String']>;
+  status: PlaidWebhookStatus;
+  webhook_code: PlaidWebhookCode;
+  webhook_type: PlaidWebhookType;
+};
+
+export enum PlaidWebhookStatus {
+  Exited = 'EXITED',
+  Success = 'SUCCESS'
+}
+
+export enum PlaidWebhookType {
+  Link = 'LINK'
 }
 
 export type PushDevice = {

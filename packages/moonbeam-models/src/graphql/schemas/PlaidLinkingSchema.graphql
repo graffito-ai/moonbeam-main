@@ -42,6 +42,24 @@ enum PlaidLinkingSessionStatus {
     SUCCESS
 }
 
+enum PlaidWebhookType {
+    LINK
+}
+
+enum PlaidWebhookCode {
+    SESSION_FINISHED
+}
+
+enum PlaidWebhookStatus {
+    SUCCESS
+    EXITED
+}
+
+enum PlaidEnvironment {
+    sandbox
+    development
+    production
+}
 
 ## this Follows Plaid's https://plaid.com/docs/api/tokens/#linktokencreate API schema
 type PlaidLinkingSession @aws_cognito_user_pools @aws_api_key {
@@ -71,6 +89,17 @@ type UpdatePlaidLinkingSessionResponse @aws_cognito_user_pools @aws_api_key {
     data: PlaidLinkingSession
     errorType: PlaidLinkingErrorType
     errorMessage: String
+}
+
+### this Follows Plaid's https://plaid.com/docs/api/items/#session_finished API schema
+type PlaidWebhookLinkInput @aws_cognito_user_pools @aws_api_key {
+    webhook_type: PlaidWebhookType!
+    webhook_code: PlaidWebhookCode!
+    status: PlaidWebhookStatus!
+    link_session_id: String!
+    link_token: String!
+    public_token: String
+    environment: PlaidEnvironment!
 }
 
 ## this Follows Plaid's https://plaid.com/docs/api/tokens/#linktokencreate API schema
@@ -122,7 +151,6 @@ input PlaidLinkingAccountFiltersInput {
     credit: PlaidLinkingAccountFilterInput
 }
 
-## this Follows Plaid's https://plaid.com/docs/api/tokens/#linktokencreate API schema
 input CreatePlaidLinkingSessionInput {
     client_name: String
     client_id: String
@@ -149,4 +177,8 @@ input UpdatePlaidLinkingSessionInput {
     status: PlaidLinkingSessionStatus!
     public_token: String!
     updatedAt: AWSDateTime
+}
+
+input GetPlaidLinkingSessionByTokenInput {
+    link_token: String!
 }

@@ -56,6 +56,7 @@ import {
     UpdatedTransactionEvent,
     UpdatedTransactionEventResponse,
     UpdateNotificationReminderInput,
+    UpdatePlaidLinkingSessionInput, UpdatePlaidLinkingSessionResponse,
     UpdateReferralInput,
     UpdateTransactionInput,
     UserDevicesResponse,
@@ -488,7 +489,7 @@ export abstract class BaseAPIClient {
     protected getMilitaryVerificationInformation?(getMilitaryVerificationInformationInput: GetMilitaryVerificationInformationInput): Promise<MilitaryVerificationReportingInformationResponse>;
 
     /**
-     * Function used to get create and initiate a Plaid linking session,
+     * Function used to create and initiate a Plaid linking session.
      *
      * @param createPlaidLinkingSessionInput the input containing the information
      * necessary to initiate a Plaid linking session.
@@ -499,6 +500,19 @@ export abstract class BaseAPIClient {
      * @protected
      */
     protected createPlaidLinkingSession?(createPlaidLinkingSessionInput: CreatePlaidLinkingSessionInput): Promise<PlaidLinkingSessionResponse>;
+
+    /**
+     * Function used to update a Plaid linking session.
+     *
+     * @param updatePlaidLinkingSessionInput the input containing the information
+     * necessary to update a Plaid linking session.
+     *
+     * @returns a {@link UpdatePlaidLinkingSessionResponse}, representing the updated
+     * Plaid linking session
+     *
+     * @protected
+     */
+    protected updatePlaidLinkingSession?(updatePlaidLinkingSessionInput: UpdatePlaidLinkingSessionInput): Promise<UpdatePlaidLinkingSessionResponse>;
 
     /**
      * Function used to update and/or create an existing/new military verification report

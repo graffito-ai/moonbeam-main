@@ -73,8 +73,10 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 plaidLinkingFunctionName: 'plaidLinkingFunction',
                 plaidLinkingSessionsTableName: 'plaidLinkingSessionsTable',
                 plaidLinkTokenLocalIndex: 'plaidLinkTokenLocalIndex',
+                plaidLinkTokenGlobalIndex: 'plaidLinkTokenGlobalIndex',
                 createPlaidLinkingSessionResolverName: 'createPlaidLinkingSession',
-                updatePlaidLinkingSessionResolverName: 'updatePlaidLinkingSession'
+                updatePlaidLinkingSessionResolverName: 'updatePlaidLinkingSession',
+                getPlaidLinkingSessionByTokenResolverName: 'getPlaidLinkingSessionByToken'
             },
             apiGatewayServiceConfig: {
                 plaidLinkingServiceAPIName: 'plaidLinkingServiceAPI',
@@ -406,8 +408,10 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 plaidLinkingFunctionName: 'plaidLinkingFunction',
                 plaidLinkingSessionsTableName: 'plaidLinkingSessionsTable',
                 plaidLinkTokenLocalIndex: 'plaidLinkTokenLocalIndex',
+                plaidLinkTokenGlobalIndex: 'plaidLinkTokenGlobalIndex',
                 createPlaidLinkingSessionResolverName: 'createPlaidLinkingSession',
-                updatePlaidLinkingSessionResolverName: 'updatePlaidLinkingSession'
+                updatePlaidLinkingSessionResolverName: 'updatePlaidLinkingSession',
+                getPlaidLinkingSessionByTokenResolverName: 'getPlaidLinkingSessionByToken'
             },
             apiGatewayServiceConfig: {
                 plaidLinkingServiceAPIName: 'plaidLinkingServiceAPI',
