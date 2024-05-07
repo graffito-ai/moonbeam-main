@@ -700,6 +700,10 @@ export type GetOffersInput = {
   redemptionType: RedemptionType;
 };
 
+export type GetPlaidLinkingSessionByTokenInput = {
+  link_token: Scalars['String'];
+};
+
 export type GetReferralsByStatusInput = {
   status: ReferralStatus;
 };
@@ -1859,6 +1863,7 @@ export type Query = {
   getNotificationByType: GetNotificationByTypeResponse;
   getNotificationReminders: NotificationReminderResponse;
   getOffers: OffersResponse;
+  getPlaidLinkingSessionByToken: PlaidLinkingSessionResponse;
   getPremierOffers: OffersResponse;
   getReferralsByStatus: ReferralResponse;
   getReimbursements: ReimbursementResponse;
@@ -1930,6 +1935,11 @@ export type QueryGetNotificationByTypeArgs = {
 
 export type QueryGetOffersArgs = {
   getOffersInput: GetOffersInput;
+};
+
+
+export type QueryGetPlaidLinkingSessionByTokenArgs = {
+  getPlaidLinkingSessionByTokenInput: GetPlaidLinkingSessionByTokenInput;
 };
 
 
@@ -2719,6 +2729,13 @@ export type UpdateMilitaryVerificationStatusMutationVariables = Exact<{
 
 
 export type UpdateMilitaryVerificationStatusMutation = { __typename?: 'Mutation', updateMilitaryVerificationStatus: { __typename?: 'UpdateMilitaryVerificationResponse', errorType?: MilitaryVerificationErrorType | null, errorMessage?: string | null, id?: string | null, militaryVerificationStatus?: MilitaryVerificationStatusType | null } };
+
+export type GetPlaidLinkingSessionByTokenQueryVariables = Exact<{
+  getPlaidLinkingSessionByTokenInput: GetPlaidLinkingSessionByTokenInput;
+}>;
+
+
+export type GetPlaidLinkingSessionByTokenQuery = { __typename?: 'Query', getPlaidLinkingSessionByToken: { __typename?: 'PlaidLinkingSessionResponse', errorMessage?: string | null, errorType?: PlaidLinkingErrorType | null, data?: { __typename?: 'PlaidLinkingSession', id: string, createdAt: string, updatedAt: string, expiration: string, hosted_link_url: string, link_token: string, request_id: string, session_id?: string | null, status: PlaidLinkingSessionStatus } | null } };
 
 export type GetUserNotificationAssetsQueryVariables = Exact<{
   getUserNotificationAssetsInput: GetUserNotificationAssetsInput;

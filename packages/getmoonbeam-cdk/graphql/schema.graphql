@@ -38,6 +38,7 @@ type Query {
     getDailyEarningsSummary(getDailyEarningsSummaryInput: GetDailyEarningsSummaryInput!): DailyEarningsSummaryResponse! @aws_cognito_user_pools @aws_api_key
     getUserNotificationAssets(getUserNotificationAssetsInput: GetUserNotificationAssetsInput!): UserNotificationAssetsResponse! @aws_cognito_user_pools @aws_api_key
     getAllDevices: UserDevicesResponse! @aws_cognito_user_pools @aws_api_key
+    getPlaidLinkingSessionByToken(getPlaidLinkingSessionByTokenInput: GetPlaidLinkingSessionByTokenInput!): PlaidLinkingSessionResponse! @aws_cognito_user_pools @aws_api_key
 }
 
 type Mutation {
@@ -2124,7 +2125,6 @@ input PlaidLinkingAccountFiltersInput {
     credit: PlaidLinkingAccountFilterInput
 }
 
-## this Follows Plaid's https://plaid.com/docs/api/tokens/#linktokencreate API schema
 input CreatePlaidLinkingSessionInput {
     client_name: String
     client_id: String
@@ -2151,4 +2151,8 @@ input UpdatePlaidLinkingSessionInput {
     status: PlaidLinkingSessionStatus!
     public_token: String!
     updatedAt: AWSDateTime
+}
+
+input GetPlaidLinkingSessionByTokenInput {
+    link_token: String!
 }

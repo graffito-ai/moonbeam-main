@@ -17,7 +17,7 @@ import {
     GeocodeAsyncResponse,
     GetDevicesForUserInput, GetLocationPredictionsInput, GetLocationPredictionsResponse,
     GetMilitaryVerificationInformationInput, GetNotificationByTypeInput, GetNotificationByTypeResponse,
-    GetOffersInput,
+    GetOffersInput, GetPlaidLinkingSessionByTokenInput,
     GetReferralsByStatusInput, GetStorageInput,
     GetTransactionByStatusInput,
     GetTransactionInput, GetTransactionsInRangeInput,
@@ -513,6 +513,19 @@ export abstract class BaseAPIClient {
      * @protected
      */
     protected updatePlaidLinkingSession?(updatePlaidLinkingSessionInput: UpdatePlaidLinkingSessionInput): Promise<UpdatePlaidLinkingSessionResponse>;
+
+    /**
+     * Function used to retrieve a Plaid linking session by its link_token.
+     *
+     * @param getPlaidLinkingSessionByTokenInput the input containing the information
+     * necessary to retrieve the Plaid linking session by its link_token
+     *
+     * @returns a {@link PlaidLinkingSessionResponse}, representing the retrieved
+     * Plaid linking session
+     *
+     * @protected
+     */
+    protected getPlaidLinkingSessionByToken?(getPlaidLinkingSessionByTokenInput: GetPlaidLinkingSessionByTokenInput): Promise<PlaidLinkingSessionResponse>;
 
     /**
      * Function used to update and/or create an existing/new military verification report

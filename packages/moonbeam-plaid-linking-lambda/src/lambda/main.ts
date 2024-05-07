@@ -1,11 +1,12 @@
 import {createPlaidLinkingSession} from "./resolvers/CreatePlaidLinkingSessionResolver";
 import {updatePlaidLinkingSession} from "./resolvers/UpdatePlaidLinkingSessionResolver";
 import {
-    CreatePlaidLinkingSessionInput,
+    CreatePlaidLinkingSessionInput, GetPlaidLinkingSessionByTokenInput,
     PlaidLinkingErrorType,
     PlaidLinkingSessionResponse,
     UpdatePlaidLinkingSessionInput, UpdatePlaidLinkingSessionResponse
 } from "@moonbeam/moonbeam-models";
+import { getPlaidLinkingSessionByToken } from "./resolvers/GetPlaidLinkingSessionByTokenResolver";
 
 /**
  * Mapping out the App Sync event type, so we can use it as a type in the Lambda Handler
@@ -16,7 +17,8 @@ type AppSyncEvent = {
     },
     arguments: {
         createPlaidLinkingSessionInput: CreatePlaidLinkingSessionInput,
-        updatePlaidLinkingSessionInput: UpdatePlaidLinkingSessionInput
+        updatePlaidLinkingSessionInput: UpdatePlaidLinkingSessionInput,
+        getPlaidLinkingSessionByTokenInput: GetPlaidLinkingSessionByTokenInput
     },
     identity: {
         sub: string;
@@ -38,6 +40,8 @@ exports.handler = async (event: AppSyncEvent): Promise<PlaidLinkingSessionRespon
             return await createPlaidLinkingSession(event.info.fieldName, event.arguments.createPlaidLinkingSessionInput);
         case "updatePlaidLinkingSession":
             return await updatePlaidLinkingSession(event.info.fieldName, event.arguments.updatePlaidLinkingSessionInput);
+        case "getPlaidLinkingSessionByToken":
+            return await getPlaidLinkingSessionByToken(event.info.fieldName, event.arguments.getPlaidLinkingSessionByTokenInput);
         default:
             const errorMessage = `Unexpected field name: ${event.info.fieldName}`;
             console.log(errorMessage);

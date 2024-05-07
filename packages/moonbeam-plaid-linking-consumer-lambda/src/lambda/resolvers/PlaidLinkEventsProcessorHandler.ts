@@ -1,6 +1,14 @@
 import {SQSBatchResponse, SQSEvent} from "aws-lambda";
 import {SQSBatchItemFailure} from "aws-lambda/trigger/sqs";
-import {PlaidWebhookCode, PlaidWebhookLinkInput, PlaidWebhookStatus} from "@moonbeam/moonbeam-models";
+import {
+    MoonbeamClient,
+    PlaidLinkingSessionResponse,
+    PlaidLinkingSessionStatus,
+    PlaidWebhookCode,
+    PlaidWebhookLinkInput,
+    PlaidWebhookStatus,
+    UpdatePlaidLinkingSessionResponse
+} from "@moonbeam/moonbeam-models";
 
 /**
  * PlaidLinkEventsProcessorHandler handler
@@ -12,7 +20,7 @@ import {PlaidWebhookCode, PlaidWebhookLinkInput, PlaidWebhookStatus} from "@moon
 export const processPlaidLink = async (event: SQSEvent): Promise<SQSBatchResponse> => {
     try {
         // retrieving the current function region
-        // const region = process.env.AWS_REGION!;
+        const region = process.env.AWS_REGION!;
 
         /**
          * initializing the batch response, as an empty array, that will be populated with errors, if any throughout the processing
@@ -50,19 +58,63 @@ export const processPlaidLink = async (event: SQSEvent): Promise<SQSBatchRespons
             switch (plaidWebhookLinkInput.webhook_code) {
                 case PlaidWebhookCode.SessionFinished:
                     /**
-                     * 2) If the Link SESSION_FINISHED was successful, then proceed with the next steps, otherwise
-                     * call the updatePlaidLinkingSession Moonbeam AppSync API endpoint, to mark the Linking Session
-                     * as failed/exited.
+                     * 1) Call the getPlaidLinkingSessionByToken Moonbeam AppSync API Endpoint, to get the appropriate
+                     * information needed in order to make subsequent calls (such as user ID and timestamp).
+                     *
+                     * first, initialize the Olive Client API here, in order to call the appropriate endpoints for this handler
                      */
-                    if (plaidWebhookLinkInput.status.toLowerCase() === PlaidWebhookStatus.Success.toLowerCase()) {
+                    const moonbeamClient = new MoonbeamClient(process.env.ENV_NAME!, region);
 
-                    } else {
+                    // make the getPlaidLinkingSessionByToken call
+                    const plaidLinkingSessionResponse: PlaidLinkingSessionResponse = await moonbeamClient.getPlaidLinkingSessionByToken({
+                        link_token: plaidWebhookLinkInput.link_token
+                    });
+
+                    // check if the getPlaidLinkingSessionByToken call was successful or not
+                    if (plaidLinkingSessionResponse && !plaidLinkingSessionResponse.errorMessage && !plaidLinkingSessionResponse.errorType &&
+                        plaidLinkingSessionResponse.data) {
                         /**
-                         * Call the updatePlaidLinkingSession Moonbeam AppSync API endpoint, to mark the Linking Session
+                         * 2) If the Link SESSION_FINISHED was successful, then proceed with the next steps, otherwise
+                         * call the updatePlaidLinkingSession Moonbeam AppSync API endpoint, to mark the Linking Session
                          * as failed/exited.
                          */
+                        if (plaidWebhookLinkInput.status.toLowerCase() === PlaidWebhookStatus.Success.toLowerCase()) {
 
+                        } else {
+                            /**
+                             * Call the updatePlaidLinkingSession Moonbeam AppSync API endpoint, to mark the Linking Session
+                             * as failed/exited.
+                             */
+                            const updatePlaidLinkingSessionResponse: UpdatePlaidLinkingSessionResponse = await moonbeamClient.updatePlaidLinkingSession({
+                                id: plaidLinkingSessionResponse.data.id,
+                                link_token: plaidLinkingSessionResponse.data.link_token,
+                                public_token: "NOT_AVAILABLE",
+                                session_id: "NOT_AVAILABLE",
+                                status: plaidWebhookLinkInput.status.toLowerCase() === PlaidLinkingSessionStatus.Exit.toLowerCase()
+                                    ? PlaidLinkingSessionStatus.Exit
+                                    : PlaidLinkingSessionStatus.Error
+                            });
 
+                            // check if the updatePlaidLinkingSession call was successful or not
+                            if (updatePlaidLinkingSessionResponse && !updatePlaidLinkingSessionResponse.errorMessage && !updatePlaidLinkingSessionResponse.errorType &&
+                                updatePlaidLinkingSessionResponse.data) {
+                                console.log(`Successfully marked the Link Session as either ${PlaidLinkingSessionStatus.Error} or ${PlaidLinkingSessionStatus.Exit}!`);
+                            } else {
+                                console.log(`Failed to update the Plaid Linking session!`);
+
+                                // adds an item failure, for the SQS message which failed processing, as part of the incoming event
+                                itemFailures.push({
+                                    itemIdentifier: plaidLinkingRecord.messageId
+                                });
+                            }
+                        }
+                    } else {
+                        console.log(`Failed to retrieve the Plaid Linking session by link_token`);
+
+                        // adds an item failure, for the SQS message which failed processing, as part of the incoming event
+                        itemFailures.push({
+                            itemIdentifier: plaidLinkingRecord.messageId
+                        });
                     }
                     break;
                 default:
