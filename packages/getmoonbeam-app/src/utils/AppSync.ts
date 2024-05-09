@@ -98,15 +98,14 @@ const calculateDateTime = (): Date => {
  * @param phoneNumber phoneNumber passed in, used to initialize the Plaid Linking session
  * @param address address passed in, used to initialize the Plaid Linking session
  * @param redirectUri redirectUri passed in, used to initialize the Plaid Linking session
+ * @param createdAt the creation time, used to initialize the Plaid Linking session
  *
  * @returns a {@link PlaidLinkingSessionResponse} representing the linking session information
  * or any errors associated with it, accordingly
  */
 export const initiatePlaidLinkingSession = async (userId: string, firstName: string, lastName: string,
                                                   email: string, dob: string, phoneNumber: string, address: string,
-                                                  redirectUri: string): Promise<PlaidLinkingSessionResponse> => {
-    // initialize the creation date accordingly
-    const createdAt = new Date().toISOString();
+                                                  redirectUri: string, createdAt: string): Promise<PlaidLinkingSessionResponse> => {
     try {
         // call the createPlaidLinkingSession API to update the initiate the Plaid Linking Session accordingly
         const addressParts = address.split(',');

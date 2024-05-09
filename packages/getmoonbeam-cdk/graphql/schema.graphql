@@ -2012,7 +2012,7 @@ enum PlaidLinkingAccountSubtype {
 enum PlaidLinkingSessionStatus {
     INITIATED
     ERROR
-    EXIT
+    EXITED
     SUCCESS
 }
 

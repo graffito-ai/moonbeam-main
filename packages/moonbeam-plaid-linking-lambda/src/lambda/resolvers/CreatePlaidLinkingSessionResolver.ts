@@ -66,7 +66,7 @@ export const createPlaidLinkingSession = async (fieldName: string, createPlaidLi
                     S: createPlaidLinkingSessionInput.user.client_user_id
                 },
                 timestamp: {
-                    N: Date.parse(createdAt).toString()
+                    N: Date.parse(createPlaidLinkingSessionInput.createdAt).toString()
                 }
             },
             /**
@@ -114,7 +114,7 @@ export const createPlaidLinkingSession = async (fieldName: string, createPlaidLi
                             S: plaidLinkingSession.expiration
                         },
                         createdAt: {
-                            S: plaidLinkingSession.createdAt
+                            S: createPlaidLinkingSessionInput.createdAt
                         },
                         updatedAt: {
                             S: plaidLinkingSession.updatedAt
@@ -129,7 +129,7 @@ export const createPlaidLinkingSession = async (fieldName: string, createPlaidLi
                             S: plaidLinkingSession.request_id
                         },
                         timestamp: {
-                            N: Date.parse(createdAt).toString()
+                            N: Date.parse(createPlaidLinkingSessionInput.createdAt).toString()
                         },
                         status: {
                             S: plaidLinkingSession.status!

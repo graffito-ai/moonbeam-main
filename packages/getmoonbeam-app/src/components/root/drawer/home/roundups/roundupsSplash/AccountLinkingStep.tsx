@@ -16,7 +16,7 @@ import {styles} from "../../../../../../styles/roundups.module";
 import {useRecoilState} from "recoil";
 import {
     isPlaidLinkInitiatedState,
-    isRoundupsSplashReadyState,
+    isRoundupsSplashReadyState, linkSessionCreationDateTimeState, linkSessionLinkTokenState,
     plaidLinkingSessionState,
     roundupsSplashStepNumberState
 } from "../../../../../../recoil/RoundupsAtom";
@@ -41,6 +41,8 @@ export const AccountLinkingStep = () => {
     const [splashState, setSplashState] = useRecoilState(splashStatusState);
     const [userInformation,] = useRecoilState(currentUserInformation);
     const [isPlaidLinkInitiated, setIsPlaidLinkInitiated] = useRecoilState(isPlaidLinkInitiatedState);
+    const [, setLinkSessionCreationDateTime] = useRecoilState(linkSessionCreationDateTimeState);
+    const [, setLinkSessionLinkToken] = useRecoilState(linkSessionLinkTokenState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -53,15 +55,24 @@ export const AccountLinkingStep = () => {
         // if this flag is active, then we know we have to kickstart the linking step
         if (isPlaidLinkInitiated && plaidLinkingSession === null && splashState.splashTitle !== `Houston we got a problem!`) {
             setIsReady(false);
+
+            // set the initialization date accordingly
+            const createdAt = new Date();
+            setLinkSessionCreationDateTime(createdAt);
+
             // then, initialize the Plaid Linking session in order to obtain the hosted_link
             initiatePlaidLinkingSession(userInformation["custom:userId"], userInformation["given_name"], userInformation["family_name"],
                 userInformation["email"], userInformation["birthdate"], userInformation["phone_number"], userInformation["address"]["formatted"],
-                `moonbeamfin://plaidRedirect`).then(plaidLinkingSessionResponse => {
+                `moonbeamfin://plaidRedirect`, createdAt.toISOString()).then(plaidLinkingSessionResponse => {
                 // if there were any errors in the linking session creation, then display a Splash prompting the user to try again
                 if (plaidLinkingSessionResponse && !plaidLinkingSessionResponse.errorMessage &&
                     plaidLinkingSessionResponse.data !== undefined && plaidLinkingSessionResponse.data !== null) {
                     // set the PLaid Linking Hosted Session URL, from the data obtained
                     setPlaidLinkingSession(plaidLinkingSessionResponse.data);
+
+                    // set the Link Session link_token to be used while receiving updates
+                    setLinkSessionLinkToken(plaidLinkingSessionResponse.data.link_token);
+
                     // we will change the step back to normal, and increase the roundups splash step number accordingly
                     setRoundupsSplashStepNumber(7);
                     setIsPlaidLinkInitiated(false);

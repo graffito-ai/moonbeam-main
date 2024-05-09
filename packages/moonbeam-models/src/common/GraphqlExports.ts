@@ -1743,7 +1743,7 @@ export type PlaidLinkingSessionResponse = {
 
 export enum PlaidLinkingSessionStatus {
   Error = 'ERROR',
-  Exit = 'EXIT',
+  Exited = 'EXITED',
   Initiated = 'INITIATED',
   Success = 'SUCCESS'
 }

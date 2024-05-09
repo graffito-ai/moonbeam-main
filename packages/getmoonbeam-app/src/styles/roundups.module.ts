@@ -10,7 +10,7 @@ export const styles = StyleSheet.create({
     },
     closeIcon: {
         alignSelf: 'flex-start',
-        marginTop: hp(1.5),
+        marginBottom: hp(1),
         left: wp(5),
         backgroundColor: '#2e2e33',
         shadowColor: 'black',

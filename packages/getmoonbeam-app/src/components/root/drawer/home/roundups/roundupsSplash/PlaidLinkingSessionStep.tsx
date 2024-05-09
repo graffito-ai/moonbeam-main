@@ -5,10 +5,10 @@ import {
     plaidLinkingSessionState,
     roundupsSplashStepNumberState
 } from "../../../../../../recoil/RoundupsAtom";
-import {SafeAreaView} from "react-native-safe-area-context";
-import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
-import {Text} from "react-native";
 import * as WebBrowser from 'expo-web-browser';
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
+import {SafeAreaView} from "react-native-safe-area-context";
+import {Text} from "react-native";
 
 /**
  * PlaidLinkingSessionStep component.

@@ -45,9 +45,29 @@ const roundupsSplashStepNumberState = atom<number>({
 });
 
 /**
+ * Atom used ot keep track of the creation time of a particular
+ * link session.
+ */
+const linkSessionCreationDateTimeState = atom<Date | null>({
+    key: "linkSessionCreationDateTimeState",
+    default: null
+});
+
+/**
+ * Atom used to keep track of the link session link_token state, for a
+ * particular link session.
+ */
+const linkSessionLinkTokenState = atom<string | null>({
+    key: "linkSessionLinkTokenState",
+    default: null
+});
+
+/**
  * Export all atoms and/or selectors
  */
 export {
+    linkSessionCreationDateTimeState,
+    linkSessionLinkTokenState,
     roundupsSplashStepNumberState,
     plaidLinkingSessionState,
     isRoundupsSplashReadyState,

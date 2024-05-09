@@ -27,6 +27,7 @@ export const RoundupsHome = ({}: RoundupsHomeProps) => {
      * included in here.
      */
     useEffect(() => {
+
     }, []);
 
     // return the component for the RoundupsHome page

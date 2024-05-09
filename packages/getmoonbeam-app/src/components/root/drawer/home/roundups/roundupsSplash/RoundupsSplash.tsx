@@ -8,7 +8,10 @@ import {Icon} from "@rneui/base";
 import {
     isPlaidLinkInitiatedState,
     isRoundupsSplashReadyState,
-    roundupsActiveState, roundupsSplashStepNumberState
+    linkSessionCreationDateTimeState,
+    linkSessionLinkTokenState,
+    roundupsActiveState,
+    roundupsSplashStepNumberState
 } from "../../../../../../recoil/RoundupsAtom";
 import {useRecoilState, useResetRecoilState} from "recoil";
 import {
@@ -47,6 +50,8 @@ import MoonbeamRoundupsStep4 from "../../../../../../../assets/moonbeam-roundups
 import MoonbeamBankLinking from "../../../../../../../assets/moonbeam-bank-linking-step.png";
 // @ts-ignore
 import MoonbeamDeltaOneMembership from "../../../../../../../assets/moonbeam-delta-one-membership.png"
+// @ts-ignore
+import MoonbeamErrorImage from "../../../../../../../assets/art/moonbeam-error.png";
 import GestureRecognizer from 'react-native-swipe-gestures';
 import {Paragraph} from "react-native-paper";
 import {AccountLinkingStep} from "./AccountLinkingStep";
@@ -55,6 +60,16 @@ import {splashStatusState} from "../../../../../../recoil/SplashAtom";
 import {SplashScreen} from "../../../../../common/Splash";
 import {PlaidLinkingSessionStep} from "./PlaidLinkingSessionStep";
 import {PlaidLoadingStep} from "./PlaidLoadingStep";
+import {API, graphqlOperation} from "aws-amplify";
+import {
+    LoggingLevel,
+    PlaidLinkingSessionStatus,
+    updatedPlaidLinkingSession,
+    UpdatePlaidLinkingSessionResponse
+} from "@moonbeam/moonbeam-models";
+import {Observable} from "zen-observable-ts";
+import {logEvent} from "../../../../../../utils/AppSync";
+import {currentUserInformation, userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
 
 /**
  * RoundupsSplash component.
@@ -65,6 +80,8 @@ import {PlaidLoadingStep} from "./PlaidLoadingStep";
 export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
     // constants used to keep track of local component state
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
+    const [plaidLinkingSessionUpdatesSubscription, setPlaidLinkingSessionUpdatesSubscription] = useState<ZenObservable.Subscription | null>(null);
+    const [timeoutCountdownValue, setTimeoutCountdownValue] = useState<number>(10);
     // constants used to keep track of shared states
     const [roundupsSplashStepNumber, setRoundupsSplashStepNumber] = useRecoilState(roundupsSplashStepNumberState);
     const [areRoundupsActive,] = useRecoilState(roundupsActiveState);
@@ -77,8 +94,12 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
     const [isReady,] = useRecoilState(isRoundupsSplashReadyState);
     const [, setAreRoundupsActive] = useRecoilState(roundupsActiveState);
     const [, setIsPlaidLinkInitiated] = useRecoilState(isPlaidLinkInitiatedState);
-    const [splashState,] = useRecoilState(splashStatusState);
+    const [splashState, setSplashState] = useRecoilState(splashStatusState);
     const splashStateReset = useResetRecoilState(splashStatusState);
+    const [userInformation,] = useRecoilState(currentUserInformation);
+    const [userIsAuthenticated,] = useRecoilState(userIsAuthenticatedState);
+    const [linkSessionCreationDateTime, setLinkSessionCreationDateTime] = useRecoilState(linkSessionCreationDateTimeState);
+    const [linkSessionLinkToken, setLinkSessionLinkToken] = useRecoilState(linkSessionLinkTokenState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -88,7 +109,127 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
      * included in here.
      */
     useEffect(() => {
-    }, []);
+        // subscribe to receiving Plaid Linking Session updates
+        if (linkSessionCreationDateTime !== null && linkSessionLinkToken !== null) {
+            // unsubscribe from the previous subscription if not null, before re-subscribing
+            plaidLinkingSessionUpdatesSubscription !== null && plaidLinkingSessionUpdatesSubscription!.unsubscribe();
+
+            // subscribe/re-subscribe to receive particular Plaid Link Session updates
+            subscribeToPlaidLinkingSessionUpdates(userInformation["custom:userId"]).then(() => {});
+        }
+
+        // every time we get to step number 6, we need to reset the link session token and creation time
+        if (roundupsSplashStepNumber === 6 && (linkSessionCreationDateTime !== null || linkSessionLinkToken !== null)) {
+            setLinkSessionCreationDateTime(null);
+            setLinkSessionLinkToken(null);
+        }
+
+        /**
+         * start a timer for 10 seconds, in order to specify how long we can wait for Plaid Link Session status updates,
+         * before we show an error.
+         *
+         * timer starts when we get to step number 8.
+         */
+        if (roundupsSplashStepNumber === 8 && timeoutCountdownValue === 10) {
+            startCountdown(10);
+        }
+    }, [linkSessionCreationDateTime, linkSessionLinkToken, timeoutCountdownValue, roundupsSplashStepNumber]);
+
+    /**
+     * Callback function used to decrease the value of the countdown by 1,
+     * given a number of seconds passed in.
+     *
+     * @param seconds number of seconds passed in
+     */
+    const startCountdown = (seconds): void => {
+        let counter = seconds;
+
+        const interval = setInterval(() => {
+            setTimeoutCountdownValue(counter.toString().length !== 2 ? `0${counter}` : counter);
+            counter--;
+            // if the number of seconds goes below 0, reset counter
+            if (counter < 0) {
+                clearInterval(interval);
+            }
+            // if we have not received any Bank Linking information by the time this timer gets to 0, then show the error splash screen
+            if (counter === 0) {
+                // show the Splash Screen with an error in case we were unable to appropriately link the Banking Information
+                setSplashState({
+                    splashTitle: `Houston we got a problem!`,
+                    splashDescription: `There were issues with linking your Banking information.`,
+                    splashButtonText: `Try Again`,
+                    splashArtSource: MoonbeamErrorImage
+                });
+            }
+        }, 1000);
+    };
+
+    /**
+     * Function used to start subscribing to any military status updates, made through the
+     * "updateMilitaryVerificationStatus" mutation, for a specific user id.
+     *
+     * @param userId userID generated through previous steps during the sign-up process
+     * @return a {@link Promise} of a {@link Boolean} representing a flag indicating whether the subscription
+     * was successful or not.
+     */
+    const subscribeToPlaidLinkingSessionUpdates = async (userId: string): Promise<void> => {
+        try {
+            const plaidLinkingSessionUpdates = await API.graphql(graphqlOperation(updatedPlaidLinkingSession, {
+                id: userId,
+                link_token: linkSessionLinkToken,
+                timestamp: Date.parse(linkSessionCreationDateTime!.toISOString())
+            })) as unknown as Observable<any>;
+
+            // @ts-ignore
+            setPlaidLinkingSessionUpdatesSubscription(plaidLinkingSessionUpdates.subscribe({
+                // function triggering on the next Plaid Linking Session update
+                next: async ({value}) => {
+                    // check to ensure that there is a value and a valid data block to parse the message from
+                    if (value && value.data && value.data.updatedPlaidLinkingSession && value.data.updatedPlaidLinkingSession) {
+                        const updatePlaidLinkingSessionResponse: UpdatePlaidLinkingSessionResponse = value.data.updatedPlaidLinkingSession;
+                        // depending on whether this update is an error or not, display an error screen accordingly
+                        if (updatePlaidLinkingSessionResponse && !updatePlaidLinkingSessionResponse.errorMessage && !updatePlaidLinkingSessionResponse.errorType &&
+                            updatePlaidLinkingSessionResponse.data && updatePlaidLinkingSessionResponse.data.status === PlaidLinkingSessionStatus.Success &&
+                            updatePlaidLinkingSessionResponse.data.public_token) {
+                            /**
+                             * If the Plaid Linking session has been successful, then that means that we have successfully
+                             * stored a new Banking/Plaid Item with an appropriate account.
+                             *
+                             * We will use the user's ID and the link session details (the link token) in order to retrieve
+                             * the appropriate link Item that was just stored.
+                             *
+                             * If we do not get this information within 10 seconds, then we defer to showing the Splash Screen
+                             * with an error accordingly.
+                             */
+
+                        } else {
+                            // show the Splash Screen with an error in case we were unable to appropriately link the Banking Information
+                            setSplashState({
+                                splashTitle: `Houston we got a problem!`,
+                                splashDescription: `There were issues with linking your Banking information.`,
+                                splashButtonText: `Try Again`,
+                                splashArtSource: MoonbeamErrorImage
+                            });
+                        }
+                    } else {
+                        const message = `Unexpected error while parsing subscription message for Plaid Linking Session update ${JSON.stringify(value)}`;
+                        console.log(message);
+                        await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+                    }
+                },
+                // function triggering in case there are any errors
+                error: async (error) => {
+                    const message = `Unexpected error while subscribing to Plaid Linking Session updates ${JSON.stringify(error)} ${error}`;
+                    console.log(message);
+                    await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+                }
+            }));
+        } catch (error) {
+            const message = `Unexpected error while building a subscription to observe Plaid Linking Session updates ${JSON.stringify(error)} ${error}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+        }
+    }
 
     // return the component for the RoundupsSplash page
     return (
@@ -97,12 +238,14 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                 !isReady ?
                     <Spinner loadingSpinnerShown={loadingSpinnerShown} setLoadingSpinnerShown={setLoadingSpinnerShown}/>
                     :
-                    <SafeAreaView style={[styles.roundupsSplashView, roundupsSplashStepNumber === 7 && {backgroundColor: 'white'}]}>
+                    <SafeAreaView
+                        style={[styles.roundupsSplashView, roundupsSplashStepNumber === 7 && {backgroundColor: 'white'}]}>
                         {
                             (splashState.splashTitle !== undefined && splashState.splashTitle !== "" && splashState.splashDescription !== undefined &&
                                 splashState.splashDescription !== "" && splashState.splashArtSource !== undefined && splashState.splashArtSource !== "" &&
                                 splashState.splashTitle === `Houston we got a problem!` &&
-                                splashState.splashDescription === `There was an error while initializing your Bank linking session.`)
+                                (splashState.splashDescription === `There was an error while initializing your Bank linking session.` ||
+                                    splashState.splashDescription === `There were issues with linking your Banking information.`))
                                 ?
                                 <>
                                     <SplashScreen
@@ -115,6 +258,12 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                                     <TouchableOpacity
                                         style={styles.splashButtonDismiss}
                                         onPress={async () => {
+                                            // decrease the Step Number for cases where we have issues receiving the banking information updates
+                                            roundupsSplashStepNumber === 8 && setRoundupsSplashStepNumber(6);
+
+                                            // reset the timer in case this is due to a timeout
+                                            setTimeoutCountdownValue(10);
+
                                             /**
                                              * dismiss Splash screen by resetting the splash state
                                              * and setting the plaid initiation flag && session URL accordingly

@@ -284,7 +284,7 @@ import {
 } from "../../recoil/ServicesAtom";
 import {
     isPlaidLinkInitiatedState,
-    isRoundupsSplashReadyState,
+    isRoundupsSplashReadyState, linkSessionCreationDateTimeState, linkSessionLinkTokenState,
     plaidLinkingSessionState,
     roundupsActiveState,
     roundupsSplashStepNumberState
@@ -580,6 +580,8 @@ export const SplashScreen = (props: {
     const isRoundupsSplashReadyStateReset = useResetRecoilState(isRoundupsSplashReadyState);
     const plaidLinkingHostedSessionURLStateReset = useResetRecoilState(plaidLinkingSessionState);
     const roundupsSplashStepNumberStateReset = useResetRecoilState(roundupsSplashStepNumberState);
+    const linkSessionCreationDateTimeStateReset = useResetRecoilState(linkSessionCreationDateTimeState);
+    const linkSessionLinkTokenStateReset = useResetRecoilState(linkSessionLinkTokenState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -861,6 +863,8 @@ export const SplashScreen = (props: {
             isRoundupsSplashReadyStateReset();
             plaidLinkingHostedSessionURLStateReset();
             roundupsSplashStepNumberStateReset();
+            linkSessionCreationDateTimeStateReset();
+            linkSessionLinkTokenStateReset();
             // if this is not running in Expo Go
             if (!isRunningInExpoGo) {
                 // import branch

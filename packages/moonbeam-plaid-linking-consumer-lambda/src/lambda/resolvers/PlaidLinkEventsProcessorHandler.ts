@@ -42,10 +42,19 @@ export const processPlaidLink = async (event: SQSEvent): Promise<SQSBatchRespons
              * SESSION_FINISHED.
              * 1) Call the getPlaidLinkingSessionByToken Moonbeam AppSync API Endpoint, to get the appropriate
              * information needed in order to make subsequent calls (such as user ID and timestamp).
-             *
              * 2) If the Link SESSION_FINISHED was successful, then proceed with the next steps, otherwise
              * call the updatePlaidLinkingSession Moonbeam AppSync API endpoint, to mark the Linking Session
              * as failed/exited.
+             * 3) Call the Plaid public token exchange (/item/public_token/exchange) API endpoint, in order to get an access
+             * token for the public token received from the SESSION_FINISHED webhook update above.
+             * 4) Call the Plaid (/auth/get) API endpoint, in order to get specific information about the Linked Item,
+             * such as Account and Routing numbers, as well as the name of the account and balance.
+             * 5) Call the Plaid (/institutions/get_by_id) API endpoint, in order to get specific information about the
+             * Institution that the Plaid Linked Item belongs (aka - the name of the institution).
+             * 6) Call the createPlaidLinkItem Moonbeam AppSync API Endpoint, to store the appropriate institution with the
+             * appropriate account.
+             * 7) Call the updatePlaidLinkingSession Moonbeam AppSync API endpoint, to mark the Linking Session
+             * as either failed/successful, depending on whether Steps 3-6 were successful or not.
              *
              * first, convert the incoming event message body, into a PlaidWebhookLinkInput object
              */
@@ -89,16 +98,16 @@ export const processPlaidLink = async (event: SQSEvent): Promise<SQSBatchRespons
                                 id: plaidLinkingSessionResponse.data.id,
                                 link_token: plaidLinkingSessionResponse.data.link_token,
                                 public_token: "NOT_AVAILABLE",
-                                session_id: "NOT_AVAILABLE",
-                                status: plaidWebhookLinkInput.status.toLowerCase() === PlaidLinkingSessionStatus.Exit.toLowerCase()
-                                    ? PlaidLinkingSessionStatus.Exit
+                                session_id: plaidWebhookLinkInput.link_session_id,
+                                status: plaidWebhookLinkInput.status.toLowerCase() === PlaidLinkingSessionStatus.Exited.toLowerCase()
+                                    ? PlaidLinkingSessionStatus.Exited
                                     : PlaidLinkingSessionStatus.Error
                             });
 
                             // check if the updatePlaidLinkingSession call was successful or not
                             if (updatePlaidLinkingSessionResponse && !updatePlaidLinkingSessionResponse.errorMessage && !updatePlaidLinkingSessionResponse.errorType &&
                                 updatePlaidLinkingSessionResponse.data) {
-                                console.log(`Successfully marked the Link Session as either ${PlaidLinkingSessionStatus.Error} or ${PlaidLinkingSessionStatus.Exit}!`);
+                                console.log(`Successfully marked the Link Session as either ${PlaidLinkingSessionStatus.Error} or ${PlaidLinkingSessionStatus.Exited}!`);
                             } else {
                                 console.log(`Failed to update the Plaid Linking session!`);
 
