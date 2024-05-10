@@ -1,5 +1,75 @@
 # graphql/Mutations.graphql
 # Mutations Schema File
+mutation updateBankingItem($updateBankingItemInput: UpdateBankingItemInput!) {
+    updateBankingItem(updateBankingItemInput: $updateBankingItemInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            timestamp
+            createdAt
+            updatedAt
+            itemId
+            institutionId
+            name
+            accessToken
+            publicToken
+            linkToken
+            status
+            accounts {
+                id
+                accountId
+                persistentAccountId
+                accountNumber
+                routingNumber
+                wireRoutingNumber
+                accountMask
+                accountName
+                accountOfficialName
+                type
+                subType
+                createdAt
+                updatedAt
+                status
+            }
+        }
+    }
+}
+mutation createBankingItem($createBankingItemInput: CreateBankingItemInput!) {
+    createBankingItem(createBankingItemInput: $createBankingItemInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            timestamp
+            createdAt
+            updatedAt
+            itemId
+            institutionId
+            name
+            accessToken
+            publicToken
+            linkToken
+            status
+            accounts {
+                id
+                accountId
+                persistentAccountId
+                accountNumber
+                routingNumber
+                wireRoutingNumber
+                accountMask
+                accountName
+                accountOfficialName
+                type
+                subType
+                createdAt
+                updatedAt
+                status
+            }
+        }
+    }
+}
 mutation updatePlaidLinkingSession($updatePlaidLinkingSessionInput: UpdatePlaidLinkingSessionInput!) {
     updatePlaidLinkingSession(updatePlaidLinkingSessionInput: $updatePlaidLinkingSessionInput) {
         errorMessage

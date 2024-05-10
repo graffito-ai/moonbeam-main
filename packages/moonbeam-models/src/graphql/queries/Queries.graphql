@@ -1,5 +1,40 @@
 # graphql/Queries.graphql
 # Queries Schema File
+query getBankingItemByToken($getBankItemByTokenInput: GetBankingItemByTokenInput!) {
+    getBankingItemByToken(getBankingItemByTokenInput: $getBankItemByTokenInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            timestamp
+            createdAt
+            updatedAt
+            itemId
+            institutionId
+            name
+            accessToken
+            publicToken
+            linkToken
+            status
+            accounts {
+                id
+                accountId
+                persistentAccountId
+                accountNumber
+                routingNumber
+                wireRoutingNumber
+                accountMask
+                accountName
+                accountOfficialName
+                type
+                subType
+                createdAt
+                updatedAt
+                status
+            }
+        }
+    }
+}
 query getPlaidLinkingSessionByToken($getPlaidLinkingSessionByTokenInput: GetPlaidLinkingSessionByTokenInput!) {
     getPlaidLinkingSessionByToken(getPlaidLinkingSessionByTokenInput: $getPlaidLinkingSessionByTokenInput) {
         errorMessage

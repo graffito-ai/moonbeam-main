@@ -3,6 +3,47 @@
  */
 
 /**
+ * Query used to retrieve a Banking Item by its linkToken
+ */
+export const getBankingItemByToken = /* GraphQL */ `
+    query getBankingItemByToken($getBankItemByTokenInput: GetBankingItemByTokenInput!) {
+        getBankingItemByToken(getBankingItemByTokenInput: $getBankItemByTokenInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                timestamp
+                createdAt
+                updatedAt
+                itemId
+                institutionId
+                name
+                accessToken
+                publicToken
+                linkToken
+                status
+                accounts {
+                    id
+                    accountId
+                    persistentAccountId
+                    accountNumber
+                    routingNumber
+                    wireRoutingNumber
+                    accountMask
+                    accountName
+                    accountOfficialName
+                    type
+                    subType
+                    createdAt
+                    updatedAt
+                    status
+                }
+            }
+        }
+    }
+`;
+
+/**
  * Query used to retrieve a Plaid Linking session by its link_token
  */
 export const getPlaidLinkingSessionByToken = /* GraphQL */ `

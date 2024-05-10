@@ -74,6 +74,11 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 plaidLinkingSessionsTableName: 'plaidLinkingSessionsTable',
                 plaidLinkTokenLocalIndex: 'plaidLinkTokenLocalIndex',
                 plaidLinkTokenGlobalIndex: 'plaidLinkTokenGlobalIndex',
+                bankingItemsTableName: 'bankingItemsTable',
+                bankingItemLinkTokenLocalIndex: 'bankingItemLinkTokenLocalIndex',
+                getBankingItemByTokenResolverName: 'getBankingItemByToken',
+                createBankingItemResolverName: 'createBankingItem',
+                updateBankingItemResolverName: 'updateBankingItem',
                 createPlaidLinkingSessionResolverName: 'createPlaidLinkingSession',
                 updatePlaidLinkingSessionResolverName: 'updatePlaidLinkingSession',
                 getPlaidLinkingSessionByTokenResolverName: 'getPlaidLinkingSessionByToken'
@@ -409,6 +414,11 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 plaidLinkingSessionsTableName: 'plaidLinkingSessionsTable',
                 plaidLinkTokenLocalIndex: 'plaidLinkTokenLocalIndex',
                 plaidLinkTokenGlobalIndex: 'plaidLinkTokenGlobalIndex',
+                bankingItemsTableName: 'bankingItemsTable',
+                bankingItemLinkTokenLocalIndex: 'bankingItemLinkTokenLocalIndex',
+                getBankingItemByTokenResolverName: 'getBankingItemByToken',
+                createBankingItemResolverName: 'createBankingItem',
+                updateBankingItemResolverName: 'updateBankingItem',
                 createPlaidLinkingSessionResolverName: 'createPlaidLinkingSession',
                 updatePlaidLinkingSessionResolverName: 'updatePlaidLinkingSession',
                 getPlaidLinkingSessionByTokenResolverName: 'getPlaidLinkingSessionByToken'

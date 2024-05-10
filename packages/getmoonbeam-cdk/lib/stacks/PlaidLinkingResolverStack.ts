@@ -51,6 +51,18 @@ export class PlaidLinkingResolverStack extends Stack {
             typeName: "Query",
             fieldName: `${props.plaidLinkingConfig.getPlaidLinkingSessionByTokenResolverName}`
         });
+        plaidLinkingLambdaDataSource.createResolver(`${props.plaidLinkingConfig.getBankingItemByTokenResolverName}-${props.stage}-${props.env!.region}`, {
+            typeName: "Query",
+            fieldName: `${props.plaidLinkingConfig.getBankingItemByTokenResolverName}`
+        });
+        plaidLinkingLambdaDataSource.createResolver(`${props.plaidLinkingConfig.createBankingItemResolverName}-${props.stage}-${props.env!.region}`, {
+            typeName: "Mutation",
+            fieldName: `${props.plaidLinkingConfig.createBankingItemResolverName}`
+        });
+        plaidLinkingLambdaDataSource.createResolver(`${props.plaidLinkingConfig.updateBankingItemResolverName}-${props.stage}-${props.env!.region}`, {
+            typeName: "Mutation",
+            fieldName: `${props.plaidLinkingConfig.updateBankingItemResolverName}`
+        });
         plaidLinkingLambdaDataSource.createResolver(`${props.plaidLinkingConfig.createPlaidLinkingSessionResolverName}-${props.stage}-${props.env!.region}`, {
             typeName: "Mutation",
             fieldName: `${props.plaidLinkingConfig.createPlaidLinkingSessionResolverName}`
@@ -59,6 +71,64 @@ export class PlaidLinkingResolverStack extends Stack {
             typeName: "Mutation",
             fieldName: `${props.plaidLinkingConfig.updatePlaidLinkingSessionResolverName}`
         });
+
+        // create a new table to be used for the Plaid Banking Items Creation purposes
+        const bankingItemsTable = new aws_dynamodb.Table(this, `${props.plaidLinkingConfig.bankingItemsTableName}-${props.stage}-${props.env!.region}`, {
+            tableName: `${props.plaidLinkingConfig.bankingItemsTableName}-${props.stage}-${props.env!.region}`,
+            billingMode: aws_dynamodb.BillingMode.PAY_PER_REQUEST,
+            /**
+             * the primary key of this table, will be a composite key [id, timestamp], where the id represents the user id,
+             * and the timestamp represents the creation time of a Banking Item (aka when it occurred, in a UNIX format).
+             * The timestamp will be the same as `createdAt` property, only that the `createdAt` will be in EPOCH time format
+             * instead.
+             *
+             * This will allow us to sort through Banking Items for a particular user during a specific timeframe.
+             */
+            partitionKey: {
+                name: 'id',
+                type: aws_dynamodb.AttributeType.STRING
+            },
+            sortKey: {
+                name: 'timestamp',
+                type: aws_dynamodb.AttributeType.NUMBER
+            }
+        });
+        /**
+         * creates a local secondary index for the table, so we can retrieve Banking Items for a particular user, sorted
+         * by their link_token.
+         * {@link https://www.dynamodbguide.com/key-concepts/}
+         * {@link https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GSI.html}
+         */
+        bankingItemsTable.addLocalSecondaryIndex({
+            indexName: `${props.plaidLinkingConfig.bankingItemLinkTokenLocalIndex}-${props.stage}-${props.env!.region}`,
+            sortKey: {
+                name: 'link_token',
+                type: aws_dynamodb.AttributeType.STRING
+            }
+        });
+        // enable the Lambda function to access the DynamoDB table (using IAM)
+        bankingItemsTable.grantFullAccess(plaidLinkingLambda);
+        plaidLinkingLambda.addToRolePolicy(
+            /**
+             * policy used to allow full Dynamo DB access for the Lambda, added again on top of the lines above, since they sometimes don't work
+             * Note: by "they" meaning "grantFullAccess" above.
+             */
+            new PolicyStatement({
+                    effect: Effect.ALLOW,
+                    actions: [
+                        "dynamodb:GetItem",
+                        "dynamodb:PutItem",
+                        "dynamodb:Query",
+                        "dynamodb:UpdateItem",
+                        "dynamodb:DeleteItem"
+                    ],
+                    resources: [
+                        `${bankingItemsTable.tableArn}`,
+                        `${bankingItemsTable.tableArn}/index/${props.plaidLinkingConfig.bankingItemLinkTokenLocalIndex}-${props.stage}-${props.env!.region}`,
+                    ]
+                }
+            )
+        );
 
         // create a new table to be used for the Plaid Linking Session Creation purposes
         const plaidLinkingSessionsTable = new aws_dynamodb.Table(this, `${props.plaidLinkingConfig.plaidLinkingSessionsTableName}-${props.stage}-${props.env!.region}`, {
@@ -148,6 +218,8 @@ export class PlaidLinkingResolverStack extends Stack {
 
         // Create environment variables that we will use in the function code
         plaidLinkingLambda.addEnvironment(`${Constants.MoonbeamConstants.PLAID_LINKING_SESSIONS_TABLE}`, plaidLinkingSessionsTable.tableName);
+        plaidLinkingLambda.addEnvironment(`${Constants.MoonbeamConstants.BANKING_ITEMS_TABLE}`, bankingItemsTable.tableName);
+        plaidLinkingLambda.addEnvironment(`${Constants.MoonbeamConstants.BANKING_ITEM_LINK_TOKEN_LOCAL_INDEX}`, props.plaidLinkingConfig.bankingItemLinkTokenLocalIndex);
         plaidLinkingLambda.addEnvironment(`${Constants.MoonbeamConstants.PLAID_LINK_TOKEN_LOCAL_INDEX}`, props.plaidLinkingConfig.plaidLinkTokenLocalIndex);
         plaidLinkingLambda.addEnvironment(`${Constants.MoonbeamConstants.PLAID_LINK_TOKEN_GLOBAL_INDEX}`, props.plaidLinkingConfig.plaidLinkTokenGlobalIndex);
         plaidLinkingLambda.addEnvironment(`${Constants.MoonbeamConstants.ENV_NAME}`, props.stage);

@@ -25,7 +25,7 @@ import {
     GetUserCardLinkingIdResponse, GetUserNotificationAssetsInput, GetUsersByGeographicalLocationInput,
     IneligibleLinkedUsersResponse,
     IneligibleTransaction,
-    IneligibleTransactionResponse,
+    IneligibleTransactionResponse, InstitutionResponse,
     MemberDetailsResponse,
     MemberResponse,
     MilitaryVerificationNotificationUpdate,
@@ -44,13 +44,13 @@ import {
     NotificationType,
     OfferIdResponse,
     OfferRedemptionTypeResponse,
-    OffersResponse, PlaidLinkingSessionResponse,
+    OffersResponse, PlaidAuthResponse, PlaidLinkingSessionResponse,
     PutMilitaryVerificationReportInput,
     ReferralResponse, ReimbursementProcessingResponse,
     RemoveCardResponse,
     SearchOffersInput, SendBulkEmailNotificationInput, SendBulkMobilePushNotificationInput,
     SendEmailNotificationInput,
-    SendMobilePushNotificationInput, StorageResponse,
+    SendMobilePushNotificationInput, StorageResponse, TokenExchangeResponse,
     Transaction,
     TransactionResponse, UpdateCardInput,
     UpdatedTransactionEvent,
@@ -978,6 +978,42 @@ export abstract class BaseAPIClient {
      * @protected
      */
     protected verifyMemberSpouse?(): Promise<MilitaryVerificationStatusType>;
+
+    /**
+     * Function used to retrieve institution details given an institution id.
+     *
+     * @param institutionId institution_id to retrieve institution details for.
+     *
+     * @return a {@link Promise} of {@link InstitutionResponse} representing the
+     * institution details response obtained, or an error, as applicable.
+     *
+     * @protected
+     */
+    protected getInstitutionById?(institutionId: String): Promise<InstitutionResponse>;
+
+    /**
+     * Function used to exchange a Plaid public token for an access_token.
+     *
+     * @param publicToken public_token to exchange for an access_token.
+     *
+     * @return a {@link Promise} of {@link TokenExchangeResponse} representing the
+     * access_token response obtained from the exchange, or an error, as applicable.
+     *
+     * @protected
+     */
+    protected exchangePlaidToken?(publicToken: String): Promise<TokenExchangeResponse>;
+
+    /**
+     * Function used to retrieve the Plaid Item Auth details, given an access_token.
+     *
+     * @param accessToken access_token used to retrieve the PLaid Auth Item for.
+     *
+     * @return a {@link Promise} of {@link PlaidAuthResponse} representing the
+     * Plaid Item Auth response obtained, or an error, as applicable.
+     *
+     * @protected
+     */
+    protected getPlaidAuth?(accessToken: String): Promise<PlaidAuthResponse>;
 
     /**
      * Function used to initiate a Plaid Hosted Linking Session.

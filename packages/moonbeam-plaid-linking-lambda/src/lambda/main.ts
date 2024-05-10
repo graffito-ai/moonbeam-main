@@ -1,12 +1,16 @@
 import {createPlaidLinkingSession} from "./resolvers/CreatePlaidLinkingSessionResolver";
 import {updatePlaidLinkingSession} from "./resolvers/UpdatePlaidLinkingSessionResolver";
 import {
-    CreatePlaidLinkingSessionInput, GetPlaidLinkingSessionByTokenInput,
+    BankingItemResponse,
+    CreateBankingItemInput,
+    CreatePlaidLinkingSessionInput, GetBankingItemByTokenInput, GetPlaidLinkingSessionByTokenInput,
     PlaidLinkingErrorType,
-    PlaidLinkingSessionResponse,
+    PlaidLinkingSessionResponse, UpdateBankingItemInput,
     UpdatePlaidLinkingSessionInput, UpdatePlaidLinkingSessionResponse
 } from "@moonbeam/moonbeam-models";
 import { getPlaidLinkingSessionByToken } from "./resolvers/GetPlaidLinkingSessionByTokenResolver";
+import { createBankingItem } from "./resolvers/CreateBankingItemResolver";
+import { getBankingItemByToken } from "./resolvers/GetBankingItemByTokenResolver";
 
 /**
  * Mapping out the App Sync event type, so we can use it as a type in the Lambda Handler
@@ -16,6 +20,9 @@ type AppSyncEvent = {
         fieldName: string
     },
     arguments: {
+        createBankingItemInput: CreateBankingItemInput,
+        updateBankingItemInput: UpdateBankingItemInput,
+        getBankingItemByTokenInput: GetBankingItemByTokenInput,
         createPlaidLinkingSessionInput: CreatePlaidLinkingSessionInput,
         updatePlaidLinkingSessionInput: UpdatePlaidLinkingSessionInput,
         getPlaidLinkingSessionByTokenInput: GetPlaidLinkingSessionByTokenInput
@@ -31,11 +38,17 @@ type AppSyncEvent = {
  * depending on the AppSync field name.
  *
  * @param event AppSync event to be passed in the handler
- * @returns a {@link Promise} containing a {@link PlaidLinkingSessionResponse} or {@link UpdatePlaidLinkingSessionResponse}
+ * @returns a {@link Promise} containing a {@link PlaidLinkingSessionResponse}, {@link UpdatePlaidLinkingSessionResponse} or {@link BankingItemResponse}
  */
-exports.handler = async (event: AppSyncEvent): Promise<PlaidLinkingSessionResponse | UpdatePlaidLinkingSessionResponse> => {
+exports.handler = async (event: AppSyncEvent): Promise<PlaidLinkingSessionResponse | UpdatePlaidLinkingSessionResponse | BankingItemResponse> => {
     console.log(`Received new Plaid Linking event for operation [${event.info.fieldName}], with arguments ${JSON.stringify(event.arguments)}`);
     switch (event.info.fieldName) {
+        case "createBankingItem":
+            return await createBankingItem(event.info.fieldName, event.arguments.createBankingItemInput);
+        case "getBankingItemByToken":
+            return await getBankingItemByToken(event.info.fieldName, event.arguments.getBankingItemByTokenInput);
+        // case "updateBankingItem":
+        //     return await updateBankingItem(event.info.fieldName, event.arguments.updateBankingItemInput);
         case "createPlaidLinkingSession":
             return await createPlaidLinkingSession(event.info.fieldName, event.arguments.createPlaidLinkingSessionInput);
         case "updatePlaidLinkingSession":

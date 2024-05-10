@@ -9,7 +9,8 @@ import {AttributeValue, DynamoDBClient, QueryCommand} from "@aws-sdk/client-dyna
 /**
  * GetPlaidLinkingSessionByToken resolver
  *
- * @param getPlaidLinkingSessionByTokenInput the input needed to update an existing plaid linking session's data
+ * @param getPlaidLinkingSessionByTokenInput the input needed to retrieve an existing plaid linking session
+ * by its link token
  * @param fieldName name of the resolver path from the AppSync event
  * @returns {@link Promise} of {@link PlaidLinkingSessionResponse}
  */
@@ -23,7 +24,7 @@ export const getPlaidLinkingSessionByToken = async (fieldName: string, getPlaidL
 
         /**
          * the data to be retrieved from the Query Command
-         * the eligible user Items returned from the Query Command, all aggregated together
+         * the eligible linking session Items returned from the Query Command, all aggregated together
          * the last evaluated key, to help with the pagination of results
          */
         let result: Record<string, AttributeValue>[] = [];
@@ -64,7 +65,7 @@ export const getPlaidLinkingSessionByToken = async (fieldName: string, getPlaidL
 
         // there needs to be only 1 Plaid Link session returned. For more than one, return an error accordingly
         if (result && result.length === 1) {
-            // return the queried PLaid Linking Session's details
+            // return the queried Plaid Linking Session's details
             return {
                 data: {
                     createdAt: result[0].createdAt.S!,

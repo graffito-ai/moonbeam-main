@@ -2,6 +2,84 @@
  * This is a file used to define the all GraphQL mutation constants
  */
 
+// Mutation used to update an existing Banking Item's information
+export const updateBankingItem = /* GraphQL */ `
+    mutation updateBankingItem($updateBankingItemInput: UpdateBankingItemInput!) {
+        updateBankingItem(updateBankingItemInput: $updateBankingItemInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                timestamp
+                createdAt
+                updatedAt
+                itemId
+                institutionId
+                name
+                accessToken
+                publicToken
+                linkToken
+                status
+                accounts {
+                    id
+                    accountId
+                    persistentAccountId
+                    accountNumber
+                    routingNumber
+                    wireRoutingNumber
+                    accountMask
+                    accountName
+                    accountOfficialName
+                    type
+                    subType
+                    createdAt
+                    updatedAt
+                    status
+                }
+            }
+        }
+    }
+`;
+
+// Mutation used to create a new Banking Item
+export const createBankingItem = /* GraphQL */ `
+    mutation createBankingItem($createBankingItemInput: CreateBankingItemInput!) {
+        createBankingItem(createBankingItemInput: $createBankingItemInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                timestamp
+                createdAt
+                updatedAt
+                itemId
+                institutionId
+                name
+                accessToken
+                publicToken
+                linkToken
+                status
+                accounts {
+                    id
+                    accountId
+                    persistentAccountId
+                    accountNumber
+                    routingNumber
+                    wireRoutingNumber
+                    accountMask
+                    accountName
+                    accountOfficialName
+                    type
+                    subType
+                    createdAt
+                    updatedAt
+                    status
+                }
+            }
+        }
+    }
+`;
+
 // Mutation used to update an existing Plaid linking session
 export const updatePlaidLinkingSession = /* GraphQL */ `
     mutation updatePlaidLinkingSession($updatePlaidLinkingSessionInput: UpdatePlaidLinkingSessionInput!) {

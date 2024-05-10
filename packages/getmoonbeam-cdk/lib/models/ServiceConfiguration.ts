@@ -552,6 +552,11 @@ export interface PlaidLinkingConfiguration {
     readonly plaidLinkingSessionsTableName: string;
     readonly plaidLinkTokenLocalIndex: string;
     readonly plaidLinkTokenGlobalIndex: string;
+    readonly bankingItemsTableName: string;
+    readonly bankingItemLinkTokenLocalIndex: string;
+    readonly getBankingItemByTokenResolverName: string;
+    readonly createBankingItemResolverName: string;
+    readonly updateBankingItemResolverName: string;
     readonly createPlaidLinkingSessionResolverName: string;
     readonly updatePlaidLinkingSessionResolverName: string;
     readonly getPlaidLinkingSessionByTokenResolverName: string;

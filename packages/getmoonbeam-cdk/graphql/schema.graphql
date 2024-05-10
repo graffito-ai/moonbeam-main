@@ -39,6 +39,7 @@ type Query {
     getUserNotificationAssets(getUserNotificationAssetsInput: GetUserNotificationAssetsInput!): UserNotificationAssetsResponse! @aws_cognito_user_pools @aws_api_key
     getAllDevices: UserDevicesResponse! @aws_cognito_user_pools @aws_api_key
     getPlaidLinkingSessionByToken(getPlaidLinkingSessionByTokenInput: GetPlaidLinkingSessionByTokenInput!): PlaidLinkingSessionResponse! @aws_cognito_user_pools @aws_api_key
+    getBankingItemByToken(getBankingItemByTokenInput: GetBankingItemByTokenInput!): BankingItemResponse! @aws_cognito_user_pools @aws_api_key
 }
 
 type Mutation {
@@ -71,6 +72,8 @@ type Mutation {
     updateDailyEarningsSummary(updateDailyEarningsSummaryInput: UpdateDailyEarningsSummaryInput!): DailyEarningsSummaryResponse! @aws_cognito_user_pools @aws_api_key
     createPlaidLinkingSession(createPlaidLinkingSessionInput: CreatePlaidLinkingSessionInput!): PlaidLinkingSessionResponse! @aws_cognito_user_pools @aws_api_key
     updatePlaidLinkingSession(updatePlaidLinkingSessionInput: UpdatePlaidLinkingSessionInput!): UpdatePlaidLinkingSessionResponse! @aws_cognito_user_pools @aws_api_key
+    createBankingItem(createBankingItemInput: CreateBankingItemInput!): BankingItemResponse! @aws_cognito_user_pools @aws_api_key
+    updateBankingItem(updateBankingItemInput: UpdateBankingItemInput!): BankingItemResponse! @aws_cognito_user_pools @aws_api_key
 }
 
 type Subscription {
@@ -1982,6 +1985,14 @@ enum PlaidLinkingErrorType {
     UNPROCESSABLE
 }
 
+enum BankingItemErrorType {
+    DUPLICATE_OBJECT_FOUND
+    NONE_OR_ABSENT
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+    UNPROCESSABLE
+}
+
 enum PlaidProducts {
     auth
     transactions
@@ -2009,6 +2020,14 @@ enum PlaidLinkingAccountSubtype {
     credit card
 }
 
+enum PlaidLinkingAccountType {
+    investment
+    credit
+    depository
+    loan
+    other
+}
+
 enum PlaidLinkingSessionStatus {
     INITIATED
     ERROR
@@ -2033,6 +2052,18 @@ enum PlaidEnvironment {
     sandbox
     development
     production
+}
+
+enum BankingItemStatus {
+    INITIATED
+    LINKED
+    PAUSED
+    NOT_LINKED
+}
+
+enum BankingAccountStatus {
+    ACTIVE
+    PAUSED
 }
 
 ## this Follows Plaid's https://plaid.com/docs/api/tokens/#linktokencreate API schema
@@ -2074,6 +2105,113 @@ type PlaidWebhookLinkInput @aws_cognito_user_pools @aws_api_key {
     link_token: String!
     public_token: String
     environment: PlaidEnvironment!
+}
+
+type BankingItemResponse @aws_cognito_user_pools @aws_api_key {
+    data: BankingItem
+    errorType: BankingItemErrorType
+    errorMessage: String
+}
+
+type TokenExchangeResponse @aws_cognito_user_pools @aws_api_key {
+    data: TokenExchange
+    errorType: PlaidLinkingErrorType
+    errorMessage: String
+}
+
+type PlaidAuthResponse @aws_cognito_user_pools @aws_api_key {
+    data: PlaidAuth
+    errorType: PlaidLinkingErrorType
+    errorMessage: String
+}
+
+type InstitutionResponse @aws_cognito_user_pools @aws_api_key {
+    data: Institution
+    errorType: PlaidLinkingErrorType
+    errorMessage: String
+}
+
+## this Follows Plaid's https://plaid.com/docs/api/institutions/#institutionsget_by_id API schema
+type Institution @aws_cognito_user_pools @aws_api_key {
+    name: String!
+    institution_id: String!
+}
+
+## this Follows Plaid's https://plaid.com/docs/api/products/auth/#authget API schema
+type PlaidAuth @aws_cognito_user_pools @aws_api_key {
+    item_id: String!
+    institution_id: String!
+    account: [PlaidAuthAccount!]
+}
+
+## this Follows Plaid's https://plaid.com/docs/api/products/auth/#authget API schema
+type PlaidAuthAccount @aws_cognito_user_pools @aws_api_key {
+    account_id: ID!
+    persistent_account_id: ID!
+    mask: String!
+    name: String!
+    official_name: String!
+    subtype: PlaidLinkingAccountSubtype!
+    type: PlaidLinkingAccountType!
+    account: String!
+    routing: String!
+    wire_routing: String!
+}
+
+## this Follows Plaid's https://plaid.com/docs/api/tokens/#itempublic_tokenexchange API schema
+type TokenExchange @aws_cognito_user_pools @aws_api_key {
+    access_token: String!
+    item_id: String!
+    request_id: String!
+}
+
+type BankingItem @aws_cognito_user_pools @aws_api_key {
+    id: ID! # the userID associated with the Banking Item
+    timestamp: AWSTimestamp! # this represents the creation timestamp, in a Number epoch based format, and the reason we repeat it in the parent response is for the subscription filtering to work properly
+    createdAt: AWSDateTime!
+    updatedAt: AWSDateTime!
+    itemId: ID! # the Plaid item_id
+    institutionId: String! # the Plaid institution_id
+    name: String! # Plaid institution name
+    accessToken: String! # the Plaid Access Token for Banking Item
+    publicToken: String! # the Plaid Public Token used to be exchanged for an access_token
+    linkToken: String! # the Plaid Link Token used to retrieve a Public Token from
+    status: BankingItemStatus! # the status of the Banking Item
+    accounts: [BankingAccount!] # array of accounts associated with a Banking Item
+}
+
+type BankingAccount @aws_cognito_user_pools @aws_api_key {
+    id: ID!  # uniquely generated Moonbeam id
+    accountId: ID! # the Plaid account_id
+    persistentAccountId: String! # the Plaid persistent_account_id
+    accountNumber: String! # the account in Plaid ACH numbers array
+    routingNumber: String! # the routing in PLaid ACH numbers array
+    wireRoutingNumber: String! # the wire_routing in Plaid ACH numbers array
+    accountMask: String! # the mask in Plaid's account information
+    accountName: String! # the name in Plaid's account information
+    accountOfficialName: String! # the official name in the Plaid's account information
+    type: PlaidLinkingAccountType!  # the type in Plaid's account information
+    subType: PlaidLinkingAccountSubtype! # the sub_type in Plaid's account information
+    createdAt: AWSDateTime!
+    updatedAt: AWSDateTime!
+    status: BankingAccountStatus! # the status of a particular account within a banking Item
+}
+
+input BankingAccountInput {
+    id: ID  # uniquely generated Moonbeam id
+    accountId: ID! # the Plaid account_id
+    persistentAccountId: String! # the Plaid persistent_account_id
+    accountNumber: String! # the account in Plaid ACH numbers array
+    routingNumber: String! # the routing in PLaid ACH numbers array
+    wireRoutingNumber: String! # the wire_routing in Plaid ACH numbers array
+    accountMask: String! # the mask in Plaid's account information
+    accountName: String! # the name in Plaid's account information
+    accountOfficialName: String! # the official name in the Plaid's account information
+    type: PlaidLinkingAccountType!  # the type in Plaid's account information
+    subType: PlaidLinkingAccountSubtype! # the sub_type in Plaid's account information
+    createdAt: AWSDateTime
+    updatedAt: AWSDateTime
+    status: BankingAccountStatus # the status of a particular account within a banking Item
 }
 
 ## this Follows Plaid's https://plaid.com/docs/api/tokens/#linktokencreate API schema
@@ -2155,4 +2293,30 @@ input UpdatePlaidLinkingSessionInput {
 
 input GetPlaidLinkingSessionByTokenInput {
     link_token: String!
+}
+
+input GetBankingItemByTokenInput {
+    id: ID!
+    linkToken: String!
+}
+
+input CreateBankingItemInput {
+    id: ID! # the userID associated with the Banking Item
+    timestamp: AWSTimestamp # this represents the creation timestamp, in a Number epoch based format, and the reason we repeat it in the parent response is for the subscription filtering to work properly
+    createdAt: AWSDateTime
+    updatedAt: AWSDateTime
+    itemId: ID! # the Plaid item_id
+    institutionId: String! # the Plaid institution_id
+    name: String! # Plaid institution name
+    accessToken: String! # the Plaid Access Token for Banking Item
+    publicToken: String! # the Plaid Public Token used to be exchanged for an access_token
+    linkToken: String! # the Plaid Link Token used to retrieve a Public Token from
+    status: BankingItemStatus # the status of the Banking Item
+    accounts: [BankingAccountInput]! # array of accounts associated with a Banking Item
+}
+
+input UpdateBankingItemInput {
+    id: ID!
+    linkToken: String!
+    status: BankingItemStatus!
 }

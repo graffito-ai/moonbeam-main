@@ -39,6 +39,7 @@ type Query {
     getUserNotificationAssets(getUserNotificationAssetsInput: GetUserNotificationAssetsInput!): UserNotificationAssetsResponse! @aws_cognito_user_pools @aws_api_key
     getAllDevices: UserDevicesResponse! @aws_cognito_user_pools @aws_api_key
     getPlaidLinkingSessionByToken(getPlaidLinkingSessionByTokenInput: GetPlaidLinkingSessionByTokenInput!): PlaidLinkingSessionResponse! @aws_cognito_user_pools @aws_api_key
+    getBankingItemByToken(getBankingItemByTokenInput: GetBankingItemByTokenInput!): BankingItemResponse! @aws_cognito_user_pools @aws_api_key
 }
 
 type Mutation {
@@ -71,6 +72,8 @@ type Mutation {
     updateDailyEarningsSummary(updateDailyEarningsSummaryInput: UpdateDailyEarningsSummaryInput!): DailyEarningsSummaryResponse! @aws_cognito_user_pools @aws_api_key
     createPlaidLinkingSession(createPlaidLinkingSessionInput: CreatePlaidLinkingSessionInput!): PlaidLinkingSessionResponse! @aws_cognito_user_pools @aws_api_key
     updatePlaidLinkingSession(updatePlaidLinkingSessionInput: UpdatePlaidLinkingSessionInput!): UpdatePlaidLinkingSessionResponse! @aws_cognito_user_pools @aws_api_key
+    createBankingItem(createBankingItemInput: CreateBankingItemInput!): BankingItemResponse! @aws_cognito_user_pools @aws_api_key
+    updateBankingItem(updateBankingItemInput: UpdateBankingItemInput!): BankingItemResponse! @aws_cognito_user_pools @aws_api_key
 }
 
 type Subscription {

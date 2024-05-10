@@ -90,6 +90,84 @@ export enum AuthStrategy {
   Public = 'public'
 }
 
+export type BankingAccount = {
+  __typename?: 'BankingAccount';
+  accountId: Scalars['ID'];
+  accountMask: Scalars['String'];
+  accountName: Scalars['String'];
+  accountNumber: Scalars['String'];
+  accountOfficialName: Scalars['String'];
+  createdAt: Scalars['AWSDateTime'];
+  id: Scalars['ID'];
+  persistentAccountId: Scalars['String'];
+  routingNumber: Scalars['String'];
+  status: BankingAccountStatus;
+  subType: PlaidLinkingAccountSubtype;
+  type: PlaidLinkingAccountType;
+  updatedAt: Scalars['AWSDateTime'];
+  wireRoutingNumber: Scalars['String'];
+};
+
+export type BankingAccountInput = {
+  accountId: Scalars['ID'];
+  accountMask: Scalars['String'];
+  accountName: Scalars['String'];
+  accountNumber: Scalars['String'];
+  accountOfficialName: Scalars['String'];
+  createdAt?: InputMaybe<Scalars['AWSDateTime']>;
+  id?: InputMaybe<Scalars['ID']>;
+  persistentAccountId: Scalars['String'];
+  routingNumber: Scalars['String'];
+  status?: InputMaybe<BankingAccountStatus>;
+  subType: PlaidLinkingAccountSubtype;
+  type: PlaidLinkingAccountType;
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+  wireRoutingNumber: Scalars['String'];
+};
+
+export enum BankingAccountStatus {
+  Active = 'ACTIVE',
+  Paused = 'PAUSED'
+}
+
+export type BankingItem = {
+  __typename?: 'BankingItem';
+  accessToken: Scalars['String'];
+  accounts?: Maybe<Array<BankingAccount>>;
+  createdAt: Scalars['AWSDateTime'];
+  id: Scalars['ID'];
+  institutionId: Scalars['String'];
+  itemId: Scalars['ID'];
+  linkToken: Scalars['String'];
+  name: Scalars['String'];
+  publicToken: Scalars['String'];
+  status: BankingItemStatus;
+  timestamp: Scalars['AWSTimestamp'];
+  updatedAt: Scalars['AWSDateTime'];
+};
+
+export enum BankingItemErrorType {
+  DuplicateObjectFound = 'DUPLICATE_OBJECT_FOUND',
+  NoneOrAbsent = 'NONE_OR_ABSENT',
+  UnexpectedError = 'UNEXPECTED_ERROR',
+  Unprocessable = 'UNPROCESSABLE',
+  ValidationError = 'VALIDATION_ERROR'
+}
+
+export type BankingItemResponse = {
+  __typename?: 'BankingItemResponse';
+  data?: Maybe<BankingItem>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<BankingItemErrorType>;
+};
+
+export enum BankingItemStatus {
+  Initiated = 'INITIATED',
+  Linked = 'LINKED',
+  NotLinked = 'NOT_LINKED',
+  Paused = 'PAUSED'
+}
+
 export type Card = {
   __typename?: 'Card';
   additionalProgramID?: Maybe<Scalars['String']>;
@@ -177,6 +255,21 @@ export enum CountryCode {
 export type CreateAppReviewInput = {
   createdAt?: InputMaybe<Scalars['AWSDateTime']>;
   id: Scalars['ID'];
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+};
+
+export type CreateBankingItemInput = {
+  accessToken: Scalars['String'];
+  accounts: Array<InputMaybe<BankingAccountInput>>;
+  createdAt?: InputMaybe<Scalars['AWSDateTime']>;
+  id: Scalars['ID'];
+  institutionId: Scalars['String'];
+  itemId: Scalars['ID'];
+  linkToken: Scalars['String'];
+  name: Scalars['String'];
+  publicToken: Scalars['String'];
+  status?: InputMaybe<BankingItemStatus>;
+  timestamp?: InputMaybe<Scalars['AWSTimestamp']>;
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
@@ -623,6 +716,11 @@ export type GetAppReviewEligibilityResponse = {
   errorType?: Maybe<AppReviewErrorType>;
 };
 
+export type GetBankingItemByTokenInput = {
+  id: Scalars['ID'];
+  linkToken: Scalars['String'];
+};
+
 export type GetCardLinkInput = {
   id: Scalars['ID'];
 };
@@ -799,6 +897,19 @@ export type IneligibleTransactionResponse = {
   data?: Maybe<IneligibleTransaction>;
   errorMessage?: Maybe<Scalars['String']>;
   errorType?: Maybe<TransactionsErrorType>;
+};
+
+export type Institution = {
+  __typename?: 'Institution';
+  institution_id: Scalars['String'];
+  name: Scalars['String'];
+};
+
+export type InstitutionResponse = {
+  __typename?: 'InstitutionResponse';
+  data?: Maybe<Institution>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<PlaidLinkingErrorType>;
 };
 
 export type Location = {
@@ -1175,6 +1286,7 @@ export type Mutation = {
   acknowledgeLocationUpdate: LocationBasedOfferReminderResponse;
   addCard: CardLinkResponse;
   createAppReview: AppReviewResponse;
+  createBankingItem: BankingItemResponse;
   createBulkNotification: CreateBulkNotificationResponse;
   createCardLink: CardLinkResponse;
   createDailyEarningsSummary: DailyEarningsSummaryResponse;
@@ -1193,6 +1305,7 @@ export type Mutation = {
   createUserAuthSession: UserAuthSessionResponse;
   deleteCard: CardResponse;
   putMilitaryVerificationReport: MilitaryVerificationReportResponse;
+  updateBankingItem: BankingItemResponse;
   updateCard: EligibleLinkedUsersResponse;
   updateDailyEarningsSummary: DailyEarningsSummaryResponse;
   updateMilitaryVerificationStatus: UpdateMilitaryVerificationResponse;
@@ -1216,6 +1329,11 @@ export type MutationAddCardArgs = {
 
 export type MutationCreateAppReviewArgs = {
   createAppReviewInput: CreateAppReviewInput;
+};
+
+
+export type MutationCreateBankingItemArgs = {
+  createBankingItemInput: CreateBankingItemInput;
 };
 
 
@@ -1306,6 +1424,11 @@ export type MutationDeleteCardArgs = {
 
 export type MutationPutMilitaryVerificationReportArgs = {
   putMilitaryVerificationReportInput: PutMilitaryVerificationReportInput;
+};
+
+
+export type MutationUpdateBankingItemArgs = {
+  updateBankingItemInput: UpdateBankingItemInput;
 };
 
 
@@ -1665,6 +1788,34 @@ export type PartnerResponse = {
   errorType?: Maybe<ServicesErrorType>;
 };
 
+export type PlaidAuth = {
+  __typename?: 'PlaidAuth';
+  account?: Maybe<Array<PlaidAuthAccount>>;
+  institution_id: Scalars['String'];
+  item_id: Scalars['String'];
+};
+
+export type PlaidAuthAccount = {
+  __typename?: 'PlaidAuthAccount';
+  account: Scalars['String'];
+  account_id: Scalars['ID'];
+  mask: Scalars['String'];
+  name: Scalars['String'];
+  official_name: Scalars['String'];
+  persistent_account_id: Scalars['ID'];
+  routing: Scalars['String'];
+  subtype: PlaidLinkingAccountSubtype;
+  type: PlaidLinkingAccountType;
+  wire_routing: Scalars['String'];
+};
+
+export type PlaidAuthResponse = {
+  __typename?: 'PlaidAuthResponse';
+  data?: Maybe<PlaidAuth>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<PlaidLinkingErrorType>;
+};
+
 export enum PlaidCountryCodes {
   Us = 'US'
 }
@@ -1703,6 +1854,14 @@ export enum PlaidLinkingAccountSubtype {
   Paypal = 'paypal',
   Prepaid = 'prepaid',
   Savings = 'savings'
+}
+
+export enum PlaidLinkingAccountType {
+  Credit = 'credit',
+  Depository = 'depository',
+  Investment = 'investment',
+  Loan = 'loan',
+  Other = 'other'
 }
 
 export enum PlaidLinkingErrorType {
@@ -1849,6 +2008,7 @@ export type Query = {
   getAllUsersIneligibleForReimbursements: UserForNotificationReminderResponse;
   getAppReviewEligibility: GetAppReviewEligibilityResponse;
   getAppUpgradeCredentials: AppUpgradeResponse;
+  getBankingItemByToken: BankingItemResponse;
   getCardLink: CardLinkResponse;
   getDailyEarningsSummary: DailyEarningsSummaryResponse;
   getDevicesForUser: UserDevicesResponse;
@@ -1890,6 +2050,11 @@ export type QueryGeoCodeAsyncArgs = {
 
 export type QueryGetAppReviewEligibilityArgs = {
   getAppReviewEligibilityInput: GetAppReviewEligibilityInput;
+};
+
+
+export type QueryGetBankingItemByTokenArgs = {
+  getBankingItemByTokenInput: GetBankingItemByTokenInput;
 };
 
 
@@ -2238,6 +2403,20 @@ export type SubscriptionUpdatedTransactionArgs = {
   id: Scalars['ID'];
 };
 
+export type TokenExchange = {
+  __typename?: 'TokenExchange';
+  access_token: Scalars['String'];
+  item_id: Scalars['String'];
+  request_id: Scalars['String'];
+};
+
+export type TokenExchangeResponse = {
+  __typename?: 'TokenExchangeResponse';
+  data?: Maybe<TokenExchange>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<PlaidLinkingErrorType>;
+};
+
 export type Transaction = {
   __typename?: 'Transaction';
   brandId: Scalars['ID'];
@@ -2311,6 +2490,12 @@ export enum TransactionsStatus {
   Processed = 'PROCESSED',
   Rejected = 'REJECTED'
 }
+
+export type UpdateBankingItemInput = {
+  id: Scalars['ID'];
+  linkToken: Scalars['String'];
+  status: BankingItemStatus;
+};
 
 export type UpdateCardInput = {
   cardId: Scalars['ID'];
@@ -2527,6 +2712,20 @@ export enum UtilitiesErrorType {
   ValidationError = 'VALIDATION_ERROR'
 }
 
+export type UpdateBankingItemMutationVariables = Exact<{
+  updateBankingItemInput: UpdateBankingItemInput;
+}>;
+
+
+export type UpdateBankingItemMutation = { __typename?: 'Mutation', updateBankingItem: { __typename?: 'BankingItemResponse', errorMessage?: string | null, errorType?: BankingItemErrorType | null, data?: { __typename?: 'BankingItem', id: string, timestamp: number, createdAt: string, updatedAt: string, itemId: string, institutionId: string, name: string, accessToken: string, publicToken: string, linkToken: string, status: BankingItemStatus, accounts?: Array<{ __typename?: 'BankingAccount', id: string, accountId: string, persistentAccountId: string, accountNumber: string, routingNumber: string, wireRoutingNumber: string, accountMask: string, accountName: string, accountOfficialName: string, type: PlaidLinkingAccountType, subType: PlaidLinkingAccountSubtype, createdAt: string, updatedAt: string, status: BankingAccountStatus }> | null } | null } };
+
+export type CreateBankingItemMutationVariables = Exact<{
+  createBankingItemInput: CreateBankingItemInput;
+}>;
+
+
+export type CreateBankingItemMutation = { __typename?: 'Mutation', createBankingItem: { __typename?: 'BankingItemResponse', errorMessage?: string | null, errorType?: BankingItemErrorType | null, data?: { __typename?: 'BankingItem', id: string, timestamp: number, createdAt: string, updatedAt: string, itemId: string, institutionId: string, name: string, accessToken: string, publicToken: string, linkToken: string, status: BankingItemStatus, accounts?: Array<{ __typename?: 'BankingAccount', id: string, accountId: string, persistentAccountId: string, accountNumber: string, routingNumber: string, wireRoutingNumber: string, accountMask: string, accountName: string, accountOfficialName: string, type: PlaidLinkingAccountType, subType: PlaidLinkingAccountSubtype, createdAt: string, updatedAt: string, status: BankingAccountStatus }> | null } | null } };
+
 export type UpdatePlaidLinkingSessionMutationVariables = Exact<{
   updatePlaidLinkingSessionInput: UpdatePlaidLinkingSessionInput;
 }>;
@@ -2729,6 +2928,13 @@ export type UpdateMilitaryVerificationStatusMutationVariables = Exact<{
 
 
 export type UpdateMilitaryVerificationStatusMutation = { __typename?: 'Mutation', updateMilitaryVerificationStatus: { __typename?: 'UpdateMilitaryVerificationResponse', errorType?: MilitaryVerificationErrorType | null, errorMessage?: string | null, id?: string | null, militaryVerificationStatus?: MilitaryVerificationStatusType | null } };
+
+export type GetBankingItemByTokenQueryVariables = Exact<{
+  getBankItemByTokenInput: GetBankingItemByTokenInput;
+}>;
+
+
+export type GetBankingItemByTokenQuery = { __typename?: 'Query', getBankingItemByToken: { __typename?: 'BankingItemResponse', errorMessage?: string | null, errorType?: BankingItemErrorType | null, data?: { __typename?: 'BankingItem', id: string, timestamp: number, createdAt: string, updatedAt: string, itemId: string, institutionId: string, name: string, accessToken: string, publicToken: string, linkToken: string, status: BankingItemStatus, accounts?: Array<{ __typename?: 'BankingAccount', id: string, accountId: string, persistentAccountId: string, accountNumber: string, routingNumber: string, wireRoutingNumber: string, accountMask: string, accountName: string, accountOfficialName: string, type: PlaidLinkingAccountType, subType: PlaidLinkingAccountSubtype, createdAt: string, updatedAt: string, status: BankingAccountStatus }> | null } | null } };
 
 export type GetPlaidLinkingSessionByTokenQueryVariables = Exact<{
   getPlaidLinkingSessionByTokenInput: GetPlaidLinkingSessionByTokenInput;
