@@ -1,4 +1,13 @@
-import {BankingItemErrorType, BankingItemResponse, GetBankingItemByTokenInput} from "@moonbeam/moonbeam-models";
+import {
+    BankingAccount,
+    BankingAccountStatus,
+    BankingItemErrorType,
+    BankingItemResponse,
+    BankingItemStatus,
+    GetBankingItemByTokenInput,
+    PlaidLinkingAccountSubtype,
+    PlaidLinkingAccountType
+} from "@moonbeam/moonbeam-models";
 import {AttributeValue, DynamoDBClient, QueryCommand} from "@aws-sdk/client-dynamodb";
 
 /**
@@ -63,9 +72,45 @@ export const getBankingItemByToken = async (fieldName: string, getBankingItemByT
 
         // there needs to be only 1 Plaid Bank Item returned. For more than one, return an error accordingly
         if (result && result.length === 1) {
+            // build the list of accounts linked to a particular Banking Item, to be returned
+            const accounts: BankingAccount[] = [];
+            result.forEach(bankingItem => {
+                bankingItem.accounts.L && bankingItem.accounts.L!.forEach(account => {
+                    const newAccount: BankingAccount = {
+                        accountId: account.M!.accountId.S!,
+                        accountMask: account.M!.accountMask.S!,
+                        accountName: account.M!.accountName.S!,
+                        accountNumber: account.M!.accountNumber.S!,
+                        accountOfficialName: account.M!.accountOfficialName.S!,
+                        createdAt: account.M!.createdAt.S!,
+                        id: account.M!.id.S!,
+                        persistentAccountId: account.M!.persistentAccountId.S!,
+                        routingNumber: account.M!.routingNumber.S!,
+                        status: account.M!.status.S! as BankingAccountStatus,
+                        subType: account.M!.subType.S! as PlaidLinkingAccountSubtype,
+                        type: account.M!.type.S! as PlaidLinkingAccountType,
+                        updatedAt: account.M!.updatedAt.S!,
+                        wireRoutingNumber: account.M!.wireRoutingNumber.S!
+                    }
+                    accounts.push(newAccount);
+                })
+            });
             // return the queried Plaid Banking Item's details
             return {
-
+                data: {
+                    id: result[0].id.S!,
+                    timestamp: Number(result[0].timestamp.N!),
+                    itemId: result[0].itemId.S!,
+                    institutionId: result[0].institutionId.S!,
+                    name: result[0].name.S!,
+                    createdAt: result[0].createdAt.S!,
+                    updatedAt: result[0].updatedAt.S!,
+                    accessToken: result[0].accessToken.S!,
+                    linkToken: result[0].linkToken.S!,
+                    publicToken: result[0].publicToken.S!,
+                    accounts: accounts,
+                    status: result[0].status.S! as BankingItemStatus
+                }
             }
         } else {
             // see if we have no or more than one Plaid Banking Item retrieved and return the appropriate error and message
