@@ -1,12 +1,13 @@
 import {SQSBatchResponse, SQSEvent} from "aws-lambda";
 import {SQSBatchItemFailure} from "aws-lambda/trigger/sqs";
 import {
-    MoonbeamClient,
+    InstitutionResponse,
+    MoonbeamClient, PlaidAuthResponse, PlaidClient,
     PlaidLinkingSessionResponse,
     PlaidLinkingSessionStatus,
     PlaidWebhookCode,
     PlaidWebhookLinkInput,
-    PlaidWebhookStatus,
+    PlaidWebhookStatus, TokenExchangeResponse,
     UpdatePlaidLinkingSessionResponse
 } from "@moonbeam/moonbeam-models";
 
@@ -70,7 +71,7 @@ export const processPlaidLink = async (event: SQSEvent): Promise<SQSBatchRespons
                      * 1) Call the getPlaidLinkingSessionByToken Moonbeam AppSync API Endpoint, to get the appropriate
                      * information needed in order to make subsequent calls (such as user ID and timestamp).
                      *
-                     * first, initialize the Olive Client API here, in order to call the appropriate endpoints for this handler
+                     * first, initialize the Moonbeam API Client here, in order to call the appropriate endpoints for this handler
                      */
                     const moonbeamClient = new MoonbeamClient(process.env.ENV_NAME!, region);
 
@@ -81,14 +82,95 @@ export const processPlaidLink = async (event: SQSEvent): Promise<SQSBatchRespons
 
                     // check if the getPlaidLinkingSessionByToken call was successful or not
                     if (plaidLinkingSessionResponse && !plaidLinkingSessionResponse.errorMessage && !plaidLinkingSessionResponse.errorType &&
-                        plaidLinkingSessionResponse.data) {
+                        plaidLinkingSessionResponse.data && plaidLinkingSessionResponse.data.public_token) {
                         /**
                          * 2) If the Link SESSION_FINISHED was successful, then proceed with the next steps, otherwise
                          * call the updatePlaidLinkingSession Moonbeam AppSync API endpoint, to mark the Linking Session
                          * as failed/exited.
                          */
                         if (plaidWebhookLinkInput.status.toLowerCase() === PlaidWebhookStatus.Success.toLowerCase()) {
+                            // flag use to mark whether a linking session and Item were successful or not
+                            let wasLinkingSuccessful: boolean = false;
 
+                            // initialize the Plaid API Client here, in order to call the appropriate endpoints for this handler
+                            const plaidClient = new PlaidClient(process.env.ENV_NAME!, region);
+
+                            /**
+                             * 3) Call the Plaid public token exchange (/item/public_token/exchange) API endpoint, in order to get an access
+                             * token for the public token received from the SESSION_FINISHED webhook update above.
+                             */
+                            const tokenExchangeResponse: TokenExchangeResponse = await plaidClient.exchangePlaidToken(plaidLinkingSessionResponse.data.public_token);
+
+                            // check if the exchangePlaidToken call was successful or not
+                            if (tokenExchangeResponse && !tokenExchangeResponse.errorMessage && !tokenExchangeResponse.errorType && tokenExchangeResponse.data) {
+                                /**
+                                 * 4) Call the Plaid (/auth/get) API endpoint, in order to get specific information about the Linked Item,
+                                 * such as Account and Routing numbers, as well as the name of the account and balance.
+                                 */
+                                const plaidAuthResponse: PlaidAuthResponse = await plaidClient.getPlaidAuth(tokenExchangeResponse.data.access_token);
+
+                                // check if the getPlaidAuth call was successful or not
+                                if (plaidAuthResponse && !plaidAuthResponse.errorMessage && !plaidAuthResponse.errorType && plaidAuthResponse.data) {
+                                    /**
+                                     * 5) Call the Plaid (/institutions/get_by_id) API endpoint, in order to get specific information about the
+                                     * Institution that the Plaid Linked Item belongs (aka - the name of the institution).
+                                     */
+                                    const institutionResponse: InstitutionResponse = await plaidClient.getInstitutionById(plaidAuthResponse.data.institution_id);
+
+                                    // check if the getInstitutionById call was successful or not
+                                    if (institutionResponse && !institutionResponse.errorMessage && !institutionResponse.errorType && institutionResponse.data) {
+                                        /**
+                                         * 6) Call the createPlaidLinkItem Moonbeam AppSync API Endpoint, to store the appropriate institution with the
+                                         * appropriate account.
+                                         */
+
+                                    } else {
+                                        console.log(`Failed to retrieve the Institution information by id!`);
+
+                                        // mark the linking session flag as unsuccessful
+                                        wasLinkingSuccessful = false;
+                                    }
+                                } else {
+                                    console.log(`Failed to retrieve the Linked Item Auth information!`);
+
+                                    // mark the linking session flag as unsuccessful
+                                    wasLinkingSuccessful = false;
+                                }
+                            } else {
+                                console.log(`Failed to exchange the public token, for an access token!`);
+
+                                // mark the linking session flag as unsuccessful
+                                wasLinkingSuccessful = false;
+                            }
+
+                            /**
+                             * 7) Call the updatePlaidLinkingSession Moonbeam AppSync API endpoint, to mark the Linking Session
+                             * as either failed/successful, depending on whether Steps 3-6 were successful or not.
+                             */
+                            const updatePlaidLinkingSessionResponse: UpdatePlaidLinkingSessionResponse = await moonbeamClient.updatePlaidLinkingSession({
+                                id: plaidLinkingSessionResponse.data.id,
+                                link_token: plaidLinkingSessionResponse.data.link_token,
+                                public_token: "NOT_AVAILABLE",
+                                session_id: plaidWebhookLinkInput.link_session_id,
+                                status: wasLinkingSuccessful
+                                    ? PlaidLinkingSessionStatus.Success
+                                    : PlaidLinkingSessionStatus.Error
+                            });
+
+                            // check if the updatePlaidLinkingSession call was successful or not
+                            if (updatePlaidLinkingSessionResponse && !updatePlaidLinkingSessionResponse.errorMessage && !updatePlaidLinkingSessionResponse.errorType &&
+                                updatePlaidLinkingSessionResponse.data) {
+                                console.log(`Successfully marked the Link Session as ${wasLinkingSuccessful
+                                    ? PlaidLinkingSessionStatus.Success
+                                    : PlaidLinkingSessionStatus.Error}!`);
+                            } else {
+                                console.log(`Failed to update the Plaid Linking session!`);
+
+                                // adds an item failure, for the SQS message which failed processing, as part of the incoming event
+                                itemFailures.push({
+                                    itemIdentifier: plaidLinkingRecord.messageId
+                                });
+                            }
                         } else {
                             /**
                              * Call the updatePlaidLinkingSession Moonbeam AppSync API endpoint, to mark the Linking Session
