@@ -250,7 +250,7 @@ export class PlaidClient extends BaseAPIClient {
                  */
                 if (plaidInstitutionResponse.data !== undefined && plaidInstitutionResponse.data["institution"] !== undefined &&
                     plaidInstitutionResponse.data["institution"]["institution_id"] !== undefined &&
-                    plaidInstitutionResponse.data["institution"]["institution_id"] !== institutionId &&
+                    plaidInstitutionResponse.data["institution"]["institution_id"] === institutionId &&
                     plaidInstitutionResponse.data["institution"]["name"] !== undefined) {
                     return {
                         data: {

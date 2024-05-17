@@ -319,5 +319,49 @@ export const styles = StyleSheet.create({
         position: 'absolute',
         bottom: hp(10),
         alignSelf: 'center'
+    },
+
+
+    bankingAccountSummaryView: {
+        marginTop: hp(1),
+        marginBottom: hp(1),
+        height: hp(10),
+        width: wp(95),
+        flexDirection: 'row',
+        alignContent: 'space-between'
+    },
+    bankingAccountItemTextView: {
+        left: wp(5),
+        height: hp(10),
+        width: wp(75),
+        flexDirection: 'column',
+        alignContent: 'space-between',
+        backgroundColor: 'red'
+    },
+    bankingAccountItemTitleText: {
+        top: hp(1.75),
+        left: wp(9),
+        color: '#F2FF5D',
+        fontFamily: 'Raleway-SemiBold',
+        fontSize: hp(2.20),
+        alignSelf: 'flex-start',
+        width: wp(65),
+        textAlign: 'left'
+    },
+    bankingAccountItemText: {
+        top: hp(1.85),
+        left: wp(9),
+        color: '#FFFFFF',
+        fontFamily: 'Raleway-Medium',
+        fontSize: hp(2),
+        alignSelf: 'flex-start',
+        width: wp(65),
+        textAlign: 'left'
+    },
+    bankingAccountItemIcon: {
+        left: wp(6),
+        alignSelf: 'center',
+        height: hp(12.5),
+        width: wp(12.5)
     }
 });

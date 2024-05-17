@@ -4,9 +4,9 @@ import {
     Constants
 } from "../Constants";
 import {
-    AppUpgradeResponse,
+    AppUpgradeResponse, BankingItemResponse,
     Card, CardDetailsResponse,
-    CardLinkResponse, CreateBulkNotificationInput,
+    CardLinkResponse, CreateBankingItemInput, CreateBulkNotificationInput,
     CreateBulkNotificationResponse, CreateDailyEarningsSummaryInput, CreateEventSeriesInput,
     CreateNotificationInput,
     CreateNotificationResponse, CreatePlaidLinkingSessionInput,
@@ -1027,6 +1027,19 @@ export abstract class BaseAPIClient {
      * @protected
      */
     protected createPlaidLinkSession?(createPlaidLinkingSessionInput: CreatePlaidLinkingSessionInput): Promise<PlaidLinkingSessionResponse>;
+
+    /**
+     * Function used to create a new Banking Item obtained from a Plaid Linking session.
+     *
+     * @param createBankingItemInput create Banking Item input, used to create a new
+     * Banking Item, with information obtained from a Plaid Linking session.
+     *
+     * @return a {@link Promise} of {@link BankingItemResponse} representing the newly created
+     * Banking Item object
+     *
+     * @protected
+     */
+    protected createBankingItem?(createBankingItemInput: CreateBankingItemInput): Promise<BankingItemResponse>;
 
     /**
      * Function used to complete the linking of an individual's card on the platform.

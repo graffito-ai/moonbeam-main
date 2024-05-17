@@ -10,14 +10,6 @@ export const updatedPlaidLinkingSession = /* GraphQL */ `
             link_token
             timestamp
             data {
-                id
-                createdAt
-                updatedAt
-                expiration
-                hosted_link_url
-                link_token
-                request_id
-                session_id
                 status
             }
         }

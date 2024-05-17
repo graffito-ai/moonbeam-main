@@ -2930,7 +2930,7 @@ export type UpdateMilitaryVerificationStatusMutationVariables = Exact<{
 export type UpdateMilitaryVerificationStatusMutation = { __typename?: 'Mutation', updateMilitaryVerificationStatus: { __typename?: 'UpdateMilitaryVerificationResponse', errorType?: MilitaryVerificationErrorType | null, errorMessage?: string | null, id?: string | null, militaryVerificationStatus?: MilitaryVerificationStatusType | null } };
 
 export type GetBankingItemByTokenQueryVariables = Exact<{
-  getBankItemByTokenInput: GetBankingItemByTokenInput;
+  getBankingItemByTokenInput: GetBankingItemByTokenInput;
 }>;
 
 

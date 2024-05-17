@@ -1,7 +1,7 @@
 # graphql/Queries.graphql
 # Queries Schema File
-query getBankingItemByToken($getBankItemByTokenInput: GetBankingItemByTokenInput!) {
-    getBankingItemByToken(getBankingItemByTokenInput: $getBankItemByTokenInput) {
+query getBankingItemByToken($getBankingItemByTokenInput: GetBankingItemByTokenInput!) {
+    getBankingItemByToken(getBankingItemByTokenInput: $getBankingItemByTokenInput) {
         errorMessage
         errorType
         data {

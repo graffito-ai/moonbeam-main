@@ -1,5 +1,6 @@
 import {
     acknowledgeLocationUpdate,
+    BankingItem,
     CountryCode,
     createAppReview,
     createDevice,
@@ -60,7 +61,8 @@ import {
     UserAuthSession,
     UserAuthSessionErrorType,
     UserAuthSessionResponse,
-    UserDeviceState
+    UserDeviceState,
+    getBankingItemByToken
 } from "@moonbeam/moonbeam-models";
 import {API, Cache, graphqlOperation} from "aws-amplify";
 import {dynamicSort} from "./Main";
@@ -122,7 +124,7 @@ export const initiatePlaidLinkingSession = async (userId: string, firstName: str
                     date_of_birth: dob,
                     email_address: email,
                     legal_name: `${firstName} ${lastName}`,
-                    phone_number: `${phoneNumber.substring(0,2)} ${phoneNumber.substring(2,5)} ${phoneNumber.substring(5,12)}`,
+                    phone_number: `${phoneNumber.substring(0, 2)} ${phoneNumber.substring(2, 5)} ${phoneNumber.substring(5, 12)}`,
                     name: {
                         family_name: lastName,
                         given_name: firstName
@@ -171,6 +173,52 @@ export const initiatePlaidLinkingSession = async (userId: string, firstName: str
             errorMessage: message,
             errorType: PlaidLinkingErrorType.UnexpectedError
         }
+    }
+}
+
+/**
+ * Function used to retrieve the created Banking Item during a Plaid Linking Session's
+ * successful/happy path.
+ *
+ * @param userId user id which we are retrieving the stored Banking Item for.
+ * @param linkToken Plaid link_token which we are retrieving the stored Banking Item for.
+ *
+ * @return an {@link Array} of {@link BankingItem} representing the stored Banking Item created,
+ * in the form of a list. This list will be empty if any errors occur during the API call.
+ */
+export const retrieveBankingItemByToken = async (userId: string, linkToken: string): Promise<BankingItem[]> => {
+    try {
+        // call the getBankingItemByToken API to retrieve a Banking Item by its link_token
+        const bankItemByTokenResult = await API.graphql(graphqlOperation(getBankingItemByToken, {
+            getBankingItemByTokenInput: {
+                id: userId,
+                linkToken: linkToken
+            }
+        }))
+
+        // retrieve the data block from the response
+        // @ts-ignore
+        const bankingItemByToken = bankItemByTokenResult ? bankItemByTokenResult.data : null;
+
+        if (bankingItemByToken && bankingItemByToken.getBankingItemByToken.errorMessage === null &&
+            bankingItemByToken.getBankingItemByToken.data !== undefined && bankingItemByToken.getBankingItemByToken.data !== null) {
+            // return the retrieved banking item
+            return [bankingItemByToken.getBankingItemByToken.data as BankingItem];
+        } else {
+            // return that the results and print an error in case there was an error while executing the bank item by token retrieval
+            const message = `Error while executing the getBankingItemByToken query ${bankingItemByToken.getBankingItemByToken.errorMessage}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, false);
+
+            return [];
+        }
+    } catch (error) {
+        // return that the results and print an error in case there was an unexpected error while retrieving a bank item by its link_token
+        const message = `Unexpected error while retrieving bank item for user ${userId} and link_token ${linkToken}, ${JSON.stringify(error)} ${error}`;
+        console.log(message);
+        await logEvent(message, LoggingLevel.Error, false);
+
+        return [];
     }
 }
 
@@ -225,8 +273,8 @@ export const updateDailyEarningsSummaryStatus = async (userId: string): Promise<
 
                 return [];
             } else {
-                // return that the results and print an error in case there was an error while executing the address geocoding
-                const message = `Error while executing the updateDailyEarningsSummary query ${dailyEarningsSummaryUpdate.updateDailyEarningsSummary.errorMessage}`;
+                // return that the results and print an error in case there was an error while executing the daily earnings summary update
+                const message = `Error while executing the updateDailyEarningsSummary mutation ${dailyEarningsSummaryUpdate.updateDailyEarningsSummary.errorMessage}`;
                 console.log(message);
                 await logEvent(message, LoggingLevel.Error, false);
 
@@ -234,7 +282,10 @@ export const updateDailyEarningsSummaryStatus = async (userId: string): Promise<
             }
         }
     } catch (error) {
-        // return that the results and print an error in case there was an unexpected error while attempting to geocode address
+        /**
+         * return that the results and print an error in case there was an unexpected error,
+         * while attempting to update the daily earnings summary for a particular user
+         */
         const message = `Unexpected error while updating the daily earnings summary for user ${userId} and date ${targetDate.toISOString()}, ${JSON.stringify(error)} ${error}`;
         console.log(message);
         await logEvent(message, LoggingLevel.Error, false);

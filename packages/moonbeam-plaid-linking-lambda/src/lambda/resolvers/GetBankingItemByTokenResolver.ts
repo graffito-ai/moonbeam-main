@@ -51,7 +51,7 @@ export const getBankingItemByToken = async (fieldName: string, getBankingItemByT
                 Limit: 1000, // 1,000 * 765 bytes = 765,000 bytes = 0.765 MB (leave a margin of error here up to 1 MB)
                 ExpressionAttributeNames: {
                     '#id': 'id',
-                    '#lTk': 'link_token'
+                    '#lTk': 'linkToken'
                 },
                 ExpressionAttributeValues: {
                     ':id': {

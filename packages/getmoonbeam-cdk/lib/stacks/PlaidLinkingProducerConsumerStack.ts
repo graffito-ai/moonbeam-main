@@ -46,7 +46,7 @@ export class PlaidLinkingProducerConsumerStack extends Stack {
             handler: 'handler',
             runtime: aws_lambda.Runtime.NODEJS_18_X,
             // we add a timeout here different from the default of 3 seconds, since we expect these API calls to take longer
-            timeout: Duration.seconds(30),
+            timeout: Duration.seconds(900),
             bundling: {
                 minify: true, // minify code, defaults to false
                 sourceMap: true, // include source map, defaults to false
@@ -113,6 +113,20 @@ export class PlaidLinkingProducerConsumerStack extends Stack {
                 target: 'esnext', // target environment for the generated JavaScript code
             }
         });
+        // enable the Lambda function the retrieval of the Plaid API secrets
+        this.plaidLinkingConsumerLambda.addToRolePolicy(
+            new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: [
+                    "secretsmanager:GetSecretValue"
+                ],
+                resources: [
+                    // this ARN is retrieved post secret creation
+                    ...props.stage === Stages.DEV ? ["arn:aws:secretsmanager:us-west-2:963863720257:secret:plaid-secret-pair-dev-us-west-2-wwMgcC"] : [],
+                    ...props.stage === Stages.PROD ? ["arn:aws:secretsmanager:us-west-2:251312580862:secret:plaid-secret-pair-prod-us-west-2-XXmqfi"] : []
+                ]
+            })
+        );
         // enable the Lambda function the retrieval of the Moonbeam internal API secrets
         this.plaidLinkingConsumerLambda.addToRolePolicy(
             new PolicyStatement({

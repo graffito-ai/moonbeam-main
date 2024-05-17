@@ -1,5 +1,5 @@
 import {atom} from "recoil";
-import {PlaidLinkingSession} from "@moonbeam/moonbeam-models";
+import {BankingItem, PlaidLinkingSession} from "@moonbeam/moonbeam-models";
 
 /**
  * Atom used to keep track of the Roundups Activation data retrieved.
@@ -63,9 +63,19 @@ const linkSessionLinkTokenState = atom<string | null>({
 });
 
 /**
+ * Atom used to keep track of the Banking Items linked to a user's account
+ * (these can be both funding/non-funding accounts/Items).
+ */
+const linkedBankingItemsState = atom<BankingItem[]>({
+    key: "linkedBankingItemsState",
+    default: []
+});
+
+/**
  * Export all atoms and/or selectors
  */
 export {
+    linkedBankingItemsState,
     linkSessionCreationDateTimeState,
     linkSessionLinkTokenState,
     roundupsSplashStepNumberState,

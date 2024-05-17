@@ -7,7 +7,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {Icon} from "@rneui/base";
 import {
     isPlaidLinkInitiatedState,
-    isRoundupsSplashReadyState,
+    isRoundupsSplashReadyState, linkedBankingItemsState,
     linkSessionCreationDateTimeState,
     linkSessionLinkTokenState,
     roundupsActiveState,
@@ -62,14 +62,16 @@ import {PlaidLinkingSessionStep} from "./PlaidLinkingSessionStep";
 import {PlaidLoadingStep} from "./PlaidLoadingStep";
 import {API, graphqlOperation} from "aws-amplify";
 import {
+    BankingItem,
     LoggingLevel,
     PlaidLinkingSessionStatus,
     updatedPlaidLinkingSession,
     UpdatePlaidLinkingSessionResponse
 } from "@moonbeam/moonbeam-models";
 import {Observable} from "zen-observable-ts";
-import {logEvent} from "../../../../../../utils/AppSync";
+import {logEvent, retrieveBankingItemByToken} from "../../../../../../utils/AppSync";
 import {currentUserInformation, userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
+import {AccountLinkingSummaryStep} from "./AccountLinkingSummaryStep";
 
 /**
  * RoundupsSplash component.
@@ -81,7 +83,7 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
     // constants used to keep track of local component state
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [plaidLinkingSessionUpdatesSubscription, setPlaidLinkingSessionUpdatesSubscription] = useState<ZenObservable.Subscription | null>(null);
-    const [timeoutCountdownValue, setTimeoutCountdownValue] = useState<number>(10);
+    const [timeoutCountdownValue, setTimeoutCountdownValue] = useState<number>(20);
     // constants used to keep track of shared states
     const [roundupsSplashStepNumber, setRoundupsSplashStepNumber] = useRecoilState(roundupsSplashStepNumberState);
     const [areRoundupsActive,] = useRecoilState(roundupsActiveState);
@@ -100,6 +102,7 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
     const [userIsAuthenticated,] = useRecoilState(userIsAuthenticatedState);
     const [linkSessionCreationDateTime, setLinkSessionCreationDateTime] = useRecoilState(linkSessionCreationDateTimeState);
     const [linkSessionLinkToken, setLinkSessionLinkToken] = useRecoilState(linkSessionLinkTokenState);
+    const [linkedBankingItems, setLinkedBankingItems] = useRecoilState(linkedBankingItemsState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -110,30 +113,40 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
      */
     useEffect(() => {
         // subscribe to receiving Plaid Linking Session updates
-        if (linkSessionCreationDateTime !== null && linkSessionLinkToken !== null) {
-            // unsubscribe from the previous subscription if not null, before re-subscribing
-            plaidLinkingSessionUpdatesSubscription !== null && plaidLinkingSessionUpdatesSubscription!.unsubscribe();
-
+        if (roundupsSplashStepNumber === 8 && linkSessionCreationDateTime !== null && linkSessionLinkToken !== null &&
+            // @ts-ignore
+            (plaidLinkingSessionUpdatesSubscription === null || (plaidLinkingSessionUpdatesSubscription !== null && plaidLinkingSessionUpdatesSubscription._state && plaidLinkingSessionUpdatesSubscription._state === "closed"))) {
             // subscribe/re-subscribe to receive particular Plaid Link Session updates
             subscribeToPlaidLinkingSessionUpdates(userInformation["custom:userId"]).then(() => {});
         }
 
-        // every time we get to step number 6, we need to reset the link session token and creation time
-        if (roundupsSplashStepNumber === 6 && (linkSessionCreationDateTime !== null || linkSessionLinkToken !== null)) {
-            setLinkSessionCreationDateTime(null);
-            setLinkSessionLinkToken(null);
-        }
-
         /**
-         * start a timer for 10 seconds, in order to specify how long we can wait for Plaid Link Session status updates,
+         * start a timer for 20 seconds, in order to specify how long we can wait for Plaid Link Session status updates,
          * before we show an error.
          *
          * timer starts when we get to step number 8.
          */
-        if (roundupsSplashStepNumber === 8 && timeoutCountdownValue === 10) {
-            startCountdown(10);
+        if (roundupsSplashStepNumber === 8 && timeoutCountdownValue === 20) {
+            startCountdown(20);
         }
-    }, [linkSessionCreationDateTime, linkSessionLinkToken, timeoutCountdownValue, roundupsSplashStepNumber]);
+
+        // make sure we unsubscribe in case the unsubscription has not worked through the Try Again button
+        if (roundupsSplashStepNumber === 6 && plaidLinkingSessionUpdatesSubscription !== null) {
+            plaidLinkingSessionUpdatesSubscription!.unsubscribe();
+            setLinkedBankingItems([]);
+        }
+
+        // if we have not received any Bank Linking information by the time this timer gets to 0, then show the error splash screen
+        if (timeoutCountdownValue === 0 && linkedBankingItems.length === 0) {
+            // show the Splash Screen with an error in case we were unable to appropriately link the Banking Information
+            setSplashState({
+                splashTitle: `Houston we got a problem!`,
+                splashDescription: `There were issues with linking your Banking information.`,
+                splashButtonText: `Try Again`,
+                splashArtSource: MoonbeamErrorImage
+            });
+        }
+    }, [linkedBankingItems, plaidLinkingSessionUpdatesSubscription, linkSessionCreationDateTime, linkSessionLinkToken, timeoutCountdownValue, roundupsSplashStepNumber]);
 
     /**
      * Callback function used to decrease the value of the countdown by 1,
@@ -150,16 +163,6 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
             // if the number of seconds goes below 0, reset counter
             if (counter < 0) {
                 clearInterval(interval);
-            }
-            // if we have not received any Bank Linking information by the time this timer gets to 0, then show the error splash screen
-            if (counter === 0) {
-                // show the Splash Screen with an error in case we were unable to appropriately link the Banking Information
-                setSplashState({
-                    splashTitle: `Houston we got a problem!`,
-                    splashDescription: `There were issues with linking your Banking information.`,
-                    splashButtonText: `Try Again`,
-                    splashArtSource: MoonbeamErrorImage
-                });
             }
         }, 1000);
     };
@@ -189,8 +192,7 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                         const updatePlaidLinkingSessionResponse: UpdatePlaidLinkingSessionResponse = value.data.updatedPlaidLinkingSession;
                         // depending on whether this update is an error or not, display an error screen accordingly
                         if (updatePlaidLinkingSessionResponse && !updatePlaidLinkingSessionResponse.errorMessage && !updatePlaidLinkingSessionResponse.errorType &&
-                            updatePlaidLinkingSessionResponse.data && updatePlaidLinkingSessionResponse.data.status === PlaidLinkingSessionStatus.Success &&
-                            updatePlaidLinkingSessionResponse.data.public_token) {
+                            updatePlaidLinkingSessionResponse.data && updatePlaidLinkingSessionResponse.data.status === PlaidLinkingSessionStatus.Success) {
                             /**
                              * If the Plaid Linking session has been successful, then that means that we have successfully
                              * stored a new Banking/Plaid Item with an appropriate account.
@@ -198,10 +200,40 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                              * We will use the user's ID and the link session details (the link token) in order to retrieve
                              * the appropriate link Item that was just stored.
                              *
-                             * If we do not get this information within 10 seconds, then we defer to showing the Splash Screen
+                             * If we do not get this information within 20 seconds, then we defer to showing the Splash Screen
                              * with an error accordingly.
                              */
+                            if (linkSessionLinkToken !== null) {
+                               const bankingItemList: BankingItem[] = await retrieveBankingItemByToken(userInformation["custom:userId"], linkSessionLinkToken!);
+                               if (bankingItemList.length === 1) {
+                                   /**
+                                    * at this point we know that we have successfully retrieved the stored Banking Item,
+                                    * that we can then use in subsequent steps
+                                    */
+                                   setLinkedBankingItems(bankingItemList);
+                                   setRoundupsSplashStepNumber(9);
 
+                                   // reset the linking information
+                                   setLinkSessionCreationDateTime(null);
+                                   setLinkSessionLinkToken(null);
+                               } else {
+                                   // show the Splash Screen with an error in case we were unable to appropriately link the Banking Information
+                                   setSplashState({
+                                       splashTitle: `Houston we got a problem!`,
+                                       splashDescription: `There were issues with linking your Banking information.`,
+                                       splashButtonText: `Try Again`,
+                                       splashArtSource: MoonbeamErrorImage
+                                   });
+                               }
+                            } else {
+                                // show the Splash Screen with an error in case we were unable to appropriately link the Banking Information
+                                setSplashState({
+                                    splashTitle: `Houston we got a problem!`,
+                                    splashDescription: `There were issues with linking your Banking information.`,
+                                    splashButtonText: `Try Again`,
+                                    splashArtSource: MoonbeamErrorImage
+                                });
+                            }
                         } else {
                             // show the Splash Screen with an error in case we were unable to appropriately link the Banking Information
                             setSplashState({
@@ -261,8 +293,18 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                                             // decrease the Step Number for cases where we have issues receiving the banking information updates
                                             roundupsSplashStepNumber === 8 && setRoundupsSplashStepNumber(6);
 
+                                            // reset the linking information
+                                            setLinkSessionCreationDateTime(null);
+                                            setLinkSessionLinkToken(null);
+
+                                            // reset the linked banking items
+                                            setLinkedBankingItems([]);
+
+                                            // unsubscribe from the previous subscription if not null, before re-subscribing
+                                            plaidLinkingSessionUpdatesSubscription !== null && plaidLinkingSessionUpdatesSubscription!.unsubscribe();
+
                                             // reset the timer in case this is due to a timeout
-                                            setTimeoutCountdownValue(10);
+                                            setTimeoutCountdownValue(20);
 
                                             /**
                                              * dismiss Splash screen by resetting the splash state
@@ -320,9 +362,20 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                                                             bottomBarNavigation && bottomBarNavigation.goBack();
                                                         }
                                                     }
-                                                    // for Steps after Step 6, we will just allow users to go one step back
-                                                    if (roundupsSplashStepNumber >= 6) {
+                                                    // for Steps after Step 6, we will just allow users to go one step back, besides for step 9
+                                                    if (roundupsSplashStepNumber >= 6 && roundupsSplashStepNumber !== 9) {
                                                         setRoundupsSplashStepNumber(roundupsSplashStepNumber - 1);
+                                                    }
+                                                    // for step 9, we need to reset every linking session related information and go back to step 6
+                                                    if (roundupsSplashStepNumber === 9) {
+                                                        plaidLinkingSessionUpdatesSubscription!.unsubscribe();
+                                                        setPlaidLinkingSessionUpdatesSubscription(null);
+                                                        setLinkedBankingItems([]);
+
+                                                        setLinkSessionCreationDateTime(null);
+                                                        setLinkSessionLinkToken(null);
+
+                                                        setRoundupsSplashStepNumber(6);
                                                     }
                                                 }}
                                             />
@@ -565,11 +618,10 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                                             roundupsSplashStepNumber === 8 &&
                                             <PlaidLoadingStep/>
                                         }
-
-                                        {/*{*/}
-                                        {/*    roundupsSplashStepNumber === 8 &&*/}
-                                        {/*    <AccountLinkingSummaryStep/>*/}
-                                        {/*}*/}
+                                        {
+                                            roundupsSplashStepNumber === 9 &&
+                                            <AccountLinkingSummaryStep/>
+                                        }
                                     </View>
                                     {
                                         (roundupsSplashStepNumber === 5 || roundupsSplashStepNumber === 6 || roundupsSplashStepNumber === 9) &&
@@ -582,7 +634,7 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                                                         ? "Moonbeam will deduct a $2.99 monthly membership fee after your free trial ends, from your connected account."
                                                         : roundupsSplashStepNumber === 6
                                                             ? "Backed by FDIC-insured Plaid partner banks"
-                                                            : `I agree that starting ${new Date(new Date().setDate(new Date().getDate() + 30)).toLocaleDateString()} Moonbeam will deduct a $2.99/month fee for my Delta One plan from the linked billing account, which can be found on my Accounts page. Cancel anytime from the Accounts page.`
+                                                            : `I agree that starting ${new Date(new Date().setDate(new Date().getDate() + 30)).toLocaleDateString()} Moonbeam will deduct a $2.99/month fee for my Delta One plan from the linked account presented above, which can be found on my Accounts page. Cancel anytime from the Accounts page.`
                                                 }
                                             </Paragraph>
                                         </View>
@@ -622,7 +674,7 @@ export const RoundupsSplash = ({navigation}: RoundupsSplashProps) => {
                                                 : roundupsSplashStepNumber === 6
                                                     ? "Link your Bank"
                                                     : roundupsSplashStepNumber === 9
-                                                        ? "Proceed with Account"
+                                                        ? "Confirm"
                                                         : "Get Started"}</Text>
                                         </TouchableOpacity>
                                     }

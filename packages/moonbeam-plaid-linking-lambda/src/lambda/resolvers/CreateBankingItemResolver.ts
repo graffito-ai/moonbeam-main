@@ -1,7 +1,9 @@
 import {
-    BankingAccountStatus, BankingItem,
+    BankingAccount,
+    BankingAccountStatus,
     BankingItemErrorType,
-    BankingItemResponse, BankingItemStatus,
+    BankingItemResponse,
+    BankingItemStatus,
     CreateBankingItemInput
 } from "@moonbeam/moonbeam-models";
 import {DynamoDBClient, GetItemCommand, PutItemCommand} from "@aws-sdk/client-dynamodb";
@@ -28,6 +30,7 @@ export const createBankingItem = async (fieldName: string, createBankingItemInpu
         createBankingItemInput.timestamp = createBankingItemInput.timestamp ? createBankingItemInput.timestamp : Date.parse(createdAt);
         createBankingItemInput.createdAt = createBankingItemInput.createdAt ? createBankingItemInput.createdAt : createdAt;
         createBankingItemInput.updatedAt = createBankingItemInput.updatedAt ? createBankingItemInput.updatedAt : createdAt;
+        createBankingItemInput.status = createBankingItemInput.status ? createBankingItemInput.status : BankingItemStatus.Initiated;
 
         /**
          * check to see if the Plaid Banking Item already exists. If it does, then return an error.
@@ -67,9 +70,13 @@ export const createBankingItem = async (fieldName: string, createBankingItemInpu
         } else {
             // the array of accounts to store for the Banking Item
             const accountList: any[] = [];
+            // the array of accounts to be returned, as part of the returned object
+            const resultAccounts: BankingAccount[] = [];
             // build the list of accounts to store
             createBankingItemInput.accounts.forEach(account => {
                 if (account !== null) {
+                    const accountId = uuidv4();
+                    // build a list of accounts to store
                     accountList.push({
                         M: {
                             accountId: {
@@ -91,7 +98,7 @@ export const createBankingItem = async (fieldName: string, createBankingItemInpu
                                 S: createBankingItemInput.createdAt
                             },
                             id: {
-                                S: uuidv4()
+                                S: accountId
                             },
                             persistentAccountId: {
                                 S: account.persistentAccountId
@@ -116,6 +123,23 @@ export const createBankingItem = async (fieldName: string, createBankingItemInpu
                             }
                         }
                     });
+                    // build a list of accounts to return
+                    resultAccounts.push({
+                        accountId: account.accountId,
+                        accountMask: account.accountMask,
+                        accountName: account.accountName,
+                        accountNumber: account.accountNumber,
+                        accountOfficialName: account.accountOfficialName,
+                        createdAt: createBankingItemInput.createdAt!,
+                        id: accountId,
+                        persistentAccountId: account.persistentAccountId,
+                        routingNumber: account.routingNumber,
+                        status: BankingAccountStatus.Active,
+                        subType: account.subType,
+                        type: account.type,
+                        updatedAt: createBankingItemInput.updatedAt!,
+                        wireRoutingNumber: account.wireRoutingNumber
+                    })
                 }
             });
             // store the Banking Item using the information received in the input
@@ -156,14 +180,27 @@ export const createBankingItem = async (fieldName: string, createBankingItemInpu
                         L: accountList
                     },
                     status: {
-                        S: BankingItemStatus.Initiated
+                        S: createBankingItemInput.status
                     }
                 },
             }));
 
             // return the Plaid Banking Item
             return {
-                data: createBankingItemInput as BankingItem
+                data: {
+                    id: createBankingItemInput.id,
+                    timestamp: createBankingItemInput.timestamp,
+                    itemId: createBankingItemInput.itemId,
+                    institutionId: createBankingItemInput.institutionId,
+                    name: createBankingItemInput.name,
+                    createdAt: createBankingItemInput.createdAt!,
+                    updatedAt: createBankingItemInput.updatedAt!,
+                    accessToken: createBankingItemInput.accessToken!,
+                    linkToken: createBankingItemInput.linkToken,
+                    publicToken: createBankingItemInput.publicToken,
+                    accounts: resultAccounts,
+                    status: createBankingItemInput.status
+                }
             }
         }
     } catch (err) {

@@ -102,7 +102,7 @@ export class PlaidLinkingResolverStack extends Stack {
         bankingItemsTable.addLocalSecondaryIndex({
             indexName: `${props.plaidLinkingConfig.bankingItemLinkTokenLocalIndex}-${props.stage}-${props.env!.region}`,
             sortKey: {
-                name: 'link_token',
+                name: 'linkToken',
                 type: aws_dynamodb.AttributeType.STRING
             }
         });

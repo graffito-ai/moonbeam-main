@@ -6,8 +6,8 @@
  * Query used to retrieve a Banking Item by its linkToken
  */
 export const getBankingItemByToken = /* GraphQL */ `
-    query getBankingItemByToken($getBankItemByTokenInput: GetBankingItemByTokenInput!) {
-        getBankingItemByToken(getBankingItemByTokenInput: $getBankItemByTokenInput) {
+    query getBankingItemByToken($getBankingItemByTokenInput: GetBankingItemByTokenInput!) {
+        getBankingItemByToken(getBankingItemByTokenInput: $getBankingItemByTokenInput) {
             errorMessage
             errorType
             data {
